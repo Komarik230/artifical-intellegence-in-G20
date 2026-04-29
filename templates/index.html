@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Искусственный интеллект в G20</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+    <main class="page-shell">
+        <section class="hero-section" aria-label="Первый экран">
+            <div class="hero-bg-orb orb-a"></div>
+            <div class="hero-bg-orb orb-b"></div>
+
+            <header class="topbar">
+                <a class="brand-block" href="#hero" aria-label="На главный экран">
+                    <span class="brand-mark"></span>
+                    <span class="brand-text">AI G20 Atlas</span>
+                </a>
+
+                <nav class="nav-links" aria-label="Навигация">
+                    <a href="#map">Карта</a>
+                    <a href="#country-card">Страны</a>
+                </nav>
+            </header>
+
+            <div class="hero-content" id="hero">
+                <p class="eyebrow">Интерактивная карта</p>
+                <h1>Искусственный интеллект в G20</h1>
+                <p class="lead">
+                    Стратегии, регулирование и развитие искусственного интеллекта в странах G20.
+                </p>
+                <a class="btn btn-primary" href="#map">Открыть карту</a>
+            </div>
+
+            <a class="scroll-link" href="#map" aria-label="Перейти к карте">
+                <span>scroll</span>
+                <i></i>
+            </a>
+        </section>
+
+        <section id="map" class="map-section" aria-label="Карта стран G20">
+            <div class="map-layout">
+                <div class="map-copy">
+                    <p class="eyebrow">Map area</p>
+                    <h2>Страны G20</h2>
+                    <p class="section-text">
+                        Нажмите на подсвеченную страну, чтобы открыть карточку.
+                    </p>
+
+                    <div class="legend">
+                        <span class="legend-item"><b class="dot dot-active"></b>страна G20</span>
+                        <span class="legend-item"><b class="dot dot-muted"></b>другие страны</span>
+                    </div>
+
+                    <aside class="country-card" id="country-card" aria-live="polite">
+                        <p class="card-kicker">Страна не выбрана</p>
+                        <h3>Выберите страну</h3>
+                        <p>
+                            В карточке появится информация о стратегии ИИ, регулировании и ключевых институтах.
+                        </p>
+                        <div class="metric-grid">
+                            <div>
+                                <span>Стратегия ИИ</span>
+                                <strong>—</strong>
+                            </div>
+                            <div>
+                                <span>Регулирование</span>
+                                <strong>—</strong>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+
+                <div class="map-stage">
+                    <div class="map-glow"></div>
+                    <div class="map-circle"></div>
+                    <div id="globe"></div>
+                    <div class="loading" id="loading">Загружаем карту…</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/globe.gl@2.41.5/dist/globe.gl.min.js"></script>
+    <script src="{{ url_for('static', filename='js/globe.js') }}"></script>
+</body>
+</html>
