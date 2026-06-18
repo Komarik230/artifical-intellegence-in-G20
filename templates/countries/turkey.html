@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Турция — ИИ: стратегия, регулирование, медиа · G20</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+/* ===================================================================
+   Единый чёрный шаблон G20. Под Турцию меняется только блок --flag-*.
+   =================================================================== */
+:root {
+  /* --- Акцент страны: Турция (флаг) --- */
+  --flag-primary:   #E30A17;   /* красный флага */
+  --flag-primary-2: #FF5A60;   /* светлее, для ховера/выделения */
+  --flag-secondary: #DADDE1;   /* бело-серебристый (полумесяц/звезда) — вторая серия */
+
+  /* --- Общая монохромная база (для всех стран одинаковая) --- */
+  --ink:        #060607;
+  --ink-panel:  #0B0C0E;
+  --paper:      #FFFFFF;
+  --muted:      rgba(255,255,255,.56);
+  --muted-2:    rgba(255,255,255,.40);
+  --line:       rgba(255,255,255,.16);
+  --line-2:     rgba(255,255,255,.30);
+  --grid:       rgba(255,255,255,.07);
+  --alert:      #E5484D;       /* функциональный красный: дипфейки, дезинформация */
+
+  --maxw: 1320px;
+  --pad: clamp(16px, 4vw, 56px);
+
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --f-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--ink); -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--ink); color: var(--paper);
+  font-family: var(--f-body); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 64px 64px;
+  background-position: center top;
+}
+img { max-width: 100%; display: block; }
+::selection { background: var(--flag-primary); color: #fff; }
+a { color: inherit; }
+
+.wrap { width: min(var(--maxw), 100%); margin: 0 auto; padding-inline: var(--pad); }
+
+.eyebrow { font-family: var(--f-mono); font-size: 11.5px; font-weight: 500; letter-spacing: .26em; text-transform: uppercase; color: var(--flag-primary); margin: 0; }
+.mono { font-family: var(--f-mono); }
+.muted { color: var(--muted); }
+h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 900; }
+
+/* ====================== ШАПКА / БРЕНД-БАР ====================== */
+.topbar { border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 50; background: rgba(6,6,7,.82); backdrop-filter: blur(8px); }
+.topbar .row { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+.brand { display: flex; align-items: center; gap: 12px; font-family: var(--f-mono); font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--paper); text-decoration: none; }
+.flagmark { width: 22px; height: 15px; background: var(--flag-primary); position: relative; flex: none; }
+.flagmark::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.5); }
+.topnav { display: flex; gap: 22px; font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; }
+.topnav a { color: var(--muted); text-decoration: none; transition: color .15s; }
+.topnav a:hover { color: var(--paper); }
+@media(max-width:720px){ .topnav { display: none; } }
+
+/* ====================== HERO ====================== */
+.hero { padding: clamp(46px,8vw,96px) 0 clamp(30px,5vw,52px); border-bottom: 1px solid var(--line); }
+.hero .grid { display: grid; grid-template-columns: 1.35fr .9fr; gap: clamp(26px,5vw,64px); align-items: end; }
+@media(max-width:900px){ .hero .grid { grid-template-columns: 1fr; align-items: start; } }
+.hero h1 { font-size: clamp(44px,9vw,118px); line-height: .92; letter-spacing: -.03em; }
+.hero h1 .accent { color: var(--flag-primary); }
+.hero .lede { max-width: 60ch; color: var(--muted); margin: 22px 0 0; font-size: clamp(15px,1.8vw,18px); }
+.hero .meta { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-2); margin-bottom: 18px; display:flex; gap:18px; flex-wrap:wrap; }
+.hero .meta b { color: var(--paper); font-weight: 500; }
+
+.locator { border: 1px solid var(--line); background: var(--ink-panel); padding: 14px; }
+.locator .lh { font-family: var(--f-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-2); margin: 0 0 8px; display:flex; justify-content:space-between; }
+.locator svg { width: 100%; height: auto; display: block; }
+
+/* KPI */
+.kpis { display: grid; grid-template-columns: repeat(4,1fr); border: 1px solid var(--line); border-bottom: 0; margin-top: clamp(30px,5vw,52px); }
+.kpi { padding: 20px 20px 18px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.kpi:first-child { border-left: 0; }
+.kpi .num { font-family: var(--f-display); font-weight: 900; font-size: clamp(28px,4vw,42px); line-height: 1; letter-spacing: -.02em; }
+.kpi .num .u { font-size: .5em; color: var(--muted); font-weight: 700; }
+.kpi .lab { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 10px; line-height: 1.45; }
+.kpi .src { font-size: 10px; color: var(--muted-2); margin-top: 6px; font-family: var(--f-mono); }
+@media(max-width:820px){ .kpis { grid-template-columns: 1fr 1fr; } .kpi:nth-child(3){ border-left:0; } }
+@media(max-width:460px){ .kpis { grid-template-columns: 1fr; } .kpi { border-left: 0; } }
+
+/* ====================== СЕКЦИИ ====================== */
+section { padding: clamp(54px,8vw,104px) 0; border-bottom: 1px solid var(--line); }
+.sec-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 10px; }
+.sec-head .num { font-family: var(--f-mono); font-size: 13px; color: var(--flag-primary); letter-spacing: .1em; }
+.sec-head h2 { font-size: clamp(26px,4.6vw,46px); line-height: 1.02; letter-spacing: -.02em; }
+.sec-dek { max-width: 74ch; color: var(--muted); margin: 0 0 40px; font-size: clamp(15px,1.6vw,17px); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+@media(max-width:900px){ .grid2 { grid-template-columns: 1fr; } }
+
+.fig { border: 1px solid var(--line); background: var(--ink-panel); padding: 22px 22px 18px; }
+.fig.span2 { grid-column: 1 / -1; }
+.fig .head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.fig .t { font-family: var(--f-display); font-weight: 700; font-size: 17px; line-height: 1.2; letter-spacing: -.01em; }
+.fig .t .sub { display: block; font-family: var(--f-body); font-weight: 500; font-size: 12.5px; color: var(--muted); margin-top: 5px; letter-spacing: 0; }
+.fig .tag { flex: none; font-family: var(--f-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-2); border: 1px solid var(--line); padding: 4px 8px; }
+.chart { width: 100%; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+figcaption { margin-top: 16px; font-size: 12px; color: var(--muted-2); line-height: 1.5; border-top: 1px solid var(--line); padding-top: 12px; }
+figcaption b { color: var(--muted); font-weight: 600; }
+
+.ax-label { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); }
+.ax-tick { font-family: var(--f-mono); font-size: 10.5px; fill: var(--muted-2); }
+.val-label { font-family: var(--f-mono); font-size: 11px; font-weight: 500; fill: var(--paper); }
+.cat-label { font-family: var(--f-body); font-size: 12px; fill: var(--paper); }
+.note-label { font-family: var(--f-mono); font-size: 10px; fill: var(--muted); }
+
+/* Таблица */
+table.models { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.models th, table.models td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.models thead th { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+table.models td.n { font-family: var(--f-mono); color: var(--paper); white-space: nowrap; }
+table.models td.n b { color: var(--flag-primary); font-weight: 600; }
+table.models tbody tr:hover { background: rgba(255,255,255,.02); }
+table.models td .small { color: var(--muted-2); font-size: 11px; }
+
+/* Подсказка под секцией */
+.callout { border-left: 2px solid var(--flag-primary); padding: 4px 0 4px 16px; margin: 30px 0 0; color: var(--muted); font-size: 14px; max-width: 80ch; }
+.callout b { color: var(--paper); font-weight: 600; }
+
+/* ====================== ФУТЕР ====================== */
+footer { padding: clamp(48px,7vw,88px) 0 64px; }
+.foot-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: clamp(26px,5vw,60px); }
+@media(max-width:820px){ .foot-grid { grid-template-columns: 1fr; } }
+footer h3 { font-family: var(--f-display); font-weight: 900; font-size: clamp(22px,3vw,30px); letter-spacing: -.02em; line-height: 1.05; }
+footer .colo { color: var(--muted); font-size: 13px; margin-top: 16px; max-width: 46ch; }
+ol.sources { list-style: none; counter-reset: s; margin: 0; padding: 0; columns: 2; column-gap: 36px; }
+@media(max-width:680px){ ol.sources { columns: 1; } }
+ol.sources li { counter-increment: s; break-inside: avoid; padding: 9px 0 9px 30px; position: relative; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.45; }
+ol.sources li::before { content: counter(s,decimal-leading-zero); position: absolute; left: 0; top: 9px; font-family: var(--f-mono); font-size: 10.5px; color: var(--flag-primary); }
+ol.sources li b { color: var(--paper); font-weight: 600; }
+ol.sources a { color: var(--muted-2); text-decoration: none; word-break: break-all; }
+ol.sources a:hover { color: var(--flag-primary); }
+.endbar { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-2); }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } html { scroll-behavior: auto; } }
+:focus-visible { outline: 2px solid var(--flag-primary); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ШАПКА -->
+<header class="topbar">
+  <div class="wrap row">
+    <a class="brand" href="index.html">
+      <span class="flagmark"></span>
+      G20 · Искусственный интеллект
+    </a>
+    <nav class="topnav">
+      <a href="#strategy">01 Стратегия</a>
+      <a href="#ethics">02 Регулирование</a>
+      <a href="#media">03 Медиа</a>
+      <a href="index.html">← Глобус</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <div class="grid">
+      <div>
+        <div class="meta">
+          <span>Член <b>G20</b></span>
+          <span>Столица <b>Анкара</b></span>
+          <span>Первая нацстратегия ИИ в Западной Азии · <b>2021</b></span>
+        </div>
+        <p class="eyebrow">Türkiye / Турецкая Республика</p>
+        <h1>Тур<span class="accent">ц</span>ия</h1>
+        <p class="lede">Раннее государственное планирование ИИ и амбиция войти в топ-20 мировых индексов — на фоне выборов, прошедших под знаком дипфейков, и одной из самых жёстких в G20 сред для независимой журналистики.</p>
+      </div>
+      <figure class="locator">
+        <p class="lh"><span>Локатор · Анатолия и Фракия</span><span>39.93°N 32.85°E</span></p>
+        <div id="map-locator"></div>
+      </figure>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="num">53<span class="u"> / 188</span></div>
+        <div class="lab">Госготовность к ИИ</div>
+        <div class="src">Oxford Insights GARI 2024</div>
+      </div>
+      <div class="kpi">
+        <div class="num">5<span class="u">% ВВП</span></div>
+        <div class="lab">Целевой вклад ИИ к 2025</div>
+        <div class="src">НАИС 2021–2025</div>
+      </div>
+      <div class="kpi">
+        <div class="num">163<span class="u"> / 180</span></div>
+        <div class="lab">Свобода прессы</div>
+        <div class="src">RSF, индекс 2026</div>
+      </div>
+      <div class="kpi">
+        <div class="num">90<span class="u">%</span></div>
+        <div class="lab">Нацмедиа под госконтролем</div>
+        <div class="src">RSF, профиль Türkiye</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 01 СТРАТЕГИЯ -->
+<section id="strategy">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">01</span><h2>Государственная стратегия и её цели</h2></div>
+    <p class="sec-dek">Национальная стратегия искусственного интеллекта (НАИС, Циркуляр Президента 2021/18, Офиц. газета №31574 от 20.08.2021) разработана Управлением цифровой трансформации Президента и Министерством промышленности и технологий. Шесть приоритетов, 24 цели и 119 мер; обновление — План действий 2024–2025. Вектор задан, но международные индексы показывают разрыв между амбицией и фактическим положением.</p>
+
+    <div class="grid2">
+
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Амбиция против реальности
+            <span class="sub">Целевое место НАИС в индексах ИИ и фактическая позиция</span></div>
+          <span class="tag">Arrow plot</span>
+        </div>
+        <div class="chart" id="c-arrow"></div>
+        <figcaption>НАИС ставит цель — <b>топ-20</b> в международных индексах ИИ. По индексу госготовности Oxford Insights (GARI 2024) Турция занимает <b>53-е место из 188</b>. Стрелка показывает дистанцию до цели. Источник: Digital Watch (НАИС); Oxford Insights, GARI 2024.</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Архитектура стратегии
+            <span class="sub">От приоритетов — к конкретным мерам</span></div>
+          <span class="tag">Column chart</span>
+        </div>
+        <div class="chart" id="c-funnel"></div>
+        <figcaption>НАИС структурирована как каскад: <b>6 стратегических приоритетов</b> раскрываются в <b>24 цели</b> и <b>119 мер</b>. Источник: Digital Watch; Moroğlu Arseven; Regulations.ai.</figcaption>
+      </figure>
+
+      <figure class="fig span2">
+        <div class="head">
+          <div class="t">Хронология управления ИИ, 2021–2026
+            <span class="sub">Документы политики и попытки законотворчества</span></div>
+          <span class="tag">Range plot</span>
+        </div>
+        <div class="chart" id="c-timeline"></div>
+        <figcaption>Турция перешла от мягкого права к проектам обязательного закона. Оборонная ИИ-стратегия 2023–2027 показана как период; остальные события — точечные даты. Источник: Regulations.ai; CMS; White&amp;Case; Montreal AI Ethics Institute.</figcaption>
+      </figure>
+
+      <figure class="fig span2">
+        <div class="head">
+          <div class="t">Целевые показатели НАИС к 2025 году
+            <span class="sub">Шесть высокоуровневых целей и базовые значения</span></div>
+          <span class="tag">Table</span>
+        </div>
+        <div class="chart">
+          <table class="models">
+            <thead><tr><th>Показатель</th><th>Цель к 2025</th><th>База / факт</th></tr></thead>
+            <tbody>
+              <tr><td>Вклад ИИ в ВВП</td><td class="n"><b>5%</b></td><td class="n"><span class="small">не раскрыта</span></td></tr>
+              <tr><td>Занятость в сфере ИИ</td><td class="n"><b>50 000</b> чел.</td><td class="n"><span class="small">не раскрыта</span></td></tr>
+              <tr><td>Занятость в ИИ в гос- и местных органах</td><td class="n"><b>1 000</b> чел.</td><td class="n"><span class="small">не раскрыта</span></td></tr>
+              <tr><td>Выпускники магистратуры по ИИ</td><td class="n"><b>10 000</b> чел.</td><td class="n"><span class="small">не раскрыта</span></td></tr>
+              <tr><td>Приоритет локального ИИ в госзакупках</td><td class="n"><b>да</b></td><td class="n"><span class="small">мера политики</span></td></tr>
+              <tr><td>Место в международных индексах ИИ</td><td class="n"><b>топ-20</b></td><td class="n">53-е <span class="small">(GARI 2024)</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption>Базовые значения трёх количественных целей в самом документе не раскрыты, что затрудняет независимую оценку прогресса. Источник: Digital Watch; Moroğlu Arseven; Lexology.</figcaption>
+      </figure>
+
+    </div>
+
+    <p class="callout"><b>Что важно.</b> НАИС — первая национальная стратегия ИИ в регионе Западной Азии и сильна как декларация приоритетов. Но без раскрытых базовых значений и при позиции вне топ-50 ряда индексов «цель топ-20 к 2025» остаётся скорее ориентиром, чем проверяемым обязательством.</p>
+  </div>
+</section>
+
+<!-- 02 ЭТИЧЕСКОЕ РЕГУЛИРОВАНИЕ -->
+<section id="ethics">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">02</span><h2>Этическое регулирование</h2></div>
+    <p class="sec-dek">Специального закона об ИИ в Турции пока нет — действуют этические принципы марта 2023 года, руководства KVKK (Закон о защите персональных данных №6698) и два конкурирующих законопроекта. При этом государство активно контролирует информационное поле через действующие механизмы: платформы исполняют запросы властей на удаление контента почти безоговорочно.</p>
+
+    <div class="grid2">
+
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Исполнение запросов властей Турции на удаление контента
+            <span class="sub">Доля удовлетворённых запросов, по платформам</span></div>
+          <span class="tag">Bar chart</span>
+        </div>
+        <div class="chart" id="c-takedown"></div>
+        <figcaption>Высокий уровень исполнения отражает рычаги контроля над платформами. Источник: Reuters Institute, Digital News Report — профиль Türkiye, 2026.</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Инструменты управления ИИ по годам
+            <span class="sub">Мягкое право против проектов обязательного закона</span></div>
+          <span class="tag">Dot plot</span>
+        </div>
+        <div class="chart" id="c-instruments"></div>
+        <figcaption>До 2024 года регулирование держалось на необязательных документах; в 2024–2025 внесены два проекта закона. Источник: Regulations.ai; KVKK; White&amp;Case; Gide.</figcaption>
+      </figure>
+
+      <figure class="fig span2">
+        <div class="head">
+          <div class="t">Два пути регулирования: сравнение законопроектов
+            <span class="sub">Горизонтальный закон против пакета поправок</span></div>
+          <span class="tag">Table</span>
+        </div>
+        <div class="chart">
+          <table class="models">
+            <thead><tr><th>Параметр</th><th>Законопроект об ИИ (2/2234)</th><th>Пакет поправок (2/3358)</th></tr></thead>
+            <tbody>
+              <tr><td>Внесён в Меджлис</td><td class="n">25.06.2024</td><td class="n">07.11.2025</td></tr>
+              <tr><td>Объём</td><td class="n"><b>8</b> статей</td><td class="n"><b>11</b> статей</td></tr>
+              <tr><td>Подход</td><td>горизонтальный, риск-ориентированный<span class="small"> · регистрация высокорисковых систем</span></td><td>правки в 5 действующих законов<span class="small"> · №5651, 5237, 6698, 5809, 7545</span></td></tr>
+              <tr><td>Дипфейки</td><td><span class="small">общие принципы</span></td><td class="n"><b>6 часов</b> на удаление<span class="small"> · маркировка ИИ-контента</span></td></tr>
+              <tr><td>Регулятор</td><td><span class="small">отдельный не создаётся</span></td><td>BTK, KVKK, суды<span class="small"> · многоведомственно</span></td></tr>
+              <tr><td>Принципы</td><td colspan="2">безопасность · прозрачность · справедливость · подотчётность · приватность</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption>Ни один из проектов не создаёт единого регулятора ИИ; продвижение замедлено из-за ограниченного числа мест у внёсшей партии. Источник: White&amp;Case (2/2234); Gide и Regulations.ai (2/3358); Montreal AI Ethics Institute.</figcaption>
+      </figure>
+
+    </div>
+
+    <p class="callout"><b>Что важно.</b> Регулирование ИИ в Турции «достраивается» поверх уже существующих рычагов контроля над информацией. Пакет поправок 2/3358 решает реальную проблему дипфейков (маркировка, удаление за 6 часов), но те же механизмы — блокировки и санкции через BTK, KVKK и Уголовный кодекс (ст. 217/A о «вводящей в заблуждение информации») — применимы и к критической журналистике.</p>
+  </div>
+</section>
+
+<!-- 03 МЕДИА -->
+<section id="media">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">03</span><h2>Медиа: дипфейки и контроль над информацией</h2></div>
+    <p class="sec-dek">Президентские выборы 2023 года вошли в историю как кампания, отмеченная монтажом и дипфейками: за дни до голосования Эрдоган показал на митинге смонтированное видео, связывающее оппонента с запрещённой РПК, а кандидат Мухаррем Индже снялся с гонки после распространения «секс-видео», которое назвал подделкой. Всё это — на фоне многолетнего падения свободы прессы.</p>
+
+    <div class="grid2">
+
+      <figure class="fig span2">
+        <div class="head">
+          <div class="t">Первый тур президентских выборов, 14.05.2023
+            <span class="sub">Доля голосов · кампания проходила под знаком дезинформации</span></div>
+          <span class="tag">Stacked bar</span>
+        </div>
+        <div class="chart" id="c-vote"></div>
+        <figcaption>Эрдогану не хватило <b>0,48 п.п.</b> до победы в первом туре — в гонке, где каждый процент имел значение. По смонтированному видео Кылычдароглу подал иск на <b>1 млн ₺</b>; Эрдоган заявил, что «неважно, монтаж это или нет». Источник: YSK; Al Jazeera; Wikipedia; Fortune; Newsweek.</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Свобода прессы: четверть века спада
+            <span class="sub">Место Турции в индексе RSF, 2002 и 2016–2026</span></div>
+          <span class="tag">Line chart</span>
+        </div>
+        <div class="chart" id="c-rsf-line"></div>
+        <figcaption>Ниже — хуже. С 99-го места в 2002 году Турция опустилась до <b>163-го из 180</b> в 2026-м, категория «крайне тяжёлая ситуация». Источник: Reporters Without Borders, World Press Freedom Index.</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Профиль свободы прессы, 2026
+            <span class="sub">Пять суб-индикаторов RSF, баллы 0–50</span></div>
+          <span class="tag">Профиль</span>
+        </div>
+        <div class="chart" id="c-radar"></div>
+        <figcaption>Чем меньше многоугольник — тем тяжелее ситуация. Турция показывает низкие баллы по всем пяти осям; ближе к центру — политика и экономика. Источник: RSF, индекс 2026 (Türkiye).</figcaption>
+      </figure>
+
+      <figure class="fig span2">
+        <div class="head">
+          <div class="t">Динамика суб-индикаторов RSF, 2025 → 2026
+            <span class="sub">Баллы (0–100, выше — свободнее)</span></div>
+          <span class="tag">Multiple lines</span>
+        </div>
+        <div class="chart" id="c-slope"></div>
+        <figcaption>Падение общего балла (29,40 → 27,94) обусловлено правовым, социальным аспектами и безопасностью журналистов; политика и экономика почти не изменились. Источник: RSF, индексы 2025 и 2026.</figcaption>
+      </figure>
+
+    </div>
+
+    <p class="callout"><b>Что важно.</b> Технологическая угроза (дипфейки, ИИ-озвучка, бот-сети) накладывается на структурный контроль: около 90% нацмедиа под влиянием государства, лицензирование YouTube-каналов через RTÜK, обновления алгоритма Google срезали трафик независимых изданий до −80%, а доля использующих ИИ-чатботы как источник новостей выросла до 14%. Дезинформация опаснее там, где независимой проверке остаётся всё меньше места.</p>
+  </div>
+</section>
+
+<!-- ФУТЕР -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h3>Турция<br>в проекте G20</h3>
+        <p class="colo">Страница серии «Искусственный интеллект в странах G20». Единый чёрный шаблон, hairline-сетка, нулевые скругления, графика на D3 v7. Все данные — реальные и профактчеканные. Типы визуализаций подобраны по каталогу Datawrapper: arrow plot, column chart, range plot, table, bar chart, dot plot, stacked bar, line chart, multiple lines, плюс locator-карта и профиль-многоугольник.</p>
+      </div>
+      <div>
+        <ol class="sources">
+          <li><b>Digital Transformation Office / OECD.AI.</b> National Artificial Intelligence Strategy 2021–2025. <a href="https://wp.oecd.ai/app/uploads/2021/12/Turkey_National_Artificial_Intelligence_Strategy_2021-2025.pdf">oecd.ai</a></li>
+          <li><b>Digital Watch Observatory.</b> The Turkey National AI Strategy (2021–2025): цели к 2025. <a href="https://dig.watch/resource/the-national-artificial-intelligence-strategy-2021-2025">dig.watch</a></li>
+          <li><b>Oxford Insights.</b> Government AI Readiness Index 2024 (Турция — 53/188). <a href="https://oxfordinsights.com/wp-content/uploads/2024/12/2024-Government-AI-Readiness-Index-2.pdf">oxfordinsights.com</a></li>
+          <li><b>White &amp; Case.</b> AI Watch: Global regulatory tracker — Turkey (законопроект 2/2234, июнь 2024). <a href="https://www.whitecase.com/insight-our-thinking/ai-watch-global-regulatory-tracker-turkey">whitecase.com</a></li>
+          <li><b>Gide.</b> Draft Law on Measures Concerning AI-Generated Content (пакет 2/3358, 07.11.2025). <a href="https://www.gide.com/en/news-insights/draft-law-on-measures-concerning-ai-generated-content/">gide.com</a></li>
+          <li><b>Regulations.ai.</b> Bill 2/3358 — окно удаления 6 часов, маркировка ИИ-контента, правки в 5 законов. <a href="https://regulations.ai/regulations/RAI-TR-NA-ACLRAXX-2025">regulations.ai</a></li>
+          <li><b>Montreal AI Ethics Institute.</b> The Turkish AI Law Proposal (принципы, статус). <a href="https://montrealethics.ai/ai-policy-corner-the-turkish-artificial-intelligence-law-proposal/">montrealethics.ai</a></li>
+          <li><b>Wikipedia / Al Jazeera / YSK.</b> 2023 Turkish presidential election — итоги 1-го тура. <a href="https://en.wikipedia.org/wiki/2023_Turkish_presidential_election">wikipedia.org</a></li>
+          <li><b>Fortune / Newsweek.</b> Дипфейки и монтаж на выборах 2023; иск Кылычдароглу. <a href="https://fortune.com/europe/2023/05/15/turkeys-deepfake-influenced-election-spells-trouble/">fortune.com</a></li>
+          <li><b>Reporters Without Borders.</b> World Press Freedom Index — Türkiye (2026: 163/180; суб-индикаторы). <a href="https://rsf.org/en/country-t%C3%BCrkiye">rsf.org</a></li>
+          <li><b>Reuters Institute.</b> Digital News Report — Türkiye 2026 (удаление контента, ИИ-чатботы, алгоритм Google). <a href="https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2026/turkey">reutersinstitute.politics.ox.ac.uk</a></li>
+        </ol>
+      </div>
+    </div>
+    <div class="endbar">
+      <span>G20 · Искусственный интеллект · Türkiye</span>
+      <span>Данные на июнь 2026 · Графика D3</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+"use strict";
+
+/* ============================================================
+   Общие D3-хелперы (квадратные маркеры, hairline, моноподписи)
+   ============================================================ */
+const COL = {
+  ink:    "#060607",
+  paper:  "#FFFFFF",
+  flag:   "#E30A17",
+  flag2:  "#FF5A60",
+  sec:    "#DADDE1",
+  alert:  "#E5484D",
+  muted:  "rgba(255,255,255,.56)",
+  muted2: "rgba(255,255,255,.40)",
+  line:   "rgba(255,255,255,.16)",
+  grid:   "rgba(255,255,255,.10)"
+};
+
+function svgIn(id, w, h) {
+  const el = document.getElementById(id);
+  const svg = d3.select(el).append("svg")
+    .attr("viewBox", "0 0 " + w + " " + h)
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .attr("role", "img");
+  return svg;
+}
+function squareMarker(sel, x, y, s, fill) {
+  return sel.append("rect")
+    .attr("x", x - s / 2).attr("y", y - s / 2)
+    .attr("width", s).attr("height", s)
+    .attr("fill", fill);
+}
+
+/* ============================================================
+   ЛОКАТОР-КАРТА: упрощённый контур Турции + маркеры городов
+   (стилизованный locator, проекция Меркатора)
+   ============================================================ */
+function drawLocator() {
+  const w = 460, h = 250;
+  const svg = svgIn("map-locator", w, h);
+
+  // Упрощённый контур Турции (по часовой стрелке), [lon, lat]
+  const outline = [
+    [26.5,41.7],[28.0,41.1],[31.4,41.3],[35.0,42.0],[38.4,40.9],[41.0,41.4],
+    [43.5,41.1],[44.8,39.7],[44.4,37.9],[42.4,37.2],[38.5,36.8],[36.2,36.0],
+    [35.3,36.6],[34.0,36.2],[32.0,36.0],[30.6,36.3],[29.0,36.2],[27.3,36.7],
+    [27.2,38.4],[26.3,38.3],[26.7,39.6],[26.2,40.1],[26.5,41.7]
+  ];
+  const cities = [
+    { name: "Анкара",   lon: 32.85, lat: 39.93, cap: true },
+    { name: "Стамбул",  lon: 28.98, lat: 41.01, cap: false }
+  ];
+
+  const feature = { type: "Polygon", coordinates: [outline] };
+  const proj = d3.geoMercator().fitExtent([[16, 16], [w - 16, h - 16]], feature);
+  const path = d3.geoPath(proj);
+
+  // Сетка-графикуль
+  const grat = d3.geoGraticule().step([5, 5]);
+  svg.append("path").datum(grat()).attr("d", path)
+    .attr("fill", "none").attr("stroke", COL.grid).attr("stroke-width", 1);
+
+  // Контур страны
+  svg.append("path").datum(feature).attr("d", path)
+    .attr("fill", "rgba(227,10,23,.14)")
+    .attr("stroke", COL.flag).attr("stroke-width", 1.4);
+
+  // Города
+  cities.forEach(function(c) {
+    const p = proj([c.lon, c.lat]);
+    squareMarker(svg, p[0], p[1], c.cap ? 8 : 6, c.cap ? COL.flag : COL.sec);
+    svg.append("text").attr("x", p[0] + 9).attr("y", p[1] + 3)
+      .attr("class", "cat-label").attr("font-size", 11).text(c.name);
+  });
+
+  // Подпись морей
+  svg.append("text").attr("x", w * 0.5).attr("y", 24)
+    .attr("class", "note-label").attr("text-anchor", "middle").text("ЧЁРНОЕ МОРЕ");
+  svg.append("text").attr("x", w * 0.5).attr("y", h - 10)
+    .attr("class", "note-label").attr("text-anchor", "middle").text("СРЕДИЗЕМНОЕ МОРЕ");
+}
+
+/* ============================================================
+   01-A · ARROW PLOT — амбиция (топ-20) против факта (53-е)
+   ============================================================ */
+function drawArrow() {
+  const w = 560, h = 190;
+  const m = { l: 24, r: 24, t: 64, b: 46 };
+  const svg = svgIn("c-arrow", w, h);
+  const iw = w - m.l - m.r;
+
+  const x = d3.scaleLinear().domain([1, 100]).range([m.l, m.l + iw]);
+  const yMid = m.t + 26;
+
+  // Ось
+  [1, 20, 40, 60, 80, 100].forEach(function(t) {
+    svg.append("line").attr("x1", x(t)).attr("x2", x(t))
+      .attr("y1", m.t - 12).attr("y2", h - m.b)
+      .attr("stroke", COL.grid).attr("stroke-width", 1);
+    svg.append("text").attr("x", x(t)).attr("y", h - m.b + 18)
+      .attr("class", "ax-tick").attr("text-anchor", "middle").text(t);
+  });
+  svg.append("text").attr("x", m.l).attr("y", h - 6)
+    .attr("class", "ax-label").text("Место в международном индексе ИИ (1 = лучшее)");
+
+  const xGoal = x(20), xReal = x(53);
+
+  // Стрелка от цели к факту
+  const arr = svg.append("g");
+  arr.append("line").attr("x1", xGoal).attr("x2", xReal - 10)
+    .attr("y1", yMid).attr("y2", yMid)
+    .attr("stroke", COL.flag).attr("stroke-width", 2);
+  arr.append("path")
+    .attr("d", "M" + (xReal) + "," + yMid + " l-11,-5 l0,10 z")
+    .attr("fill", COL.flag);
+
+  // Маркер цели
+  squareMarker(svg, xGoal, yMid, 11, COL.sec);
+  svg.append("text").attr("x", xGoal).attr("y", m.t - 4)
+    .attr("class", "cat-label").attr("text-anchor", "middle").text("Цель НАИС");
+  svg.append("text").attr("x", xGoal).attr("y", m.t - 20)
+    .attr("class", "val-label").attr("text-anchor", "middle").attr("fill", COL.sec).text("топ-20");
+
+  // Маркер факта
+  squareMarker(svg, xReal, yMid, 12, COL.flag);
+  svg.append("text").attr("x", xReal).attr("y", yMid + 30)
+    .attr("class", "cat-label").attr("text-anchor", "middle").text("Факт · GARI 2024");
+  svg.append("text").attr("x", xReal).attr("y", yMid + 46)
+    .attr("class", "val-label").attr("text-anchor", "middle").attr("fill", COL.flag).text("53-е из 188");
+
+  // Подпись разрыва
+  svg.append("text").attr("x", (xGoal + xReal) / 2).attr("y", yMid - 10)
+    .attr("class", "note-label").attr("text-anchor", "middle").text("разрыв 33 позиции");
+}
+
+/* ============================================================
+   01-B · COLUMN CHART — каскад 6 / 24 / 119
+   ============================================================ */
+function drawFunnel() {
+  const w = 560, h = 300;
+  const m = { l: 30, r: 20, t: 24, b: 52 };
+  const svg = svgIn("c-funnel", w, h);
+  const iw = w - m.l - m.r, ih = h - m.t - m.b;
+
+  const data = [
+    { k: "Приоритеты", v: 6 },
+    { k: "Цели", v: 24 },
+    { k: "Меры", v: 119 }
+  ];
+  const x = d3.scaleBand().domain(data.map(function(d){return d.k;})).range([m.l, m.l + iw]).padding(0.34);
+  const y = d3.scaleLinear().domain([0, 119]).range([m.t + ih, m.t]);
+
+  [0, 25, 50, 75, 100, 119].forEach(function(t) {
+    svg.append("line").attr("x1", m.l).attr("x2", m.l + iw)
+      .attr("y1", y(t)).attr("y2", y(t)).attr("stroke", COL.grid).attr("stroke-width", 1);
+    svg.append("text").attr("x", m.l - 8).attr("y", y(t) + 3)
+      .attr("class", "ax-tick").attr("text-anchor", "end").text(t);
+  });
+
+  svg.selectAll("rect.bar").data(data).enter().append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d){return x(d.k);})
+    .attr("width", x.bandwidth())
+    .attr("y", function(d){return y(d.v);})
+    .attr("height", function(d){return y(0) - y(d.v);})
+    .attr("fill", COL.flag);
+
+  svg.selectAll("text.v").data(data).enter().append("text")
+    .attr("class", "val-label")
+    .attr("x", function(d){return x(d.k) + x.bandwidth() / 2;})
+    .attr("y", function(d){return y(d.v) - 8;})
+    .attr("text-anchor", "middle").text(function(d){return d.v;});
+
+  svg.selectAll("text.k").data(data).enter().append("text")
+    .attr("class", "cat-label")
+    .attr("x", function(d){return x(d.k) + x.bandwidth() / 2;})
+    .attr("y", h - m.b + 22)
+    .attr("text-anchor", "middle").text(function(d){return d.k;});
+}
+
+/* ============================================================
+   01-C · RANGE PLOT — хронология управления ИИ 2021–2026
+   ============================================================ */
+function drawTimeline() {
+  const w = 1080, h = 300;
+  const m = { l: 250, r: 90, t: 28, b: 40 };
+  const svg = svgIn("c-timeline", w, h);
+  const iw = w - m.l - m.r;
+
+  const events = [
+    { lab: "НАИС (Циркуляр 2021/18)",        t0: 2021.64, t1: null,   note: "авг 2021" },
+    { lab: "Этические принципы надёжного ИИ", t0: 2023.20, t1: null,   note: "мар 2023" },
+    { lab: "Стратегия ИИ в оборонке",         t0: 2023.0,  t1: 2027.0, note: "2023–2027" },
+    { lab: "Законопроект об ИИ (2/2234)",     t0: 2024.48, t1: null,   note: "июн 2024" },
+    { lab: "План действий 2024–2025",         t0: 2024.56, t1: null,   note: "июл 2024" },
+    { lab: "Парламентская ИИ-комиссия",       t0: 2024.92, t1: null,   note: "кон. 2024" },
+    { lab: "Пакет поправок (2/3358)",         t0: 2025.85, t1: null,   note: "ноя 2025" }
+  ];
+  const x = d3.scaleLinear().domain([2021, 2026]).range([m.l, m.l + iw]);
+  const y = d3.scalePoint().domain(events.map(function(d, i){return i;})).range([m.t, h - m.b]).padding(0.6);
+
+  // Вертикальные года
+  [2021, 2022, 2023, 2024, 2025, 2026].forEach(function(t) {
+    svg.append("line").attr("x1", x(t)).attr("x2", x(t))
+      .attr("y1", m.t - 10).attr("y2", h - m.b + 4).attr("stroke", COL.grid).attr("stroke-width", 1);
+    svg.append("text").attr("x", x(t)).attr("y", h - m.b + 22)
+      .attr("class", "ax-tick").attr("text-anchor", "middle").text(t);
+  });
+
+  events.forEach(function(d, i) {
+    const yy = y(i);
+    svg.append("text").attr("x", m.l - 14).attr("y", yy + 4)
+      .attr("class", "cat-label").attr("text-anchor", "end").text(d.lab);
+
+    if (d.t1 !== null) {
+      svg.append("line").attr("x1", x(d.t0)).attr("x2", x(d.t1))
+        .attr("y1", yy).attr("y2", yy).attr("stroke", COL.flag2).attr("stroke-width", 3);
+      squareMarker(svg, x(d.t0), yy, 8, COL.flag2);
+      squareMarker(svg, x(d.t1), yy, 8, COL.flag2);
+      svg.append("text").attr("x", x(d.t1) + 10).attr("y", yy + 4)
+        .attr("class", "note-label").text(d.note);
+    } else {
+      squareMarker(svg, x(d.t0), yy, 10, COL.flag);
+      svg.append("text").attr("x", x(d.t0) + 12).attr("y", yy + 4)
+        .attr("class", "note-label").text(d.note);
+    }
+  });
+}
+
+/* ============================================================
+   02-A · BAR CHART — исполнение запросов на удаление, %
+   ============================================================ */
+function drawTakedown() {
+  const w = 560, h = 250;
+  const m = { l: 96, r: 56, t: 20, b: 44 };
+  const svg = svgIn("c-takedown", w, h);
+  const iw = w - m.l - m.r, ih = h - m.t - m.b;
+
+  const data = [
+    { k: "TikTok", v: 91.8 },
+    { k: "X", v: 85.7 },
+    { k: "Instagram", v: 79.2 }
+  ];
+  const x = d3.scaleLinear().domain([0, 100]).range([m.l, m.l + iw]);
+  const y = d3.scaleBand().domain(data.map(function(d){return d.k;})).range([m.t, m.t + ih]).padding(0.36);
+
+  [0, 25, 50, 75, 100].forEach(function(t) {
+    svg.append("line").attr("x1", x(t)).attr("x2", x(t))
+      .attr("y1", m.t - 6).attr("y2", m.t + ih).attr("stroke", COL.grid).attr("stroke-width", 1);
+    svg.append("text").attr("x", x(t)).attr("y", m.t + ih + 20)
+      .attr("class", "ax-tick").attr("text-anchor", "middle").text(t);
+  });
+  svg.append("text").attr("x", x(50)).attr("y", h - 6)
+    .attr("class", "ax-label").attr("text-anchor", "middle").text("% удовлетворённых запросов");
+
+  svg.selectAll("rect.bar").data(data).enter().append("rect")
+    .attr("class", "bar")
+    .attr("x", x(0)).attr("y", function(d){return y(d.k);})
+    .attr("width", function(d){return x(d.v) - x(0);})
+    .attr("height", y.bandwidth()).attr("fill", COL.flag);
+
+  svg.selectAll("text.v").data(data).enter().append("text")
+    .attr("class", "val-label")
+    .attr("x", function(d){return x(d.v) + 8;})
+    .attr("y", function(d){return y(d.k) + y.bandwidth() / 2 + 4;})
+    .text(function(d){return d.v.toFixed(1) + "%";});
+
+  svg.selectAll("text.k").data(data).enter().append("text")
+    .attr("class", "cat-label")
+    .attr("x", m.l - 12).attr("y", function(d){return y(d.k) + y.bandwidth() / 2 + 4;})
+    .attr("text-anchor", "end").text(function(d){return d.k;});
+}
+
+/* ============================================================
+   02-B · DOT PLOT — инструменты по годам, две категории
+   ============================================================ */
+function drawInstruments() {
+  const w = 560, h = 250;
+  const m = { l: 150, r: 28, t: 30, b: 46 };
+  const svg = svgIn("c-instruments", w, h);
+  const iw = w - m.l - m.r;
+
+  const rows = [
+    { cat: "Мягкое право", color: COL.sec, items: [
+      { lab: "Рекоменд. KVKK", year: 2021 },
+      { lab: "НАИС", year: 2021 },
+      { lab: "Этич. принципы", year: 2023 },
+      { lab: "Гайд по ген-ИИ (KVKK)", year: 2024 }
+    ]},
+    { cat: "Проекты закона", color: COL.flag, items: [
+      { lab: "Закон об ИИ 2/2234", year: 2024 },
+      { lab: "Поправки 2/3358", year: 2025 }
+    ]}
+  ];
+  const x = d3.scaleLinear().domain([2020.6, 2025.4]).range([m.l, m.l + iw]);
+  const y = d3.scalePoint().domain(["Мягкое право", "Проекты закона"]).range([m.t + 6, h - m.b - 6]).padding(0.5);
+
+  [2021, 2022, 2023, 2024, 2025].forEach(function(t) {
+    svg.append("line").attr("x1", x(t)).attr("x2", x(t))
+      .attr("y1", m.t - 8).attr("y2", h - m.b).attr("stroke", COL.grid).attr("stroke-width", 1);
+    svg.append("text").attr("x", x(t)).attr("y", h - m.b + 20)
+      .attr("class", "ax-tick").attr("text-anchor", "middle").text(t);
+  });
+
+  rows.forEach(function(r) {
+    const yy = y(r.cat);
+    svg.append("text").attr("x", m.l - 16).attr("y", yy + 4)
+      .attr("class", "cat-label").attr("text-anchor", "end")
+      .attr("fill", r.color).text(r.cat);
+    // развести точки одного года по вертикали
+    const byYear = {};
+    r.items.forEach(function(it) {
+      byYear[it.year] = (byYear[it.year] || 0);
+      const k = byYear[it.year];
+      byYear[it.year] += 1;
+      const off = (k === 0) ? -11 : 11;
+      const px = x(it.year), py = yy + (byYear[it.year] > 1 || k > 0 ? off : 0);
+      const fy = (countYear(r.items, it.year) > 1) ? py : yy;
+      squareMarker(svg, px, fy, 9, r.color);
+      svg.append("text").attr("x", px).attr("y", fy - 12)
+        .attr("class", "note-label").attr("text-anchor", "middle").text(it.lab);
+    });
+  });
+
+  function countYear(items, yr) {
+    return items.filter(function(i){return i.year === yr;}).length;
+  }
+}
+
+/* ============================================================
+   03-A · STACKED BAR (100%) — 1-й тур выборов 2023
+   ============================================================ */
+function drawVote() {
+  const w = 1080, h = 150;
+  const m = { l: 24, r: 24, t: 56, b: 44 };
+  const svg = svgIn("c-vote", w, h);
+  const iw = w - m.l - m.r;
+  const bh = 40;
+  const by = m.t;
+
+  const data = [
+    { k: "Эрдоган", v: 49.52, c: COL.flag },
+    { k: "Кылычдароглу", v: 44.88, c: COL.sec },
+    { k: "Оган", v: 5.17, c: "rgba(255,255,255,.34)" },
+    { k: "Индже", v: 0.43, c: "rgba(255,255,255,.18)" }
+  ];
+  const x = d3.scaleLinear().domain([0, 100]).range([m.l, m.l + iw]);
+
+  // 50%-линия
+  svg.append("line").attr("x1", x(50)).attr("x2", x(50))
+    .attr("y1", by - 14).attr("y2", by + bh + 10)
+    .attr("stroke", COL.alert).attr("stroke-width", 1).attr("stroke-dasharray", "4 3");
+  svg.append("text").attr("x", x(50)).attr("y", by - 20)
+    .attr("class", "note-label").attr("fill", COL.alert).attr("text-anchor", "middle")
+    .text("порог 50% — победа в 1-м туре");
+
+  let acc = 0;
+  data.forEach(function(d) {
+    const x0 = x(acc), x1 = x(acc + d.v);
+    svg.append("rect").attr("x", x0).attr("y", by)
+      .attr("width", x1 - x0).attr("height", bh).attr("fill", d.c)
+      .attr("stroke", COL.ink).attr("stroke-width", 1);
+    if (d.v >= 3) {
+      svg.append("text").attr("x", (x0 + x1) / 2).attr("y", by + bh / 2 + 4)
+        .attr("class", "val-label").attr("text-anchor", "middle")
+        .attr("fill", d.k === "Кылычдароглу" ? "#0B0C0E" : COL.paper)
+        .text(d.v.toFixed(2) + "%");
+    }
+    // легенда снизу
+    const lx = x0;
+    svg.append("rect").attr("x", lx).attr("y", by + bh + 16).attr("width", 9).attr("height", 9).attr("fill", d.c);
+    svg.append("text").attr("x", lx + 14).attr("y", by + bh + 24)
+      .attr("class", "cat-label").attr("font-size", 11).text(d.k);
+    acc += d.v;
+  });
+}
+
+/* ============================================================
+   03-B · LINE CHART — место Турции в RSF, 2016–2026 (+2002 ref)
+   ============================================================ */
+function drawRsfLine() {
+  const w = 560, h = 300;
+  const m = { l: 42, r: 28, t: 24, b: 44 };
+  const svg = svgIn("c-rsf-line", w, h);
+  const iw = w - m.l - m.r, ih = h - m.t - m.b;
+
+  const data = [
+    { y: 2016, r: 151 }, { y: 2017, r: 155 }, { y: 2018, r: 157 },
+    { y: 2019, r: 157 }, { y: 2020, r: 154 }, { y: 2021, r: 153 },
+    { y: 2022, r: 149 }, { y: 2023, r: 165 }, { y: 2024, r: 158 },
+    { y: 2025, r: 159 }, { y: 2026, r: 163 }
+  ];
+  const x = d3.scaleLinear().domain([2016, 2026]).range([m.l, m.l + iw]);
+  const y = d3.scaleLinear().domain([170, 145]).range([m.t + ih, m.t]); // выше = лучше место
+
+  [145, 150, 155, 160, 165, 170].forEach(function(t) {
+    svg.append("line").attr("x1", m.l).attr("x2", m.l + iw)
+      .attr("y1", y(t)).attr("y2", y(t)).attr("stroke", COL.grid).attr("stroke-width", 1);
+    svg.append("text").attr("x", m.l - 8).attr("y", y(t) + 3)
+      .attr("class", "ax-tick").attr("text-anchor", "end").text(t);
+  });
+  [2016, 2019, 2022, 2024, 2026].forEach(function(t) {
+    svg.append("text").attr("x", x(t)).attr("y", h - m.b + 20)
+      .attr("class", "ax-tick").attr("text-anchor", "middle").text(t);
+  });
+  svg.append("text").attr("x", m.l - 30).attr("y", m.t - 8)
+    .attr("class", "ax-label").text("место");
+
+  const line = d3.line().x(function(d){return x(d.y);}).y(function(d){return y(d.r);});
+  svg.append("path").datum(data).attr("d", line)
+    .attr("fill", "none").attr("stroke", COL.flag).attr("stroke-width", 2);
+
+  data.forEach(function(d) { squareMarker(svg, x(d.y), y(d.r), 6, COL.flag); });
+
+  // выделить 2023 (резкое падение) и 2026
+  svg.append("text").attr("x", x(2023)).attr("y", y(165) + 20)
+    .attr("class", "val-label").attr("text-anchor", "middle").attr("fill", COL.flag).text("165");
+  svg.append("text").attr("x", x(2026)).attr("y", y(163) - 12)
+    .attr("class", "val-label").attr("text-anchor", "end").attr("fill", COL.flag).text("163");
+
+  // референс 2002
+  svg.append("text").attr("x", m.l).attr("y", m.t + 8)
+    .attr("class", "note-label").attr("fill", COL.muted).text("для сравнения: 2002 — 99-е место");
+}
+
+/* ============================================================
+   03-C · ПРОФИЛЬ (полигональный) — RSF 2026, 5 осей, баллы 0–50
+   ============================================================ */
+function drawRadar() {
+  const w = 560, h = 320;
+  const cx = w / 2, cy = h / 2 + 6, R = 108;
+  const svg = svgIn("c-radar", w, h);
+
+  const axes = [
+    { lab: "Политика", v: 20.16 },
+    { lab: "Экономика", v: 26.78 },
+    { lab: "Право", v: 31.20 },
+    { lab: "Социум", v: 28.93 },
+    { lab: "Безопасность", v: 32.61 }
+  ];
+  const maxV = 50;
+  const ang = function(i) { return (Math.PI * 2 * i / axes.length) - Math.PI / 2; };
+  const rr = function(v) { return R * v / maxV; };
+
+  // кольца
+  [10, 20, 30, 40, 50].forEach(function(g) {
+    const pts = axes.map(function(d, i) {
+      const a = ang(i), r = R * g / maxV;
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    });
+    svg.append("polygon")
+      .attr("points", pts.map(function(p){return p.join(",");}).join(" "))
+      .attr("fill", "none").attr("stroke", COL.grid).attr("stroke-width", 1);
+    svg.append("text").attr("x", cx + 4).attr("y", cy - R * g / maxV - 2)
+      .attr("class", "ax-tick").attr("font-size", 9).text(g);
+  });
+
+  // оси и подписи
+  axes.forEach(function(d, i) {
+    const a = ang(i);
+    const ex = cx + R * Math.cos(a), ey = cy + R * Math.sin(a);
+    svg.append("line").attr("x1", cx).attr("y1", cy).attr("x2", ex).attr("y2", ey)
+      .attr("stroke", COL.line).attr("stroke-width", 1);
+    const lx = cx + (R + 26) * Math.cos(a), ly = cy + (R + 26) * Math.sin(a);
+    svg.append("text").attr("x", lx).attr("y", ly + 4)
+      .attr("class", "cat-label").attr("text-anchor", "middle").text(d.lab);
+    svg.append("text").attr("x", lx).attr("y", ly + 18)
+      .attr("class", "val-label").attr("text-anchor", "middle").attr("fill", COL.flag2)
+      .text(d.v.toFixed(1));
+  });
+
+  // многоугольник данных
+  const dpts = axes.map(function(d, i) {
+    const a = ang(i), r = rr(d.v);
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  });
+  svg.append("polygon")
+    .attr("points", dpts.map(function(p){return p.join(",");}).join(" "))
+    .attr("fill", "rgba(227,10,23,.22)")
+    .attr("stroke", COL.flag).attr("stroke-width", 2);
+  dpts.forEach(function(p) { squareMarker(svg, p[0], p[1], 7, COL.flag); });
+}
+
+/* ============================================================
+   03-D · MULTIPLE LINES (slope) — суб-индикаторы RSF 2025→2026
+   ============================================================ */
+function drawSlope() {
+  const w = 1080, h = 300;
+  const m = { l: 150, r: 150, t: 30, b: 40 };
+  const svg = svgIn("c-slope", w, h);
+  const ih = h - m.t - m.b;
+
+  const series = [
+    { lab: "Безопасность", a: 35.37, b: 32.61 },
+    { lab: "Социум", a: 33.44, b: 28.93 },
+    { lab: "Право", a: 32.42, b: 31.20 },
+    { lab: "Экономика", a: 26.09, b: 26.78 },
+    { lab: "Политика", a: 19.69, b: 20.16 }
+  ];
+  const y = d3.scaleLinear().domain([15, 40]).range([m.t + ih, m.t]);
+  const xL = m.l, xR = w - m.r;
+
+  // оси-годы
+  [["2025", xL], ["2026", xR]].forEach(function(p) {
+    svg.append("line").attr("x1", p[1]).attr("x2", p[1])
+      .attr("y1", m.t - 8).attr("y2", m.t + ih + 6).attr("stroke", COL.line).attr("stroke-width", 1);
+    svg.append("text").attr("x", p[1]).attr("y", h - m.b + 22)
+      .attr("class", "ax-label").attr("text-anchor", "middle").text(p[0]);
+  });
+  [15, 20, 25, 30, 35, 40].forEach(function(t) {
+    svg.append("text").attr("x", xL - 40).attr("y", y(t) + 3)
+      .attr("class", "ax-tick").attr("text-anchor", "start").text(t);
+    svg.append("line").attr("x1", xL).attr("x2", xR)
+      .attr("y1", y(t)).attr("y2", y(t)).attr("stroke", COL.grid).attr("stroke-width", 1);
+  });
+
+  series.forEach(function(s) {
+    const down = s.b < s.a;
+    const col = down ? COL.flag : COL.sec;
+    svg.append("line").attr("x1", xL).attr("x2", xR)
+      .attr("y1", y(s.a)).attr("y2", y(s.b))
+      .attr("stroke", col).attr("stroke-width", 2);
+    squareMarker(svg, xL, y(s.a), 7, col);
+    squareMarker(svg, xR, y(s.b), 7, col);
+    svg.append("text").attr("x", xL - 12).attr("y", y(s.a) + 4)
+      .attr("class", "cat-label").attr("text-anchor", "end").text(s.lab + " " + s.a.toFixed(2));
+    svg.append("text").attr("x", xR + 12).attr("y", y(s.b) + 4)
+      .attr("class", "val-label").attr("text-anchor", "start").attr("fill", col).text(s.b.toFixed(2));
+  });
+}
+
+/* ============================================================
+   Запуск
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", function() {
+  drawLocator();
+  drawArrow();
+  drawFunnel();
+  drawTimeline();
+  drawTakedown();
+  drawInstruments();
+  drawVote();
+  drawRsfLine();
+  drawRadar();
+  drawSlope();
+});
+</script>
+</body>
+</html>

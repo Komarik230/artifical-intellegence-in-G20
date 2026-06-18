@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Германия — ИИ в странах G20</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root{
+  --ink:#0a0a0b;
+  --ink-2:#101012;
+  --ink-3:#16161a;
+  --paper:#f1f1ee;
+  --paper-dim:#c7c7c2;
+  --muted:#8a8a85;
+  --faint:#56565270;
+  --line:rgba(241,241,238,0.13);
+  --line-2:rgba(241,241,238,0.26);
+  --flag-red:#f0141f;
+  --flag-red-dim:rgba(240,20,31,0.18);
+  --flag-gold:#ffce00;
+  --flag-gold-dim:rgba(255,206,0,0.16);
+  --f-sans:"Helvetica Neue",Arial,"Segoe UI",sans-serif;
+  --f-mono:ui-monospace,"SFMono-Regular","JetBrains Mono",Menlo,Consolas,monospace;
+  --maxw:1180px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:var(--f-sans);
+  line-height:1.5;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--flag-gold);color:#000}
+a{color:inherit}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+.rule{border:none;border-top:1px solid var(--line);margin:0}
+.rule-2{border:none;border-top:1px solid var(--line-2);margin:0}
+
+.eyebrow{
+  font-family:var(--f-mono);
+  font-size:11px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+/* ---------- masthead ---------- */
+.masthead{border-bottom:1px solid var(--line)}
+.masthead .wrap{display:flex;justify-content:space-between;align-items:center;height:54px}
+.masthead a{font-family:var(--f-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);text-decoration:none}
+.masthead a:hover{color:var(--paper)}
+.tricolor{height:3px;display:flex}
+.tricolor i{flex:1}
+.tricolor .c1{background:#0a0a0b;border-top:1px solid var(--line-2)}
+.tricolor .c2{background:var(--flag-red)}
+.tricolor .c3{background:var(--flag-gold)}
+
+/* ---------- hero ---------- */
+.hero{padding:90px 0 54px;position:relative}
+.hero .kicker{display:flex;gap:18px;align-items:center;margin-bottom:30px}
+.hero .kicker .num{font-family:var(--f-mono);font-size:11px;letter-spacing:.2em;color:var(--flag-gold)}
+.hero h1{
+  font-size:clamp(46px,8.4vw,104px);
+  line-height:.92;
+  font-weight:800;
+  letter-spacing:-.025em;
+  margin-bottom:26px;
+}
+.hero h1 .de{color:var(--paper)}
+.hero .thesis{
+  max-width:760px;
+  font-size:clamp(18px,2.4vw,23px);
+  line-height:1.42;
+  color:var(--paper-dim);
+  font-weight:400;
+}
+.hero .thesis b{color:var(--paper);font-weight:600}
+.hero .sub{
+  margin-top:22px;max-width:720px;font-size:15px;color:var(--muted);line-height:1.55;
+}
+
+/* ---------- kpi strip ---------- */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);margin-top:54px}
+.kpi{padding:22px 20px 24px;border-left:1px solid var(--line)}
+.kpi:first-child{border-left:none}
+.kpi .v{font-family:var(--f-mono);font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.kpi .v.gold{color:var(--flag-gold)}
+.kpi .v.red{color:var(--flag-red)}
+.kpi .l{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.4}
+
+/* ---------- section ---------- */
+.section{padding:78px 0 22px}
+.section-head{display:grid;grid-template-columns:84px 1fr;gap:0;margin-bottom:54px}
+.section-head .idx{font-family:var(--f-mono);font-size:13px;color:var(--flag-gold);letter-spacing:.1em;padding-top:6px}
+.section-head h2{font-size:clamp(28px,4.4vw,46px);font-weight:800;letter-spacing:-.02em;line-height:1.02}
+.section-head .dek{grid-column:2;margin-top:18px;max-width:680px;color:var(--paper-dim);font-size:16.5px;line-height:1.55}
+.section-head .dek b{color:var(--paper);font-weight:600}
+
+/* ---------- figure ---------- */
+.fig{padding:34px 0 6px;border-top:1px solid var(--line)}
+.fig-head{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin-bottom:6px;flex-wrap:wrap}
+.fig-head .ttl{font-size:19px;font-weight:700;letter-spacing:-.01em}
+.fig-head .tag{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.fig-head .tag.new{color:var(--flag-gold)}
+.fig .lede{max-width:740px;color:var(--paper-dim);font-size:15px;line-height:1.55;margin:4px 0 22px}
+.fig .lede b{color:var(--paper);font-weight:600}
+.fig .src{font-family:var(--f-mono);font-size:11px;color:var(--faint);margin-top:16px;line-height:1.5}
+.fig .src b{color:var(--muted);font-weight:400}
+
+.chart{width:100%}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+
+text{font-family:var(--f-mono);fill:var(--paper)}
+.ax{font-size:11px;fill:var(--muted)}
+.axlbl{font-size:10.5px;fill:var(--faint);letter-spacing:.04em}
+.val{font-size:11.5px;fill:var(--paper);font-weight:600}
+.glabel{font-family:var(--f-sans);font-size:12.5px;fill:var(--paper);font-weight:600}
+.grid line{stroke:var(--line)}
+.base line,.base path{stroke:var(--line-2)}
+
+/* ---------- small multiples ---------- */
+.sm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line)}
+.sm-cell{padding:18px 18px 14px;border-left:1px solid var(--line)}
+.sm-cell:first-child{border-left:none}
+.sm-cell .cap{font-family:var(--f-sans);font-size:13px;font-weight:700;margin-bottom:2px}
+.sm-cell .meta{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);margin-bottom:10px}
+.sm-cell .delta{font-family:var(--f-mono);font-size:11px;color:var(--flag-gold);margin-top:8px}
+
+/* ---------- timeline ---------- */
+.tl{border-top:1px solid var(--line);margin-top:8px}
+.tl-row{display:grid;grid-template-columns:138px 1fr;gap:0;border-bottom:1px solid var(--line);padding:0}
+.tl-row .when{font-family:var(--f-mono);font-size:12px;color:var(--muted);padding:16px 16px 16px 0;letter-spacing:.02em;border-right:1px solid var(--line)}
+.tl-row .what{padding:16px 0 16px 22px;position:relative}
+.tl-row .what h4{font-size:15px;font-weight:700;margin-bottom:3px}
+.tl-row .what p{font-size:13.5px;color:var(--paper-dim);line-height:1.5;max-width:640px}
+.tl-row .what::before{content:"";position:absolute;left:-5px;top:21px;width:9px;height:9px;background:var(--paper);border:1px solid var(--ink)}
+.tl-row.gap .what::before{background:var(--flag-red)}
+.tl-row.gap .when{color:var(--flag-red)}
+.tl-row.now .what::before{background:var(--flag-gold)}
+.tl-row .flagtag{font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-left:10px;padding:2px 6px;vertical-align:middle}
+.flagtag.red{color:var(--flag-red);border:1px solid var(--flag-red-dim)}
+.flagtag.gold{color:var(--flag-gold);border:1px solid var(--flag-gold-dim)}
+
+/* ---------- matrix ---------- */
+.mx{border:1px solid var(--line);margin-top:6px}
+.mx-head,.mx-row{display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr}
+.mx-head{border-bottom:1px solid var(--line-2)}
+.mx-head div{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:13px 14px;border-left:1px solid var(--line)}
+.mx-head div:first-child{border-left:none;color:var(--paper)}
+.mx-row{border-top:1px solid var(--line)}
+.mx-row:first-child{border-top:none}
+.mx-row .rk{font-size:13.5px;padding:15px 14px;font-weight:600;display:flex;align-items:center}
+.mx-row .cell{border-left:1px solid var(--line);padding:15px 14px;display:flex;align-items:center;justify-content:center}
+.dot{width:13px;height:13px;display:inline-block}
+.dot.now{background:var(--paper)}
+.dot.eu{background:var(--flag-gold)}
+.dot.prop{background:var(--flag-red)}
+.dot.none{background:transparent;border:1px solid var(--line-2)}
+.mx-legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:16px;font-family:var(--f-mono);font-size:11px;color:var(--muted);align-items:center}
+.mx-legend span{display:flex;gap:8px;align-items:center}
+
+/* ---------- comparison table ---------- */
+.tbl{width:100%;border-collapse:collapse;margin-top:6px;font-size:13.5px}
+.tbl th,.tbl td{text-align:left;padding:14px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl thead th{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line-2)}
+.tbl tbody th{font-weight:700;font-size:14px}
+.tbl .hl{background:var(--flag-gold-dim)}
+.tbl .hl-th{color:var(--flag-gold)}
+.tbl .yes{color:var(--flag-gold)}
+.tbl .no{color:var(--flag-red)}
+.tbl td small{display:block;color:var(--muted);font-size:11.5px;margin-top:3px;font-family:var(--f-mono)}
+
+/* ---------- legend (charts) ---------- */
+.legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;font-family:var(--f-mono);font-size:11px;color:var(--muted);align-items:center}
+.legend span{display:flex;gap:8px;align-items:center}
+.legend i{width:11px;height:11px;display:inline-block}
+
+/* ---------- footer ---------- */
+.foot{border-top:1px solid var(--line-2);margin-top:70px;padding:46px 0 80px}
+.foot h3{font-family:var(--f-mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+.foot .cols{display:grid;grid-template-columns:1.2fr 1fr;gap:40px}
+.foot p{font-size:13px;color:var(--paper-dim);line-height:1.6;max-width:560px}
+.foot ol{list-style:none;counter-reset:s;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);line-height:1.85}
+.foot ol li{counter-increment:s;padding-left:26px;position:relative}
+.foot ol li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;color:var(--faint)}
+.foot .back{margin-top:34px;font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none}
+.foot .back:hover{color:var(--flag-gold)}
+
+@media(max-width:860px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .kpi:nth-child(3){border-left:none}
+  .sm-grid{grid-template-columns:1fr}
+  .sm-cell{border-left:none;border-top:1px solid var(--line)}
+  .sm-cell:first-child{border-top:none}
+  .section-head{grid-template-columns:1fr}
+  .section-head .dek{grid-column:1}
+  .foot .cols{grid-template-columns:1fr}
+  .mx-head,.mx-row{grid-template-columns:1.4fr .9fr .9fr .9fr}
+  .mx-head div,.mx-row .rk{font-size:11px;padding:11px 9px}
+  .mx-row .cell{padding:11px 9px}
+}
+@media(max-width:560px){
+  .wrap{padding:0 18px}
+  .kpis{grid-template-columns:1fr}
+  .kpi{border-left:none;border-top:1px solid var(--line)}
+  .kpi:first-child{border-top:none}
+  .tl-row{grid-template-columns:96px 1fr}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="tricolor" aria-hidden="true"><i class="c1"></i><i class="c2"></i><i class="c3"></i></div>
+
+<header class="masthead">
+  <div class="wrap">
+    <a href="index.html">&larr; G20 / Глобус</a>
+    <a>Искусственный интеллект · Германия</a>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap">
+    <div class="kicker">
+      <span class="num">DE · 07 / 20</span>
+      <span class="eyebrow">Стратегия · Этика · Медиа</span>
+    </div>
+    <h1><span class="de">Германия:</span><br>инженерный хедж</h1>
+    <p class="thesis">Германия проповедует доверенный <b>«AI made in Germany»</b> и строгие правила Евросоюза&nbsp;— но в ноябре 2023 года вместе с Францией и Италией развернулась, чтобы смягчить нормы AI&nbsp;Act ради собственного чемпиона, а затем <b>пропустила установленный ЕС срок</b> назначения национального надзорного органа.</p>
+    <p class="sub">Сильна в прикладном и промышленном ИИ, в стандартизации и в суверенных вычислениях (первый в Европе экзафлопсный суперкомпьютер JUPITER). Но в создании собственных больших моделей&nbsp;— догоняющий, а регулятор у себя дома&nbsp;— медлительный. Страна, которая хочет писать стандарты для всех, осторожничает, когда правила касаются её индустрии.</p>
+
+    <div class="kpis">
+      <div class="kpi"><div class="v gold">№7</div><div class="l">Global AI Index 2024 (Tortoise); в 2023&nbsp;— №8</div></div>
+      <div class="kpi"><div class="v">€5 млрд</div><div class="l">Федеральная ИИ-стратегия до 2025 (рост с €3 млрд)</div></div>
+      <div class="kpi"><div class="v gold">1 EFLOP</div><div class="l">JUPITER, Юлих&nbsp;— 1-й экзафлопс Европы, 4-й в мире</div></div>
+      <div class="kpi"><div class="v">687</div><div class="l">ИИ-стартапов в 2024 (+35% за год)</div></div>
+      <div class="kpi"><div class="v red">Просрочен</div><div class="l">Срок ЕС 02.08.2025 на нацорган AI&nbsp;Act</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 01 STRATEGY ============ -->
+<section class="section" id="strategy">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="idx">01</div>
+      <h2>Стратегия:<br>прикладной ИИ и суверенитет</h2>
+      <p class="dek">Германия делает ставку на ИИ <b>в индустрии</b>&nbsp;— производство, Mittelstand, автопром&nbsp;— и на технологический суверенитет. Внедрение идёт волной, но экосистема предельно концентрирована географически, а в обществе доминирует тревога зависимости от США и Китая.</p>
+    </div>
+
+    <!-- FIG 1: small multiples (lines) -->
+    <figure class="fig">
+      <div class="fig-head"><div class="ttl">Фиг. 1 — Внедрение ИИ идёт тремя разными волнами</div><div class="tag new">Новый тип · малые кратные (линии)</div></div>
+      <p class="lede">Доля внедривших ИИ растёт у компаний, стартапов и граждан одновременно, но с разной высоты и скорости. Стартапы&nbsp;— впереди, массовый бизнес&nbsp;— догоняет, население&nbsp;— взлетело за год.</p>
+      <div class="sm-grid">
+        <div class="sm-cell">
+          <div class="cap">Компании</div>
+          <div class="meta">используют / планируют GenAI</div>
+          <div class="chart" id="sm-firms"></div>
+          <div class="delta">26% → 56% (2024–2026)</div>
+        </div>
+        <div class="sm-cell">
+          <div class="cap">Стартапы</div>
+          <div class="meta">используют ИИ</div>
+          <div class="chart" id="sm-startups"></div>
+          <div class="delta">49% → 82% (2023–2025)</div>
+        </div>
+        <div class="sm-cell">
+          <div class="cap">Население 16+</div>
+          <div class="meta">используют генеративный ИИ</div>
+          <div class="chart" id="sm-people"></div>
+          <div class="delta">40% → 67% (2024–2025)</div>
+        </div>
+      </div>
+      <p class="src"><b>Источники:</b> CEPR / ifo Business Survey (фирмы, 2026); Bitkom Startup Report 2025; Bitkom, опрос населения (май 2025). Шкала каждого панеля&nbsp;— 0–100%.</p>
+    </figure>
+
+    <!-- FIG 2: column chart market -->
+    <figure class="fig">
+      <div class="fig-head"><div class="ttl">Фиг. 2 — Рынок ИИ в Германии: семикратный рост за восемь лет</div><div class="tag">Столбцы</div></div>
+      <p class="lede">Прогноз объёма рынка ИИ: <b>€4,8 млрд</b> в 2022-м, около <b>€10 млрд</b> к 2025-му и <b>€32 млрд</b> к 2030-му&nbsp;— один из самых быстрорастущих рынков будущего в стране.</p>
+      <div class="chart" id="c-market"></div>
+      <p class="src"><b>Источник:</b> Statista Market Forecast / KPMG, оценки 2024–2025 (значения в млрд евро).</p>
+    </figure>
+
+    <!-- FIG 3: symbol map -->
+    <figure class="fig">
+      <div class="fig-head"><div class="ttl">Фиг. 3 — Где живут немецкие ИИ-стартапы</div><div class="tag new">Новый тип · символьная карта</div></div>
+      <p class="lede">Берлин (283) и Мюнхен (200) дают почти <b>половину</b> всех ИИ-стартапов страны. Пять земель&nbsp;— около 85%. У Берлина на душу населения примерно в 100 раз больше стартапов, чем у Саксонии-Анхальт: концентрация экстремальная.</p>
+      <div class="chart" id="m-symbol"></div>
+      <div class="legend">
+        <span><i style="background:var(--flag-gold)"></i> Размер круга&nbsp;— число ИИ-стартапов (2025)</span>
+      </div>
+      <p class="src"><b>Источник:</b> appliedAI Institute for Europe, German AI Startup Landscape 2025. Контур&nbsp;— упрощённый GeoJSON (georgique/world-geojson). Города с двузначным числом стартапов.</p>
+    </figure>
+
+    <!-- FIG 4: stacked area top cities -->
+    <figure class="fig">
+      <div class="fig-head"><div class="ttl">Фиг. 4 — Рост трёх хабов: 2023 → 2025</div><div class="tag new">Новый тип · стэк-область</div></div>
+      <p class="lede">Берлин, Мюнхен и Гамбург не просто лидируют&nbsp;— они растут быстрее всех в абсолюте, увеличивая отрыв. Совокупно три города удвоились за два года.</p>
+      <div class="chart" id="a-cities"></div>
+      <div class="legend">
+        <span><i style="background:var(--flag-gold)"></i> Берлин</span>
+        <span><i style="background:var(--flag-red)"></i> Мюнхен (с пригородами)</span>
+        <span><i style="background:var(--paper-dim)"></i> Гамбург</span>
+      </div>
+      <p class="src"><b>Источник:</b> appliedAI Institute for Europe, German AI Startup Landscape 2023–2025 (число стартапов по городам).</p>
+    </figure>
+
+    <!-- FIG 5: ranked bars sovereignty -->
+    <figure class="fig">
+      <div class="fig-head"><div class="ttl">Фиг. 5 — Откуда компании хотят покупать ИИ</div><div class="tag">Ранжированные полосы</div></div>
+      <p class="lede">Среди компаний, для которых важна страна происхождения ИИ-решения (а это <b>88%</b>), подавляющее большинство предпочло бы немецкое. Это&nbsp;— цифровая версия «AI made in Germany»: спрос на суверенитет. У России&nbsp;— ноль.</p>
+      <div class="chart" id="b-sovereign"></div>
+      <p class="src"><b>Источник:</b> Bitkom, опрос компаний (≥20 сотрудников), 2025. Доля компаний, готовых предпочесть ИИ-решение из данной страны.</p>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ 02 ETHICS ============ -->
+<section class="section" id="ethics">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="idx">02</div>
+      <h2>Этика:<br>медлительный регулятор</h2>
+      <p class="dek">Германия связана прямым действием <b>AI&nbsp;Act</b> ЕС&nbsp;— и при этом лоббировала смягчение его норм по базовым моделям, а национальный надзор вводит с опозданием. В бизнесе при этом царит оптимизм, а главный тормоз внедрения&nbsp;— именно <b>правовая неопределённость</b>.</p>
+    </div>
+
+    <!-- FIG 6: diverging bars sentiment -->
+    <figure class="fig">
+      <div class="fig-head"><div class="ttl">Фиг. 6 — Оптимизм бизнеса против скепсиса</div><div class="tag">Дивергентные полосы</div></div>
+      <p class="lede">По каждому утверждению «за» резко перевешивает «против». Для <b>83%</b> компаний ИИ&nbsp;— это возможность, и лишь для 14%&nbsp;— риск.</p>
+      <div class="chart" id="d-sentiment"></div>
+      <div class="legend">
+        <span><i style="background:var(--flag-gold)"></i> Позитивная позиция</span>
+        <span><i style="background:var(--flag-red)"></i> Скептическая позиция</span>
+      </div>
+      <p class="src"><b>Источник:</b> Bitkom, «Прорыв искусственного интеллекта», опрос компаний 2025 (доли «полностью/скорее согласны»).</p>
+    </figure>
+
+    <!-- FIG 7: radar obstacles -->
+    <figure class="fig">
+      <div class="fig-head"><div class="ttl">Фиг. 7 — Что тормозит ИИ в немецких компаниях</div><div class="tag">Радар</div></div>
+      <p class="lede">Профиль барьеров образует характерную фигуру: на первом месте&nbsp;— <b>правовая неопределённость</b> (53%), вровень с нехваткой экспертизы. Регуляторная тревога&nbsp;— ведущий тормоз, и это прямо рифмуется с парадоксом раздела&nbsp;02.</p>
+      <div class="chart" id="r-obstacles"></div>
+      <p class="src"><b>Источник:</b> Bitkom, опрос компаний 2025. Доля компаний, назвавших фактор одним из главных барьеров (6 ведущих причин).</p>
+    </figure>
+
+    <!-- FIG 8: timeline -->
+    <figure class="fig">
+      <div class="fig-head"><div class="ttl">Фиг. 8 — Хронология: чемпион снаружи, опоздавший дома</div><div class="tag">Типизированный таймлайн</div></div>
+      <p class="lede">Германия помогала смягчить общеевропейские правила, а затем не уложилась в собственный срок их имплементации&nbsp;— и теперь форсирует закон постфактум.</p>
+      <div class="tl">
+        <div class="tl-row gap">
+          <div class="when">Ноя 2023</div>
+          <div class="what"><h4>Разворот по базовым моделям <span class="flagtag red">давление</span></h4><p>Германия, Франция и Италия выступают против жёстких ярусных правил для foundation-моделей&nbsp;— ради Aleph&nbsp;Alpha и Mistral. 12 встреч Aleph&nbsp;Alpha с правительством (июнь–ноябрь). Итог: нормы смягчены до «кодексов поведения».</p></div>
+        </div>
+        <div class="tl-row">
+          <div class="when">Июл 2024</div>
+          <div class="what"><h4>Проект §201b УК о дипфейках <span class="flagtag red">только проект</span></h4><p>Бундесрат вносит состав «нарушение прав личности цифровыми подделками» (Drucksache 222/24). На начало 2026-го&nbsp;— всё ещё не закон.</p></div>
+        </div>
+        <div class="tl-row now">
+          <div class="when">Авг 2024</div>
+          <div class="what"><h4>AI&nbsp;Act ЕС вступает в силу <span class="flagtag gold">прямое действие</span></h4><p>Регламент (ЕС) 2024/1689&nbsp;— первый комплексный закон об ИИ; применяется напрямую во всех странах-членах.</p></div>
+        </div>
+        <div class="tl-row">
+          <div class="when">Фев 2025</div>
+          <div class="what"><h4>Заработали запреты</h4><p>Начали применяться запреты на «неприемлемые» практики ИИ.</p></div>
+        </div>
+        <div class="tl-row gap">
+          <div class="when">Авг 2025</div>
+          <div class="what"><h4>Срок на нацорган пропущен <span class="flagtag red">просрочка</span></h4><p>Заработали правила для GPAI-моделей. Тем же днём истёк срок назначить нацорган (ст. 70). Германия его не соблюла.</p></div>
+        </div>
+        <div class="tl-row">
+          <div class="when">Сен 2025</div>
+          <div class="what"><h4>Проект KI-MIG на консультации</h4><p>Минцифры публикует законопроект о надзоре: главный орган&nbsp;— Bundesnetzagentur, для финсектора&nbsp;— BaFin.</p></div>
+        </div>
+        <div class="tl-row">
+          <div class="when">Фев 2026</div>
+          <div class="what"><h4>Кабинет принимает драфт KI-MIG</h4><p>Правительственный законопроект уходит в Бундестаг и Бундесрат; продвигают в ускоренном порядке.</p></div>
+        </div>
+        <div class="tl-row now">
+          <div class="when">Авг 2026</div>
+          <div class="what"><h4>Правила для high-risk ИИ <span class="flagtag gold">впереди</span></h4><p>Вступают в силу требования к системам ИИ высокого риска&nbsp;— полное применение AI&nbsp;Act.</p></div>
+        </div>
+      </div>
+      <p class="src"><b>Источники:</b> Gleiss Lutz, Heuking, Pinsent Masons, ai-regulation.com (2025–2026); Freshfields / Bundesrat Drucksache 222/24.</p>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ 03 MEDIA ============ -->
+<section class="section" id="media">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="idx">03</div>
+      <h2>Медиа:<br>дезинформация и пробел дипфейков</h2>
+      <p class="dek">Внеочередные выборы 23&nbsp;февраля 2025 года прошли под <b>беспрецедентной</b> (по оценке контрразведки BfV) кампанией дезинформации с ИИ-дипфейками. Но правовое покрытие ИИ-вреда в Германии&nbsp;— пока в основном «на бумаге» или в будущем.</p>
+    </div>
+
+    <!-- FIG 9: matrix coverage -->
+    <figure class="fig">
+      <div class="fig-head"><div class="ttl">Фиг. 9 — Покрыт ли ИИ-вред немецким законом</div><div class="tag">Матрица статусов</div></div>
+      <p class="lede">Почти ничто не урегулировано <b>сейчас и на национальном уровне</b>: дипфейки&nbsp;— лишь проект §201b, прозрачность и high-risk&nbsp;— будущие нормы ЕС. Действует фактически только режим GPAI.</p>
+      <div class="mx">
+        <div class="mx-head"><div>Тип ИИ-вреда / практики</div><div>Действует сейчас</div><div>Проект (не закон)</div><div>Норма ЕС, будущая дата</div></div>
+        <div class="mx-row"><div class="rk">Сексуальные дипфейки без согласия</div><div class="cell"><span class="dot none"></span></div><div class="cell"><span class="dot prop"></span></div><div class="cell"><span class="dot none"></span></div></div>
+        <div class="mx-row"><div class="rk">Политические / предвыборные дипфейки</div><div class="cell"><span class="dot none"></span></div><div class="cell"><span class="dot prop"></span></div><div class="cell"><span class="dot none"></span></div></div>
+        <div class="mx-row"><div class="rk">Маркировка ИИ-контента (прозрачность)</div><div class="cell"><span class="dot none"></span></div><div class="cell"><span class="dot none"></span></div><div class="cell"><span class="dot eu"></span></div></div>
+        <div class="mx-row"><div class="rk">Решения ИИ высокого риска</div><div class="cell"><span class="dot none"></span></div><div class="cell"><span class="dot none"></span></div><div class="cell"><span class="dot eu"></span></div></div>
+        <div class="mx-row"><div class="rk">Базовые модели общего назначения (GPAI)</div><div class="cell"><span class="dot now"></span></div><div class="cell"><span class="dot none"></span></div><div class="cell"><span class="dot none"></span></div></div>
+      </div>
+      <div class="mx-legend">
+        <span><span class="dot now"></span> действует сейчас</span>
+        <span><span class="dot prop"></span> только проект</span>
+        <span><span class="dot eu"></span> норма ЕС, вступает позже (до авг. 2026)</span>
+      </div>
+      <p class="src"><b>Источники:</b> AI&nbsp;Act (Регламент ЕС 2024/1689), ст. 50; Bundesrat Drucksache 222/24 (§201b УК); регуляторные обзоры 2025–2026.</p>
+    </figure>
+
+    <!-- FIG 10: disinformation bars + cheap fakes -->
+    <figure class="fig">
+      <div class="fig-head"><div class="ttl">Фиг. 10 — Масштаб операции влияния на выборах-2025</div><div class="tag">Полосы · лог-шкала</div></div>
+      <p class="lede">Расследование Correctiv (совм. с NewsGuard) вскрыло пророссийскую сеть «Doppelgänger»: <b>100+</b> ИИ-сайтов и сеть из <b>6000+</b> ботов, разгонявших дипфейки немецких политиков. Шкала&nbsp;— логарифмическая, единицы у показателей разные.</p>
+      <div class="chart" id="b-disinfo"></div>
+      <div style="border-top:1px solid var(--line);margin-top:26px;padding-top:22px">
+        <div style="font-family:var(--f-sans);font-size:13px;font-weight:700;margin-bottom:3px">Важный нюанс: «дешёвые подделки» против ИИ</div>
+        <p class="lede" style="margin-bottom:18px">ИИ-апокалипсиса на выборах не случилось: исследователи фиксировали низкотехнологичные «cheap fakes» примерно <b>в 7 раз чаще</b>, чем сгенерированный ИИ контент.</p>
+        <div class="chart" id="b-cheap"></div>
+      </div>
+      <p class="src"><b>Источники:</b> Correctiv (24.01.2025); NewsGuard; Institute for Strategic Dialogue (2025); State of Surveillance (2026). Bot-сеть&nbsp;— ISD; «cheap fakes 7×»&nbsp;— сводка исследований 2024–2025.</p>
+    </figure>
+
+    <!-- FIG 11: comparison table -->
+    <figure class="fig">
+      <div class="fig-head"><div class="ttl">Фиг. 11 — Четыре модели регулирования ИИ в проекте</div><div class="tag">Сравнительная таблица</div></div>
+      <p class="lede">Германия&nbsp;— не дерегулятор (как Аргентина) и не автор собственного жёсткого закона (как Бразилия). Её путь&nbsp;— <b>хедж</b>: принять правила ЕС, но смягчить их под свою индустрию и не спешить с имплементацией.</p>
+      <table class="tbl">
+        <thead>
+          <tr><th>Критерий</th><th class="hl-th">Германия</th><th>Великобритания</th><th>Бразилия</th></tr>
+        </thead>
+        <tbody>
+          <tr><th>Обязательный закон об ИИ</th><td class="hl">Да&nbsp;— через AI&nbsp;Act ЕС<small>прямое действие, не свой закон</small></td><td class="no">Нет<small>принципы, не закон</small></td><td class="yes">Да<small>свой PL 2338</small></td></tr>
+          <tr><th>Национальный чемпион-модель</th><td class="hl">Aleph&nbsp;Alpha<small>Heidelberg; SAP, Bosch</small></td><td>—<small>сильны прикладные ИИ</small></td><td>—</td></tr>
+          <tr><th>Лоббировал смягчение правил</th><td class="hl no">Да<small>разворот ноя 2023</small></td><td>—</td><td class="no">Нет</td></tr>
+          <tr><th>Нацорган в срок ЕС</th><td class="hl no">Нет&nbsp;— просрочка<small>дедлайн 02.08.2025</small></td><td>н/п<small>вне ЕС</small></td><td>н/п</td></tr>
+          <tr><th>Фирменная позиция</th><td class="hl">«AI made in Germany» + суверенитет</td><td>«pro-innovation», мягкий подход</td><td>«страна, которая строит правила»</td></tr>
+        </tbody>
+      </table>
+      <p class="src"><b>Источники:</b> сводно по разделам 01–03; страницы проекта по Великобритании и Бразилии.</p>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="foot">
+  <div class="wrap">
+    <h3>Методология и источники</h3>
+    <div class="cols">
+      <div>
+        <p>Все числа&nbsp;— из открытых, проверяемых источников и приведены без округления к «красивым» значениям. Цветовая логика страницы следует флагу ФРГ: <b style="color:var(--flag-gold)">золотой</b>&nbsp;— индустриальная ценность, сила, суверенитет, «сейчас»; <b style="color:var(--flag-red)">красный</b>&nbsp;— тормоз, угроза, пробел, просрочка; белый&nbsp;— нейтральная база. Чёрный фон&nbsp;— первая полоса флага и одновременно «негативное пространство» страницы.</p>
+        <p style="margin-top:16px">Шаблон един со всеми страницами проекта G20; меняется только блок флага. Округлые формы (pie/donut) исключены по техзаданию; типы визуализаций подобраны под контекст и максимально разнообразны.</p>
+        <a class="back" href="index.html">&larr; Вернуться к глобусу G20</a>
+      </div>
+      <div>
+        <ol>
+          <li>Bundesregierung / KI-Strategie (2018, обновл. 2020); €5 млрд до 2025</li>
+          <li>Bird&amp;Bird; BMBF AI Action Plan 2023 (€1,6 млрд)</li>
+          <li>Tortoise, Global AI Index 2024 (Германия №7)</li>
+          <li>Reuters, TIME, TechPolicy.Press, Corporate Europe Observatory (разворот ноя 2023)</li>
+          <li>Forschungszentrum Jülich / EuroHPC; JUPITER, инаугурация 05.09.2025</li>
+          <li>appliedAI Institute, German AI Startup Landscape 2023–2025</li>
+          <li>Bitkom (2024–2026); CEPR / ifo (2026); Statista / KPMG</li>
+          <li>Correctiv (24.01.2025); NewsGuard; ISD; Freedom House 2025</li>
+          <li>Gleiss Lutz, Heuking, Pinsent Masons; KI-MIG; Bundesrat Drucksache 222/24</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const GEO = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[8.649,54.91],[8.83,54.902],[9.055,54.867],[9.231,54.813],[9.413,54.84],[9.54,54.863],[9.632,54.876],[9.728,54.818],[9.9,54.809],[10.051,54.695],[9.977,54.491],[10.23,54.449],[10.422,54.429],[10.713,54.321],[10.938,54.395],[11.071,54.409],[11.008,54.535],[11.312,54.452],[11.146,54.366],[11.022,54.135],[10.804,54.02],[11.019,54.026],[11.272,53.997],[11.357,54.002],[11.485,54.068],[11.674,54.165],[11.992,54.191],[12.215,54.266],[12.404,54.401],[12.537,54.504],[12.643,54.457],[12.96,54.456],[13.079,54.564],[13.155,54.618],[13.195,54.64],[13.398,54.693],[13.443,54.644],[13.535,54.583],[13.701,54.565],[13.59,54.447],[13.726,54.374],[13.738,54.309],[13.699,54.258],[13.594,54.311],[13.483,54.305],[13.44,54.249],[13.428,54.179],[13.568,54.154],[13.719,54.189],[13.851,54.141],[14.025,54.062],[14.168,53.975],[14.238,53.936],[14.186,53.912],[14.216,53.88],[14.267,53.753],[14.284,53.683],[14.285,53.659],[14.307,53.552],[14.373,53.446],[14.455,53.268],[14.387,53.143],[14.142,52.965],[14.227,52.814],[14.455,52.671],[14.617,52.55],[14.551,52.433],[14.582,52.303],[14.711,52.218],[14.675,52.137],[14.746,52.032],[14.722,51.951],[14.604,51.849],[14.645,51.79],[14.768,51.604],[14.815,51.51],[14.966,51.416],[15.032,51.293],[14.983,51.085],[14.826,50.887],[14.822,50.863],[14.79,50.823],[14.716,50.824],[14.669,50.847],[14.658,50.907],[14.558,50.921],[14.599,50.984],[14.543,51.014],[14.494,51.045],[14.449,51.033],[14.383,51.037],[14.312,51.055],[14.274,51.039],[14.262,51.008],[14.293,50.978],[14.329,50.972],[14.316,50.957],[14.34,50.949],[14.4,50.936],[14.389,50.904],[14.348,50.892],[14.272,50.897],[14.237,50.879],[14.198,50.849],[14.115,50.832],[14.045,50.812],[14.007,50.81],[13.955,50.803],[13.9,50.792],[13.898,50.75],[13.856,50.728],[13.767,50.736],[13.71,50.725],[13.663,50.732],[13.602,50.712],[13.545,50.689],[13.515,50.653],[13.494,50.632],[13.392,50.644],[13.359,50.619],[13.291,50.575],[13.233,50.581],[13.23,50.554],[13.193,50.515],[13.138,50.505],[13.101,50.502],[13.035,50.509],[13,50.435],[12.943,50.409],[12.936,50.412],[12.897,50.43],[12.811,50.43],[12.73,50.423],[12.702,50.398],[12.621,50.416],[12.548,50.401],[12.497,50.36],[12.443,50.345],[12.405,50.301],[12.35,50.258],[12.334,50.241],[12.327,50.208],[12.342,50.17],[12.279,50.195],[12.291,50.22],[12.25,50.255],[12.202,50.272],[12.118,50.315],[12.123,50.304],[12.139,50.276],[12.095,50.249],[12.147,50.233],[12.176,50.212],[12.191,50.194],[12.215,50.17],[12.2,50.122],[12.23,50.095],[12.259,50.06],[12.328,50.034],[12.367,50.017],[12.406,50.005],[12.428,49.991],[12.478,49.982],[12.477,49.956],[12.547,49.922],[12.521,49.873],[12.499,49.84],[12.474,49.821],[12.476,49.788],[12.426,49.73],[12.489,49.687],[12.522,49.661],[12.529,49.641],[12.529,49.621],[12.562,49.6],[12.594,49.539],[12.634,49.533],[12.642,49.492],[12.661,49.435],[12.719,49.414],[12.755,49.377],[12.781,49.348],[12.846,49.344],[12.881,49.351],[12.992,49.322],[13.036,49.295],[13.055,49.266],[13.083,49.249],[13.106,49.202],[13.175,49.171],[13.225,49.117],[13.293,49.117],[13.381,49.056],[13.405,49.027],[13.401,48.993],[13.48,48.953],[13.508,48.955],[13.554,48.968],[13.578,48.971],[13.607,48.941],[13.624,48.939],[13.669,48.89],[13.713,48.879],[13.765,48.834],[13.813,48.796],[13.84,48.772],[13.828,48.759],[13.818,48.733],[13.794,48.715],[13.811,48.704],[13.827,48.7],[13.826,48.693],[13.824,48.684],[13.785,48.568],[13.73,48.515],[13.59,48.569],[13.472,48.562],[13.461,48.518],[13.431,48.411],[13.266,48.301],[12.972,48.214],[12.821,48.155],[12.752,48.115],[12.87,47.972],[12.997,47.85],[12.942,47.765],[12.945,47.713],[13.087,47.676],[13.063,47.589],[13.041,47.513],[12.98,47.48],[12.859,47.539],[12.791,47.601],[12.763,47.647],[12.741,47.688],[12.566,47.636],[12.445,47.691],[12.291,47.689],[12.258,47.719],[12.206,47.713],[12.203,47.608],[12.104,47.61],[12.005,47.623],[11.794,47.589],[11.585,47.564],[11.483,47.51],[11.385,47.48],[11.39,47.445],[11.286,47.402],[11.137,47.413],[10.981,47.393],[10.876,47.488],[10.89,47.536],[10.745,47.539],[10.596,47.564],[10.478,47.547],[10.432,47.578],[10.437,47.526],[10.464,47.48],[10.423,47.382],[10.316,47.302],[10.187,47.266],[10.209,47.316],[10.182,47.38],[10.094,47.365],[10.072,47.458],[9.984,47.497],[9.885,47.539],[9.825,47.554],[9.778,47.591],[9.731,47.534],[9.551,47.537],[9.259,47.66],[9.134,47.664],[8.959,47.662],[8.867,47.68],[8.866,47.697],[8.873,47.704],[8.822,47.712],[8.812,47.73],[8.8,47.728],[8.77,47.708],[8.811,47.694],[8.728,47.695],[8.714,47.735],[8.717,47.764],[8.683,47.785],[8.632,47.76],[8.573,47.802],[8.559,47.777],[8.454,47.728],[8.406,47.67],[8.473,47.642],[8.527,47.645],[8.541,47.665],[8.598,47.671],[8.631,47.655],[8.613,47.646],[8.599,47.627],[8.562,47.6],[8.519,47.633],[8.459,47.6],[8.494,47.582],[8.387,47.566],[8.297,47.608],[8.26,47.614],[8.216,47.621],[8.161,47.594],[8.107,47.583],[8.067,47.564],[7.995,47.556],[7.916,47.547],[7.887,47.589],[7.834,47.585],[7.794,47.558],[7.692,47.532],[7.645,47.552],[7.649,47.56],[7.682,47.571],[7.684,47.576],[7.684,47.596],[7.674,47.592],[7.605,47.578],[7.593,47.602],[7.522,47.663],[7.55,47.739],[7.559,47.856],[7.582,47.927],[7.568,48.035],[7.576,48.125],[7.644,48.206],[7.747,48.333],[7.765,48.491],[7.837,48.641],[7.976,48.76],[8.063,48.79],[8.197,48.959],[8.2,48.968],[8.076,48.996],[7.977,49.026],[7.92,49.041],[7.798,49.065],[7.729,49.05],[7.638,49.054],[7.572,49.078],[7.506,49.151],[7.447,49.184],[7.317,49.142],[7.204,49.12],[7.133,49.141],[7.083,49.151],[7.042,49.117],[6.894,49.209],[6.862,49.178],[6.833,49.151],[6.709,49.186],[6.692,49.218],[6.663,49.255],[6.593,49.334],[6.576,49.358],[6.584,49.369],[6.556,49.42],[6.465,49.466],[6.39,49.464],[6.358,49.53],[6.361,49.572],[6.374,49.59],[6.416,49.616],[6.432,49.661],[6.43,49.668],[6.453,49.683],[6.479,49.696],[6.503,49.712],[6.503,49.719],[6.501,49.727],[6.515,49.722],[6.503,49.732],[6.517,49.771],[6.507,49.791],[6.514,49.801],[6.472,49.822],[6.429,49.811],[6.395,49.826],[6.339,49.848],[6.319,49.843],[6.299,49.866],[6.235,49.899],[6.22,49.925],[6.205,49.954],[6.183,49.966],[6.17,49.984],[6.152,50.01],[6.138,50.017],[6.131,50.042],[6.118,50.057],[6.12,50.066],[6.12,50.093],[6.136,50.104],[6.13,50.116],[6.138,50.13],[6.155,50.142],[6.149,50.152],[6.142,50.156],[6.147,50.17],[6.158,50.171],[6.193,50.181],[6.183,50.192],[6.165,50.222],[6.194,50.237],[6.278,50.259],[6.29,50.285],[6.309,50.313],[6.339,50.31],[6.366,50.298],[6.376,50.306],[6.406,50.315],[6.403,50.336],[6.364,50.364],[6.348,50.374],[6.368,50.393],[6.378,50.423],[6.369,50.445],[6.345,50.463],[6.344,50.477],[6.332,50.485],[6.298,50.491],[6.272,50.497],[6.255,50.496],[6.223,50.491],[6.217,50.502],[6.215,50.508],[6.207,50.514],[6.19,50.52],[6.201,50.529],[6.181,50.534],[6.178,50.551],[6.189,50.556],[6.206,50.562],[6.223,50.576],[6.248,50.584],[6.259,50.6],[6.272,50.617],[6.271,50.619],[6.268,50.62],[6.253,50.62],[6.219,50.625],[6.184,50.617],[6.169,50.636],[6.187,50.641],[6.176,50.648],[6.116,50.715],[6.042,50.711],[6.042,50.738],[6.028,50.774],[6.003,50.801],[6.017,50.833],[6.056,50.851],[6.089,50.872],[6.094,50.921],[6.051,50.93],[6.006,50.956],[5.981,50.983],[5.933,50.985],[5.897,50.975],[5.906,51.002],[5.884,51.014],[5.869,51.045],[5.914,51.066],[5.969,51.045],[6.017,51.094],[6.084,51.124],[6.125,51.145],[6.176,51.158],[6.165,51.195],[6.082,51.172],[6.086,51.222],[6.124,51.275],[6.154,51.307],[6.16,51.32],[6.169,51.333],[6.19,51.339],[6.216,51.389],[6.211,51.401],[6.214,51.446],[6.22,51.484],[6.2,51.527],[6.137,51.577],[6.104,51.633],[6.031,51.674],[5.995,51.739],[5.99,51.766],[5.974,51.786],[5.949,51.811],[5.944,51.824],[6.001,51.832],[6.054,51.852],[6.095,51.849],[6.165,51.862],[6.103,51.892],[6.191,51.891],[6.259,51.868],[6.307,51.849],[6.364,51.835],[6.403,51.845],[6.391,51.872],[6.507,51.869],[6.725,51.899],[6.828,51.968],[6.725,52.038],[6.744,52.078],[6.872,52.13],[6.956,52.183],[7.067,52.24],[7.06,52.338],[7.038,52.402],[6.851,52.451],[6.7,52.484],[6.711,52.55],[6.722,52.589],[6.754,52.646],[6.916,52.644],[7.053,52.647],[7.088,52.851],[7.197,53.09],[7.177,53.14],[7.21,53.19],[7.218,53.258],[7.115,53.319],[6.978,53.387],[7.038,53.566],[7.289,53.686],[7.598,53.693],[7.988,53.729],[8.139,53.637],[8.269,53.622],[8.487,53.575],[8.501,53.802],[8.725,53.899],[8.873,53.934],[8.889,54.073],[8.781,54.22],[8.543,54.268],[8.789,54.422],[8.778,54.486],[8.795,54.585],[8.674,54.725],[8.649,54.91]]]}}]};
+
+const GOLD="#ffce00", RED="#f0141f", PAPER="#f1f1ee", DIM="#c7c7c2", MUTED="#8a8a85", LINE="rgba(241,241,238,0.13)", LINE2="rgba(241,241,238,0.26)";
+
+function svg(id, w, h){
+  const el = document.getElementById(id);
+  const s = d3.select(el).append("svg")
+    .attr("viewBox", "0 0 "+w+" "+h)
+    .attr("preserveAspectRatio","xMidYMid meet");
+  return s;
+}
+
+/* ---------- FIG 1: small multiples ---------- */
+function smallMultiple(id, data, ymax){
+  const w=240,h=130, m={t:12,r:30,b:22,l:8};
+  const s=svg(id,w,h);
+  const iw=w-m.l-m.r, ih=h-m.t-m.b;
+  const x=d3.scalePoint().domain(data.map(d=>d.year)).range([m.l, m.l+iw]);
+  const y=d3.scaleLinear().domain([0,ymax]).range([m.t+ih, m.t]);
+  // baseline
+  s.append("line").attr("x1",m.l).attr("x2",m.l+iw).attr("y1",y(0)).attr("y2",y(0)).attr("stroke",LINE2);
+  // gridline 50
+  s.append("line").attr("x1",m.l).attr("x2",m.l+iw).attr("y1",y(50)).attr("y2",y(50)).attr("stroke",LINE).attr("stroke-dasharray","2 3");
+  s.append("text").attr("x",m.l).attr("y",y(50)-4).attr("class","axlbl").text("50%");
+  // line
+  const line=d3.line().x(d=>x(d.year)).y(d=>y(d.v));
+  s.append("path").datum(data).attr("d",line).attr("fill","none").attr("stroke",GOLD).attr("stroke-width",2);
+  // points + x labels
+  data.forEach((d,i)=>{
+    s.append("rect").attr("x",x(d.year)-2.5).attr("y",y(d.v)-2.5).attr("width",5).attr("height",5).attr("fill",GOLD);
+    s.append("text").attr("x",x(d.year)).attr("y",h-7).attr("text-anchor","middle").attr("class","ax").text(d.year);
+  });
+  // endpoint value
+  const last=data[data.length-1];
+  s.append("text").attr("x",x(last.year)+6).attr("y",y(last.v)+4).attr("class","val").attr("fill",GOLD).text(last.v+"%");
+}
+smallMultiple("sm-firms",[{year:2024,v:26},{year:2025,v:44},{year:2026,v:56}],100);
+smallMultiple("sm-startups",[{year:2023,v:49},{year:2024,v:76},{year:2025,v:82}],100);
+smallMultiple("sm-people",[{year:2024,v:40},{year:2025,v:67}],100);
+
+/* ---------- FIG 2: column chart market ---------- */
+(function(){
+  const data=[{y:"2022",v:4.8},{y:"2025",v:10},{y:"2030",v:32.16}];
+  const w=920,h=380,m={t:34,r:24,b:48,l:54};
+  const s=svg("c-market",w,h);
+  const iw=w-m.l-m.r, ih=h-m.t-m.b;
+  const x=d3.scaleBand().domain(data.map(d=>d.y)).range([m.l,m.l+iw]).padding(0.45);
+  const y=d3.scaleLinear().domain([0,35]).range([m.t+ih,m.t]);
+  [0,10,20,30].forEach(t=>{
+    s.append("line").attr("x1",m.l).attr("x2",m.l+iw).attr("y1",y(t)).attr("y2",y(t)).attr("stroke",t===0?LINE2:LINE);
+    s.append("text").attr("x",m.l-10).attr("y",y(t)+4).attr("text-anchor","end").attr("class","ax").text("€"+t);
+  });
+  data.forEach(d=>{
+    s.append("rect").attr("x",x(d.y)).attr("y",y(d.v)).attr("width",x.bandwidth()).attr("height",y(0)-y(d.v)).attr("fill",GOLD);
+    s.append("text").attr("x",x(d.y)+x.bandwidth()/2).attr("y",y(d.v)-10).attr("text-anchor","middle").attr("class","val").attr("font-size","14px").text("€"+d.v+" млрд");
+    s.append("text").attr("x",x(d.y)+x.bandwidth()/2).attr("y",h-18).attr("text-anchor","middle").attr("class","ax").attr("font-size","13px").text(d.y);
+  });
+  s.append("text").attr("x",m.l-44).attr("y",m.t-14).attr("class","axlbl").text("млрд €");
+})();
+
+/* ---------- FIG 3: symbol map ---------- */
+(function(){
+  const cities=[
+    {n:"Берлин",lon:13.405,lat:52.52,v:283,lab:1},
+    {n:"Мюнхен",lon:11.575,lat:48.137,v:200,lab:1},
+    {n:"Гамбург",lon:9.993,lat:53.551,v:71,lab:1},
+    {n:"Кёльн",lon:6.96,lat:50.938,v:26,lab:1},
+    {n:"Карлсруэ",lon:8.404,lat:49.007,v:22,lab:0},
+    {n:"Штутгарт",lon:9.182,lat:48.776,v:22,lab:0},
+    {n:"Франкфурт",lon:8.682,lat:50.11,v:21,lab:0},
+    {n:"Дармштадт",lon:8.651,lat:49.872,v:19,lab:0},
+    {n:"Ахен",lon:6.084,lat:50.776,v:14,lab:0},
+    {n:"Дюссельдорф",lon:6.773,lat:51.228,v:13,lab:0},
+    {n:"Тюбинген",lon:9.058,lat:48.521,v:10,lab:0}
+  ];
+  const w=920,h=540;
+  const s=svg("m-symbol",w,h);
+  const proj=d3.geoMercator().fitExtent([[40,20],[560,h-20]],GEO);
+  const path=d3.geoPath().projection(proj);
+  s.append("g").selectAll("path").data(GEO.features).enter().append("path")
+    .attr("d",path).attr("fill","#17171b").attr("stroke","rgba(241,241,238,0.32)").attr("stroke-width",1);
+  const r=d3.scaleSqrt().domain([0,283]).range([0,46]);
+  // circles
+  cities.forEach(c=>{
+    const p=proj([c.lon,c.lat]);
+    s.append("circle").attr("cx",p[0]).attr("cy",p[1]).attr("r",r(c.v))
+      .attr("fill","rgba(255,206,0,0.16)").attr("stroke",GOLD).attr("stroke-width",1.3);
+    s.append("circle").attr("cx",p[0]).attr("cy",p[1]).attr("r",1.6).attr("fill",GOLD);
+  });
+  // labels (selected) — side-aware placement to avoid circle collisions
+  cities.filter(c=>c.lab).forEach(c=>{
+    const p=proj([c.lon,c.lat]);
+    const left = c.side==="l";
+    const off = r(c.v)+8;
+    const tx = left ? p[0]-off : p[0]+off;
+    const anchor = left ? "end" : "start";
+    s.append("text").attr("x",tx).attr("y",p[1]-2).attr("text-anchor",anchor).attr("class","glabel").attr("font-size","13px").text(c.n);
+    s.append("text").attr("x",tx).attr("y",p[1]+13).attr("text-anchor",anchor).attr("class","val").attr("fill",GOLD).text(c.v);
+  });
+  // legend bubbles
+  const lx=660, ly=120;
+  s.append("text").attr("x",lx).attr("y",ly-30).attr("class","axlbl").text("ИИ-СТАРТАПОВ, 2025");
+  [283,71,22].forEach((vv,i)=>{
+    const cy=ly + i*78 + r(vv);
+    s.append("circle").attr("cx",lx+46).attr("cy",cy).attr("r",r(vv)).attr("fill","none").attr("stroke",MUTED).attr("stroke-width",1);
+    s.append("text").attr("x",lx+46+r(283)+14).attr("y",cy+4).attr("class","ax").text(vv);
+  });
+})();
+
+/* ---------- FIG 4: stacked area top cities ---------- */
+(function(){
+  const years=[2023,2024,2025];
+  const series=[
+    {k:"Берлин",c:GOLD,v:[165,209,283]},
+    {k:"Мюнхен",c:RED,v:[108,136,200]},
+    {k:"Гамбург",c:DIM,v:[41,65,71]}
+  ];
+  const w=920,h=400,m={t:30,r:70,b:42,l:50};
+  const s=svg("a-cities",w,h);
+  const iw=w-m.l-m.r, ih=h-m.t-m.b;
+  const totals=years.map((_,i)=>series.reduce((a,s2)=>a+s2.v[i],0));
+  const ymax=Math.ceil(Math.max(...totals)/100)*100;
+  const x=d3.scaleLinear().domain([2023,2025]).range([m.l,m.l+iw]);
+  const y=d3.scaleLinear().domain([0,ymax]).range([m.t+ih,m.t]);
+  for(let t=0;t<=ymax;t+=100){
+    s.append("line").attr("x1",m.l).attr("x2",m.l+iw).attr("y1",y(t)).attr("y2",y(t)).attr("stroke",t===0?LINE2:LINE);
+    s.append("text").attr("x",m.l-10).attr("y",y(t)+4).attr("text-anchor","end").attr("class","ax").text(t);
+  }
+  // build cumulative bands
+  let baseArr=[0,0,0];
+  series.forEach(se=>{
+    const top=se.v.map((vv,i)=>baseArr[i]+vv);
+    const pts=[];
+    years.forEach((yr,i)=>pts.push([x(yr),y(top[i])]));
+    for(let i=years.length-1;i>=0;i--) pts.push([x(years[i]),y(baseArr[i])]);
+    s.append("polygon").attr("points",pts.map(p=>p.join(",")).join(" "))
+      .attr("fill",se.c).attr("fill-opacity", se.c===DIM?0.5:0.82).attr("stroke",se.c).attr("stroke-width",1);
+    // end label
+    s.append("text").attr("x",x(2025)+8).attr("y",y((baseArr[2]+top[2])/2)+4).attr("class","val").attr("fill",se.c===DIM?PAPER:se.c).text(se.v[2]);
+    baseArr=top;
+  });
+  years.forEach(yr=>s.append("text").attr("x",x(yr)).attr("y",h-16).attr("text-anchor","middle").attr("class","ax").attr("font-size","13px").text(yr));
+  s.append("text").attr("x",m.l-40).attr("y",m.t-12).attr("class","axlbl").text("стартапов");
+})();
+
+/* ---------- FIG 5: ranked bars sovereignty ---------- */
+(function(){
+  const data=[
+    {n:"Германия",v:93},{n:"США",v:51},{n:"Япония",v:43},{n:"Др. страны ЕС",v:40},
+    {n:"Франция",v:38},{n:"Великобритания",v:37},{n:"Южная Корея",v:29},
+    {n:"Израиль",v:27},{n:"Индия",v:22},{n:"Украина",v:19},{n:"Китай",v:18},{n:"Россия",v:0}
+  ];
+  const w=920, rowH=30, m={t:14,r:48,b:24,l:150};
+  const h=m.t+m.b+data.length*rowH;
+  const s=svg("b-sovereign",w,h);
+  const iw=w-m.l-m.r;
+  const x=d3.scaleLinear().domain([0,100]).range([m.l,m.l+iw]);
+  [0,25,50,75,100].forEach(t=>{
+    s.append("line").attr("x1",x(t)).attr("x2",x(t)).attr("y1",m.t-2).attr("y2",h-m.b+2).attr("stroke",t===0?LINE2:LINE);
+    s.append("text").attr("x",x(t)).attr("y",h-8).attr("text-anchor","middle").attr("class","ax").text(t+"%");
+  });
+  data.forEach((d,i)=>{
+    const yy=m.t+i*rowH;
+    const hl=d.n==="Германия";
+    s.append("text").attr("x",m.l-12).attr("y",yy+rowH/2+4).attr("text-anchor","end").attr("class","glabel").attr("font-size","12.5px").attr("fill",hl?GOLD:PAPER).text(d.n);
+    if(d.v>0){
+      s.append("rect").attr("x",x(0)).attr("y",yy+5).attr("width",x(d.v)-x(0)).attr("height",rowH-12).attr("fill",hl?GOLD:"rgba(241,241,238,0.4)");
+    } else {
+      s.append("line").attr("x1",x(0)).attr("x2",x(0)).attr("y1",yy+5).attr("y2",yy+rowH-7).attr("stroke",RED).attr("stroke-width",2);
+    }
+    s.append("text").attr("x", d.v>0?x(d.v)+7:x(0)+7).attr("y",yy+rowH/2+4).attr("class","val").attr("fill",hl?GOLD:(d.v===0?RED:PAPER)).text(d.v+"%");
+  });
+})();
+
+/* ---------- FIG 6: diverging bars sentiment ---------- */
+(function(){
+  const data=[
+    {lab:"ИИ — возможность / риск (своя компания)",pos:83,neg:14},
+    {lab:"Важнейшая технология будущего / хайп",pos:81,neg:17},
+    {lab:"Без ИИ нет будущего / нет пользы",pos:51,neg:31}
+  ];
+  const w=920, rowH=66, m={t:30,r:40,b:30,l:40};
+  const h=m.t+m.b+data.length*rowH;
+  const s=svg("d-sentiment",w,h);
+  const cx=w/2;
+  const half=(w/2)-m.r-10;
+  const x=d3.scaleLinear().domain([0,100]).range([0,half]);
+  s.append("line").attr("x1",cx).attr("x2",cx).attr("y1",m.t-6).attr("y2",h-m.b+6).attr("stroke",LINE2);
+  data.forEach((d,i)=>{
+    const yy=m.t+i*rowH;
+    s.append("text").attr("x",m.l).attr("y",yy+10).attr("class","glabel").attr("font-size","13px").attr("fill",PAPER).text(d.lab);
+    const bh=20, by=yy+22;
+    // positive right (gold)
+    s.append("rect").attr("x",cx).attr("y",by).attr("width",x(d.pos)).attr("height",bh).attr("fill",GOLD);
+    s.append("text").attr("x",cx+x(d.pos)+8).attr("y",by+bh-5).attr("class","val").attr("fill",GOLD).text(d.pos+"%");
+    // negative left (red)
+    s.append("rect").attr("x",cx-x(d.neg)).attr("y",by).attr("width",x(d.neg)).attr("height",bh).attr("fill",RED);
+    s.append("text").attr("x",cx-x(d.neg)-8).attr("y",by+bh-5).attr("text-anchor","end").attr("class","val").attr("fill",RED).text(d.neg+"%");
+  });
+})();
+
+/* ---------- FIG 7: radar obstacles ---------- */
+(function(){
+  const axes=[
+    {a:"Правовая\nнеопределённость",v:53},
+    {a:"Нехватка\nэкспертизы",v:53},
+    {a:"Нехватка\nперсонала",v:51},
+    {a:"Требования\nзащиты данных",v:48},
+    {a:"Страх утечки\nданных",v:39},
+    {a:"Будущие\nправ. ограничения",v:35}
+  ];
+  const w=920,h=470,cx=w/2,cy=h/2+6,R=170,maxV=60;
+  const s=svg("r-obstacles",w,h);
+  const N=axes.length;
+  const ang=i=>(-Math.PI/2)+i*2*Math.PI/N;
+  // grid rings (polygonal)
+  [15,30,45,60].forEach(t=>{
+    const pts=[];
+    for(let i=0;i<N;i++){const rr=R*t/maxV;pts.push([cx+rr*Math.cos(ang(i)),cy+rr*Math.sin(ang(i))]);}
+    s.append("polygon").attr("points",pts.map(p=>p.join(",")).join(" ")).attr("fill","none").attr("stroke",LINE);
+    s.append("text").attr("x",cx+4).attr("y",cy-R*t/maxV-3).attr("class","axlbl").text(t+"%");
+  });
+  // spokes + axis labels
+  for(let i=0;i<N;i++){
+    const ex=cx+R*Math.cos(ang(i)), ey=cy+R*Math.sin(ang(i));
+    s.append("line").attr("x1",cx).attr("y1",cy).attr("x2",ex).attr("y2",ey).attr("stroke",LINE);
+    const lx=cx+(R+30)*Math.cos(ang(i)), ly=cy+(R+30)*Math.sin(ang(i));
+    const lines=axes[i].a.split("\n");
+    const anchor = Math.abs(Math.cos(ang(i)))<0.3 ? "middle" : (Math.cos(ang(i))>0?"start":"end");
+    lines.forEach((ln,k)=>{
+      s.append("text").attr("x",lx).attr("y",ly+(k*12)-((lines.length-1)*6)).attr("text-anchor",anchor).attr("class","ax").attr("font-size","11px").text(ln);
+    });
+  }
+  // data polygon
+  const dpts=axes.map((d,i)=>{const rr=R*d.v/maxV;return [cx+rr*Math.cos(ang(i)),cy+rr*Math.sin(ang(i))];});
+  s.append("polygon").attr("points",dpts.map(p=>p.join(",")).join(" ")).attr("fill","rgba(255,206,0,0.16)").attr("stroke",GOLD).attr("stroke-width",2);
+  dpts.forEach((p,i)=>{
+    s.append("rect").attr("x",p[0]-3).attr("y",p[1]-3).attr("width",6).attr("height",6).attr("fill",GOLD);
+    s.append("text").attr("x",p[0]).attr("y",p[1]-9).attr("text-anchor","middle").attr("class","val").attr("fill",GOLD).text(axes[i].v);
+  });
+})();
+
+/* ---------- FIG 10a: disinformation log bars ---------- */
+(function(){
+  const data=[
+    {n:"Ложных утверждений (NewsGuard)",v:22},
+    {n:"X-аккаунтов в кампании (ISD)",v:48},
+    {n:"Фейковых сайтов (Correctiv)",v:100},
+    {n:"Аккаунтов-ботов (ISD)",v:6000}
+  ];
+  const w=920,rowH=48,m={t:16,r:80,b:34,l:280};
+  const h=m.t+m.b+data.length*rowH;
+  const s=svg("b-disinfo",w,h);
+  const iw=w-m.l-m.r;
+  const x=d3.scaleLog().domain([10,10000]).range([m.l,m.l+iw]);
+  [10,100,1000,10000].forEach(t=>{
+    s.append("line").attr("x1",x(t)).attr("x2",x(t)).attr("y1",m.t-2).attr("y2",h-m.b+2).attr("stroke",LINE);
+    s.append("text").attr("x",x(t)).attr("y",h-12).attr("text-anchor","middle").attr("class","ax").text(t.toLocaleString("ru"));
+  });
+  data.forEach((d,i)=>{
+    const yy=m.t+i*rowH;
+    s.append("text").attr("x",m.l-12).attr("y",yy+rowH/2+4).attr("text-anchor","end").attr("class","glabel").attr("font-size","12.5px").text(d.n);
+    s.append("rect").attr("x",m.l).attr("y",yy+8).attr("width",x(d.v)-m.l).attr("height",rowH-20).attr("fill",RED);
+    s.append("text").attr("x",x(d.v)+8).attr("y",yy+rowH/2+4).attr("class","val").attr("fill",RED).text(d.v>=1000?(d.v/1000)+"тыс.+":d.v+"+");
+  });
+})();
+
+/* ---------- FIG 10b: cheap fakes vs AI split bars ---------- */
+(function(){
+  const data=[{n:"ИИ-контент",v:1,c:GOLD},{n:"«Дешёвые подделки» (low-tech)",v:7,c:RED}];
+  const w=920,rowH=52,m={t:14,r:60,b:16,l:280};
+  const h=m.t+m.b+data.length*rowH;
+  const s=svg("b-cheap",w,h);
+  const iw=w-m.l-m.r;
+  const x=d3.scaleLinear().domain([0,7]).range([m.l,m.l+iw]);
+  data.forEach((d,i)=>{
+    const yy=m.t+i*rowH;
+    s.append("text").attr("x",m.l-12).attr("y",yy+rowH/2+4).attr("text-anchor","end").attr("class","glabel").attr("font-size","12.5px").text(d.n);
+    s.append("rect").attr("x",m.l).attr("y",yy+10).attr("width",x(d.v)-m.l).attr("height",rowH-22).attr("fill",d.c);
+    s.append("text").attr("x",x(d.v)+8).attr("y",yy+rowH/2+4).attr("class","val").attr("fill",d.c).text("×"+d.v);
+  });
+})();
+</script>
+</body>
+</html>

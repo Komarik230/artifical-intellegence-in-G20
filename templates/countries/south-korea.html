@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Южная Корея — Искусственный интеллект · G20</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+/* ===================================================================
+   Единый чёрный шаблон G20. Под Южную Корею меняется только блок --flag-*
+   (флаг Тхэгыкки: красный + синий тхэгык, чёрные триграммы на белом).
+   =================================================================== */
+:root {
+  /* --- Акцент страны: Южная Корея (флаг). Красный и синий осветлены под чёрный фон --- */
+  --flag-primary:   #ED3A4B;   /* красный тхэгыка, осветлён */
+  --flag-primary-2: #FF6B78;   /* светлее, для ховера/выделения */
+  --flag-secondary: #2E6BE0;   /* синий тхэгыка, осветлён */
+  --flag-tertiary:  #5C8CF0;   /* светлый стальной, вторичный акцент */
+
+  /* --- Общая монохромная база (для всех стран одинаковая) --- */
+  --ink:        #060607;
+  --ink-panel:  #0B0C0E;
+  --paper:      #FFFFFF;
+  --muted:      rgba(255,255,255,.56);
+  --muted-2:    rgba(255,255,255,.40);
+  --line:       rgba(255,255,255,.16);
+  --line-2:     rgba(255,255,255,.30);
+  --grid:       rgba(255,255,255,.08);
+  --alert:      #E5484D;       /* функциональный красный: дипфейки, отставание */
+
+  --maxw: 1320px;
+  --pad: clamp(16px, 4vw, 56px);
+
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --f-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--ink); -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--ink); color: var(--paper);
+  font-family: var(--f-body); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+svg { display: block; }
+a { color: inherit; }
+::selection { background: var(--flag-primary); color: #1a0205; }
+
+.wrap { width: min(var(--maxw), 100%); margin: 0 auto; padding-inline: var(--pad); }
+
+/* ---------- Утилитарные текстовые элементы ---------- */
+.eyebrow { font-family: var(--f-mono); font-size: 11.5px; font-weight: 500; letter-spacing: .26em; text-transform: uppercase; color: var(--flag-primary); margin: 0; }
+.mono { font-family: var(--f-mono); }
+.muted { color: var(--muted); }
+.blue { color: var(--flag-secondary); }
+.alert { color: var(--alert); }
+h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 900; }
+
+/* ====================== ШАПКА / БРЕНД-БАР ====================== */
+.topbar { border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 50; background: rgba(6,6,7,.86); backdrop-filter: blur(8px); }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 56px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+/* флаг-марка Кореи: белое поле, диагональ красный/синий (тхэгык, без скруглений) + 4 чёрные триграммы по углам */
+.flagmark { width: 32px; height: 22px; background: #fff; position: relative; flex: none; border: 1px solid var(--line-2); overflow: hidden; }
+.flagmark::before { content:""; position:absolute; inset:0; background: linear-gradient(135deg, var(--flag-primary) 0 50%, var(--flag-secondary) 50% 100%); }
+.flagmark i { position:absolute; width:4px; height:4px; background:#0c0c0c; }
+.flagmark i.t1 { top:3px; left:3px; }
+.flagmark i.t2 { top:3px; right:3px; }
+.flagmark i.t3 { bottom:3px; left:3px; }
+.flagmark i.t4 { bottom:3px; right:3px; }
+.brand b { font-family: var(--f-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; }
+.brand .idx { font-family: var(--f-mono); font-size: 11px; letter-spacing: .2em; color: var(--muted-2); text-transform: uppercase; }
+.topnav { display: flex; gap: 26px; }
+.topnav a { font-family: var(--f-mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .15s; }
+.topnav a:hover { color: var(--flag-primary); }
+@media (max-width: 720px){ .topnav { display: none; } }
+
+/* ====================== ГЕРОЙ ====================== */
+.hero { padding: clamp(48px, 9vw, 104px) 0 clamp(32px, 5vw, 64px); border-bottom: 1px solid var(--line); position: relative; }
+.hero .eyebrow { margin-bottom: 22px; }
+.hero h1 { font-size: clamp(38px, 7.2vw, 92px); line-height: .98; letter-spacing: -.02em; max-width: 19ch; }
+.hero h1 .hl { color: var(--flag-primary); }
+.dek { margin: 26px 0 0; max-width: 76ch; color: var(--muted); font-size: clamp(16px, 1.7vw, 20px); line-height: 1.62; }
+.dek b { color: var(--paper); font-weight: 600; }
+.rule-thick { height: 4px; width: 64px; background: var(--flag-primary); margin: 34px 0 0; }
+
+/* KPI-полоса */
+.kpis { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: clamp(34px, 5vw, 56px); border: 1px solid var(--line); }
+.kpi { padding: 20px 18px; border-right: 1px solid var(--line); }
+.kpi:last-child { border-right: none; }
+.kpi .n { font-family: var(--f-display); font-weight: 900; font-size: clamp(22px, 2.6vw, 34px); line-height: 1; letter-spacing: -.01em; }
+.kpi .n.acc { color: var(--flag-primary); }
+.kpi .n.blue { color: var(--flag-secondary); }
+.kpi .n.warn { color: var(--alert); }
+.kpi .l { margin: 10px 0 0; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-2); line-height: 1.5; }
+@media (max-width: 900px){ .kpis { grid-template-columns: repeat(2, 1fr); } .kpi:nth-child(2){ border-right:none; } }
+
+/* ====================== СЕКЦИИ ====================== */
+section.block { padding: clamp(56px, 8vw, 104px) 0; border-bottom: 1px solid var(--line); }
+.sec-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 14px; }
+.sec-head .tag { font-family: var(--f-mono); font-size: 12px; font-weight: 600; letter-spacing: .2em; color: var(--flag-primary); }
+.sec-head h2 { font-size: clamp(26px, 4vw, 46px); line-height: 1.02; letter-spacing: -.015em; }
+.sec-intro { max-width: 78ch; color: var(--muted); font-size: clamp(15px, 1.5vw, 18px); margin: 0 0 clamp(36px, 5vw, 56px); }
+.sec-intro b { color: var(--paper); font-weight: 600; }
+
+/* ====================== FIGURE / ГРАФИКИ ====================== */
+.fig { border: 1px solid var(--line); margin: 0 0 30px; background: var(--ink-panel); }
+.fig .head { padding: 18px 22px 14px; border-bottom: 1px solid var(--line); }
+.fig .head .t { font-family: var(--f-display); font-weight: 700; font-size: 17px; letter-spacing: -.01em; }
+.fig .head .s { margin-top: 5px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .04em; color: var(--muted); text-transform: uppercase; }
+.fig .chart { padding: 22px; overflow-x: auto; }
+.fig figcaption { padding: 0 22px 18px; font-size: 12.5px; color: var(--muted-2); line-height: 1.5; }
+.fig figcaption b { color: var(--muted); font-weight: 600; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.grid-2 .fig { margin: 0; }
+@media (max-width: 900px){ .grid-2 { grid-template-columns: 1fr; } }
+
+/* подписи внутри SVG */
+.ax text, text.lbl { font-family: var(--f-mono); fill: var(--muted); }
+text.val { font-family: var(--f-display); font-weight: 700; }
+
+/* таблица */
+table.dw { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.dw th, table.dw td { text-align: left; padding: 13px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.dw thead th { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-2); font-weight: 500; }
+table.dw tbody th { font-family: var(--f-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); font-weight: 500; white-space: nowrap; }
+table.dw td.eu { color: var(--muted); }
+table.dw td.kr { color: var(--paper); }
+table.dw td.kr b { color: var(--flag-primary); font-weight: 700; }
+table.dw tr:last-child td, table.dw tr:last-child th { border-bottom: none; }
+
+/* ====================== ФУТЕР ====================== */
+footer { padding: clamp(46px,7vw,90px) 0 80px; }
+.foot-top { display: grid; grid-template-columns: 1.2fr 1fr; gap: 36px; align-items: start; margin-bottom: 46px; }
+.foot-top .lead { font-family: var(--f-display); font-weight: 800; font-size: clamp(20px,2.6vw,30px); line-height: 1.1; max-width: 26ch; }
+.foot-top .lead em { font-style: normal; color: var(--flag-primary); }
+.foot-note { color: var(--muted); font-size: 13.5px; max-width: 56ch; }
+.sources { border-top: 1px solid var(--line); padding-top: 24px; }
+.sources h4 { font-family: var(--f-mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted-2); font-weight: 500; margin: 0 0 16px; }
+.sources ol { margin: 0; padding: 0; list-style: none; columns: 2; column-gap: 42px; }
+.sources li { break-inside: avoid; padding: 7px 0; border-top: 1px solid var(--grid); font-size: 12px; color: var(--muted); display: flex; gap: 10px; }
+.sources li:first-child { border-top: 0; }
+.sources li .n { font-family: var(--f-mono); color: var(--flag-primary); flex: none; }
+.sources li b { color: var(--paper); font-weight: 500; }
+@media (max-width: 680px){ .foot-top { grid-template-columns: 1fr; } .sources ol { columns: 1; } }
+.colophon { margin-top: 42px; padding-top: 22px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-2); }
+</style>
+</head>
+<body>
+
+<!-- ===================== ШАПКА ===================== -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="flagmark" aria-hidden="true"><i class="t1"></i><i class="t2"></i><i class="t3"></i><i class="t4"></i></span>
+      <span class="idx">16 / G20</span>
+      <b>Южная Корея</b>
+    </div>
+    <nav class="topnav">
+      <a href="#strategy">01 Стратегия</a>
+      <a href="#ethics">02 Этика</a>
+      <a href="#media">03 Медиа</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Искусственный интеллект — страновой профиль</p>
+    <h1>Лучшее в мире «железо», <span class="hl">отстающие правила</span></h1>
+    <p class="dek">Южная Корея третья в мире по разработке ИИ и шестая в общем зачёте Tortoise Global AI Index, но лишь <b>35-я по «операционной среде»</b> — регулированию и общественному доверию. Именно в этот разрыв провалились <b>дипфейк-кризис 2024 года</b> и поспешно принятый <b>Базовый закон об ИИ</b>. Страна строит «AI G3», закупает 260 000 ускорителей и запускает суверенные модели — и одновременно остаётся мировой столицей насильственных дипфейков.</p>
+    <div class="rule-thick"></div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="n acc">6-е</div><div class="l">место в мире · Tortoise Global AI Index 2024</div></div>
+      <div class="kpi"><div class="n">300 000+</div><div class="l">ускорителей · 3-й парк GPU в мире</div></div>
+      <div class="kpi"><div class="n blue">65 трлн ₩</div><div class="l">частные инвестиции в ИИ · 2024–2027</div></div>
+      <div class="kpi"><div class="n warn">53 %</div><div class="l">мировых жертв порно-дипфейков — кореянки</div></div>
+      <div class="kpi"><div class="n warn">35-е</div><div class="l">место по операционной среде (регулирование)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 01 СТРАТЕГИЯ ===================== -->
+<section class="block" id="strategy">
+  <div class="wrap">
+    <div class="sec-head"><span class="tag">01</span><h2>Стратегия: гонка за «AI G3»</h2></div>
+    <p class="sec-intro">Сеул официально метит в тройку мировых лидеров ИИ к 2030 году. Опора — полупроводники и государственные деньги: национальный вычислительный центр на <b>4 трлн ₩</b>, сделка с Nvidia на <b>260 000 ускорителей Blackwell</b> и частные обязательства на <b>65 трлн ₩</b>. Параллельно государство запустило «выживательный» конкурс суверенных базовых моделей, в котором из десяти команд останутся две.</p>
+
+    <!-- A. РАДАР -->
+    <figure class="fig">
+      <div class="head">
+        <div class="t">Профиль ИИ-возможностей: где Корея сильна и где проседает</div>
+        <div class="s">Tortoise Global AI Index 2024 · место в мире из 83 стран · ближе к краю — выше место</div>
+      </div>
+      <div class="chart"><svg id="c-radar"></svg></div>
+      <figcaption>Корея входит в мировой топ по <b>разработке</b> (3-е), <b>госстратегии</b> (3-е по объявленным госрасходам) и <b>инфраструктуре</b> (6-е, ведущий производитель чипов). Слабые места — <b>таланты и исследования</b> (13-е) и особенно <b>операционная среда</b> (35-е): регулирование и общественное доверие. Коммерческая экосистема — ниже 7-го места (Саудовская Аравия на 7-м опережает Корею).</figcaption>
+    </figure>
+
+    <div class="grid-2">
+      <!-- B. DOT PLOT -->
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Масштаб ставок: обязательства по ИИ</div>
+          <div class="s">трлн вон · логарифмическая ось</div>
+        </div>
+        <div class="chart"><svg id="c-dots"></svg></div>
+        <figcaption>Частные обязательства (<b>65 трлн ₩</b>, 2024–2027) на порядок крупнее годового госбюджета на ИИ (1,8 трлн ₩). Сделка с Nvidia и программа финансирования полупроводников — по 14 трлн ₩.</figcaption>
+      </figure>
+
+      <!-- C. SLOPE -->
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Конкурс суверенных моделей: «на выбывание»</div>
+          <div class="s">проект «Независимая базовая модель ИИ» · число команд</div>
+        </div>
+        <div class="chart"><svg id="c-slope"></svg></div>
+        <figcaption>Из 10 претендентов отобрали 5 (август 2025): Naver Cloud, Upstage, SK Telecom, NC AI, LG AI Research. Каждые полгода выбывает по команде — к 2027 останутся <b>две</b>. KT и Kakao выбыли из-за связей с иностранным big tech.</figcaption>
+      </figure>
+    </div>
+
+    <!-- D. BAR -->
+    <figure class="fig">
+      <div class="head">
+        <div class="t">Реальное принятие: загрузки моделей на Hugging Face</div>
+        <div class="s">число загрузок · по состоянию на 5 января 2026</div>
+      </div>
+      <div class="chart"><svg id="c-bar-dl"></svg></div>
+      <figcaption>Среди корейских моделей лидирует <b>HyperCLOVA X Seed 32B Think</b> от Naver Cloud — высокие результаты при меньшем числе параметров (сдал корейский ЕГЭ на высший балл по всем предметам). Но даже он на порядок отстаёт от мирового открытого лидера <b>DeepSeek R1</b> (440 063 загрузки) — масштаб разрыва в принятии.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== 02 ЭТИЧЕСКОЕ РЕГУЛИРОВАНИЕ ===================== -->
+<section class="block" id="ethics">
+  <div class="wrap">
+    <div class="sec-head"><span class="tag">02</span><h2>Этическое регулирование: первыми — в действии</h2></div>
+    <p class="sec-intro">22 января 2026 года вступил в силу <b>Базовый закон об ИИ</b> — вторая в мире после ЕС комплексная норма и первая, введённая <b>сразу целиком</b>, без поэтапного запуска. Подход «продвижение + доверие»: умеренные штрафы, обязательная маркировка генеративного контента и особые правила для дипфейков. Закон родился прямо из дипфейк-кризиса — но 98 % из опрошенных стартапов оказались к нему не готовы.</p>
+
+    <!-- E. RANGE PLOT / TIMELINE -->
+    <figure class="fig">
+      <div class="head">
+        <div class="t">Как ужесточалось регулирование: 2020 → 2026</div>
+        <div class="s">ключевые правовые вехи</div>
+      </div>
+      <div class="chart"><svg id="c-timeline"></svg></div>
+      <figcaption>Право догоняло технологию рывками: первая норма о «фальшивых изображениях» (2020) почти не применялась; кризис августа 2024-го заставил криминализировать даже хранение дипфейков и принять Базовый закон об ИИ.</figcaption>
+    </figure>
+
+    <!-- F. TABLE -->
+    <figure class="fig">
+      <div class="head">
+        <div class="t">Два пути комплексного регулирования: ЕС и Корея</div>
+        <div class="s">AI Act (ЕС) против Базового закона об ИИ (Корея)</div>
+      </div>
+      <div class="chart" style="padding:0">
+        <table class="dw">
+          <thead>
+            <tr><th>Параметр</th><th>ЕС · AI Act</th><th>Корея · Базовый закон об ИИ</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>Принят</th><td class="eu">Август 2024 (первым в мире)</td><td class="kr"><b>Январь 2025</b>, в силе с 22.01.2026</td></tr>
+            <tr><th>Ввод в действие</th><td class="eu">Поэтапно: high-risk — с августа 2026</td><td class="kr"><b>Все нормы сразу</b>, без этапов</td></tr>
+            <tr><th>Логика</th><td class="eu">4 уровня риска, упреждение</td><td class="kr">«High-impact» + генеративный ИИ, продвижение</td></tr>
+            <tr><th>Дипфейки</th><td class="eu">Обязательная маркировка</td><td class="kr"><b>Чёткая видимая маркировка</b> для дипфейков</td></tr>
+            <tr><th>Максимальный штраф</th><td class="eu">до 35 млн евро / 7 % оборота</td><td class="kr"><b>до 30 млн ₩</b> (~21 тыс. $)</td></tr>
+            <tr><th>Льготный период</th><td class="eu">Переходные сроки по уровням</td><td class="kr">1 год до начала штрафов</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption>Корейский потолок штрафов <b>на три порядка ниже</b> европейского — сознательный выбор в пользу промышленного роста. Критики предупреждают о «эффекте охлаждения» из-за расплывчатых формулировок, делегированных подзаконным актам.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== 03 МЕДИА ===================== -->
+<section class="block" id="media">
+  <div class="wrap">
+    <div class="sec-head"><span class="tag">03</span><h2>Медиа: эпицентр насильственных дипфейков</h2></div>
+    <p class="sec-intro">При 0,63 % мирового населения Южная Корея даёт <b>53 % всех жертв порно-дипфейков</b> в мире — больше, чем США, Япония и Великобритания вместе взятые; <b>99 % жертв — женщины</b>. Кризис августа 2024-го вскрыл сотни Telegram-каналов, где школьники и студенты создавали изображения одноклассниц и учительниц. Это медиа-измерение ровно той слабости, что видна на радаре: 35-е место по операционной среде.</p>
+
+    <!-- G. SYMBOL MAP -->
+    <figure class="fig">
+      <div class="head">
+        <div class="t">Кто становится мишенью: порно-дипфейки по странам</div>
+        <div class="s">доля от мировых жертв · площадь квадрата = доля · Security Hero, 2023</div>
+      </div>
+      <div class="chart"><svg id="c-map"></svg></div>
+      <figcaption>Корея — <b>53 %</b> мировых жертв, абсолютный лидер. Дальше с большим отрывом США (20 %), Япония (10 %), Великобритания (6 %); Китай, Индия, Тайвань и Израиль — по 1–3 %.</figcaption>
+    </figure>
+
+    <div class="grid-2">
+      <!-- H. COLUMN -->
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Взрывной рост: дипфейк-преступления в полиции</div>
+          <div class="s">зарегистрированные дела о сексуальных дипфейках</div>
+        </div>
+        <div class="chart"><svg id="c-col"></svg></div>
+        <figcaption>За <b>7 месяцев</b> 2024-го (январь–июль) — 297 дел против 180 за весь 2023-й. Обращения к госрегулятору о дипфейках выросли вчетверо за тот же период.</figcaption>
+      </figure>
+
+      <!-- J. STACKED COLUMN -->
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Кто авторы: возраст подозреваемых</div>
+          <div class="s">доля несовершеннолетних (10–19 лет), %</div>
+        </div>
+        <div class="chart"><svg id="c-stack"></svg></div>
+        <figcaption>Доля подростков среди подозреваемых выросла с 65 % (2021) до <b>74 %</b> (2024). Жертвы и преступники зачастую — одноклассники; многие — несовершеннолетние.</figcaption>
+      </figure>
+    </div>
+
+    <!-- I. SPLIT BARS -->
+    <figure class="fig">
+      <div class="head">
+        <div class="t">Диспропорция, которой нет объяснения в масштабе страны</div>
+        <div class="s">доля Кореи в мире, %</div>
+      </div>
+      <div class="chart"><svg id="c-split"></svg></div>
+      <figcaption>На <b>0,63 %</b> мирового населения приходится <b>53 %</b> мировых жертв порно-дипфейков — перекос в 84 раза. Из 71 судебного решения по дипфейкам в 2020–2023 годах лишь 4 завершились лишением свободы именно за дипфейк.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== ФУТЕР ===================== -->
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="lead">Корея победила в гонке за <em>железо и стратегию</em> — и проиграла в <em>доверии и защите людей</em>.</div>
+      <div class="foot-note">Страновой профиль в составе курсового проекта по странам G20. Все показатели — из открытых источников и приведены с указанием в списке ниже. Данные актуальны на начало 2026 года; единицы: ₩ — южнокорейская вона.</div>
+    </div>
+    <div class="sources">
+      <h4>Источники</h4>
+      <ol>
+        <li><span class="n">1</span><span><b>Tortoise Media.</b> The Global AI Index 2024 — общий рейтинг, инфраструктура, госрасходы.</span></li>
+        <li><span class="n">2</span><span><b>Yahoo Finance / Tortoise.</b> Which countries are winning the AI race — разработка (3-е), полупроводники, патенты.</span></li>
+        <li><span class="n">3</span><span><b>Korea Herald / R. Fouser.</b> South Korea's AI Goals — операционная среда (35-е), таланты и исследования (13-е).</span></li>
+        <li><span class="n">4</span><span><b>Middle East AI News.</b> Saudi 1st for government strategy — коммерческая экосистема Кореи ниже 7-го места.</span></li>
+        <li><span class="n">5</span><span><b>Asian Intelligence.</b> AI in South Korea — «AI G3», нацвычислительный центр (4 трлн ₩), бюджет 1,8 трлн ₩, частные 65 трлн ₩.</span></li>
+        <li><span class="n">6</span><span><b>Kitechase.</b> AI Infrastructure 2026 — сделка с Nvidia на 260 000 GPU (14 трлн ₩), 3-й парк ускорителей.</span></li>
+        <li><span class="n">7</span><span><b>UPI / Businesskorea / DesignCompass.</b> Independent AI Foundation Model — 5 команд, конкурс «на выбывание», параметры моделей.</span></li>
+        <li><span class="n">8</span><span><b>Businesskorea.</b> Naver Cloud Leads AI Model Downloads — загрузки на Hugging Face (05.01.2026).</span></li>
+        <li><span class="n">9</span><span><b>FPF · Cooley · Lexology · IAPP.</b> AI Basic Act — вступление в силу 22.01.2026, штраф до 30 млн ₩, маркировка.</span></li>
+        <li><span class="n">10</span><span><b>TechPolicy.Press · Modern Diplomacy.</b> Korea first to enforce — поэтапность ЕС, неготовность 98 % стартапов.</span></li>
+        <li><span class="n">11</span><span><b>Security Hero.</b> State of Deepfakes 2023 — доли по странам (Корея 53 %), 99 % жертв — женщины.</span></li>
+        <li><span class="n">12</span><span><b>Korea Herald.</b> Rising tide of deepfake pornography — рост дел, 4 из 71 решения с лишением свободы.</span></li>
+        <li><span class="n">13</span><span><b>NPR · NBC · Responsible AI Labs · The Conversation.</b> Telegram-кризис 2024 — 297/180 дел, 74 % подростков, 682 ареста.</span></li>
+        <li><span class="n">14</span><span><b>ScienceDirect · Taylor & Francis.</b> #MeToo / digital misogyny — 53 % при 0,63 % населения, 99 % жертв женщины.</span></li>
+      </ol>
+    </div>
+    <div class="colophon">
+      <span>G20 · Искусственный интеллект · Страновой профиль</span>
+      <span>Южная Корея · 16 / 20</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* =================================================================
+   D3 v7 — общие хелперы и 8 SVG-визуализаций (+ таблица в HTML).
+   Маркеры квадратные, радар полигональный, без скруглений.
+   ================================================================= */
+const FLAG = getComputedStyle(document.documentElement).getPropertyValue('--flag-primary').trim();
+const FLAG2 = getComputedStyle(document.documentElement).getPropertyValue('--flag-secondary').trim();
+const FLAG3 = getComputedStyle(document.documentElement).getPropertyValue('--flag-tertiary').trim();
+const ALERT = getComputedStyle(document.documentElement).getPropertyValue('--alert').trim();
+const PAPER = '#FFFFFF';
+const MUTED = 'rgba(255,255,255,.56)';
+const MUTED2 = 'rgba(255,255,255,.40)';
+const LINE = 'rgba(255,255,255,.16)';
+const GRID = 'rgba(255,255,255,.10)';
+
+function svg(id, w, h){
+  const s = d3.select(id).attr('viewBox', `0 0 ${w} ${h}`).attr('width','100%')
+    .attr('preserveAspectRatio','xMinYMin meet').style('max-width', w+'px').style('height','auto');
+  s.selectAll('*').remove();
+  return s;
+}
+
+/* ---------- A. РАДАР: профиль возможностей (ранги, инверт) ---------- */
+(function(){
+  const data = [
+    {ax:'Разработка', rank:3},
+    {ax:'Гос. стратегия', rank:3},
+    {ax:'Инфраструктура', rank:6},
+    {ax:'Коммерция', rank:9},
+    {ax:'Таланты', rank:13},
+    {ax:'Исследования', rank:13},
+    {ax:'Операц. среда', rank:35}
+  ];
+  const W=720, H=440, cx=W/2, cy=H/2+6, R=158;
+  const s = svg('#c-radar', W, H);
+  const maxRank = 40;
+  const rscale = d3.scaleLinear().domain([1, maxRank]).range([R, 0]); // место 1 на краю
+  const n = data.length;
+  const ang = i => (Math.PI*2*i/n) - Math.PI/2;
+
+  // концентрические кольца + подписи мест
+  [1,10,20,30,40].forEach(rk=>{
+    const r = rscale(rk);
+    const pts = d3.range(n).map(i=>[cx+r*Math.cos(ang(i)), cy+r*Math.sin(ang(i))]);
+    s.append('polygon').attr('points', pts.map(p=>p.join(',')).join(' '))
+      .attr('fill','none').attr('stroke', GRID).attr('stroke-width',1);
+    s.append('text').attr('x', cx+4).attr('y', cy - r + 3).attr('class','lbl')
+      .attr('font-size',9).attr('fill', MUTED2).text(rk===1?'1-е':rk);
+  });
+  // оси и подписи
+  data.forEach((d,i)=>{
+    const x=cx+R*Math.cos(ang(i)), y=cy+R*Math.sin(ang(i));
+    s.append('line').attr('x1',cx).attr('y1',cy).attr('x2',x).attr('y2',y).attr('stroke', LINE);
+    const lx=cx+(R+24)*Math.cos(ang(i)), ly=cy+(R+24)*Math.sin(ang(i));
+    const anchor = Math.abs(Math.cos(ang(i)))<0.3 ? 'middle' : (Math.cos(ang(i))>0?'start':'end');
+    s.append('text').attr('x',lx).attr('y',ly+3).attr('text-anchor',anchor)
+      .attr('class','lbl').attr('font-size',11).attr('fill', PAPER).text(d.ax);
+  });
+  // полигон профиля
+  const pts = data.map((d,i)=>{ const r=rscale(Math.min(d.rank,maxRank)); return [cx+r*Math.cos(ang(i)), cy+r*Math.sin(ang(i))]; });
+  s.append('polygon').attr('points', pts.map(p=>p.join(',')).join(' '))
+    .attr('fill', FLAG).attr('fill-opacity',.18).attr('stroke', FLAG).attr('stroke-width',2);
+  // квадратные маркеры + значения
+  data.forEach((d,i)=>{
+    const r=rscale(Math.min(d.rank,maxRank));
+    const x=cx+r*Math.cos(ang(i)), y=cy+r*Math.sin(ang(i));
+    s.append('rect').attr('x',x-4).attr('y',y-4).attr('width',8).attr('height',8)
+      .attr('fill', d.rank>=30?ALERT:FLAG);
+  });
+})();
+
+/* ---------- B. DOT PLOT: обязательства (лог-ось) ---------- */
+(function(){
+  const data = [
+    {l:'Частные обязательства, 2024–2027', v:65},
+    {l:'Сделка с Nvidia (260k GPU)', v:14},
+    {l:'Финансирование полупроводников/ИИ', v:14},
+    {l:'Нацвычислительный центр (до 2030)', v:4},
+    {l:'Госбюджет на ИИ, 2025', v:1.8},
+    {l:'Проект суверенных моделей (гос.)', v:0.2136}
+  ].sort((a,b)=>a.v-b.v);
+  const W=560, H=270, m={t:18,r:24,b:34,l:250};
+  const s = svg('#c-dots', W, H);
+  const x = d3.scaleLog().domain([0.15, 90]).range([m.l, W-m.r]);
+  const y = d3.scalePoint().domain(data.map(d=>d.l)).range([H-m.b, m.t]).padding(0.6);
+  // ось X (лог)
+  [0.2,1,5,20,80].forEach(t=>{
+    s.append('line').attr('x1',x(t)).attr('x2',x(t)).attr('y1',m.t).attr('y2',H-m.b).attr('stroke',GRID);
+    s.append('text').attr('x',x(t)).attr('y',H-m.b+16).attr('text-anchor','middle').attr('class','lbl').attr('font-size',9.5).text(t);
+  });
+  s.append('text').attr('x',(m.l+W-m.r)/2).attr('y',H-6).attr('text-anchor','middle').attr('class','lbl').attr('font-size',9.5).attr('fill',MUTED2).text('трлн вон (лог)');
+  data.forEach(d=>{
+    const yy=y(d.l);
+    s.append('line').attr('x1',m.l).attr('x2',x(d.v)).attr('y1',yy).attr('y2',yy).attr('stroke',LINE);
+    s.append('text').attr('x',m.l-12).attr('y',yy+3.5).attr('text-anchor','end').attr('class','lbl').attr('font-size',10.5).attr('fill',PAPER).text(d.l);
+    s.append('rect').attr('x',x(d.v)-5).attr('y',yy-5).attr('width',10).attr('height',10).attr('fill', d.v>=60?FLAG:FLAG2);
+    s.append('text').attr('x',x(d.v)+11).attr('y',yy+3.5).attr('class','val').attr('font-size',11).attr('fill',PAPER).text(d.v>=1?d.v:d.v.toFixed(2));
+  });
+})();
+
+/* ---------- C. SLOPE: конкурс «на выбывание» ---------- */
+(function(){
+  const stages = [
+    {x:'Заявки', n:10},
+    {x:'Финалисты\n(авг. 2025)', n:5},
+    {x:'Цель\n(2027)', n:2}
+  ];
+  const W=520, H=270, m={t:24,r:60,b:46,l:48};
+  const s = svg('#c-slope', W, H);
+  const x = d3.scalePoint().domain(stages.map(d=>d.x)).range([m.l, W-m.r]).padding(0.2);
+  const y = d3.scaleLinear().domain([0,11]).range([H-m.b, m.t]);
+  [0,5,10].forEach(t=>{
+    s.append('line').attr('x1',m.l).attr('x2',W-m.r).attr('y1',y(t)).attr('y2',y(t)).attr('stroke',GRID);
+    s.append('text').attr('x',m.l-10).attr('y',y(t)+3.5).attr('text-anchor','end').attr('class','lbl').attr('font-size',9.5).text(t);
+  });
+  // линия
+  const line = d3.line().x(d=>x(d.x)).y(d=>y(d.n));
+  s.append('path').datum(stages).attr('d',line).attr('fill','none').attr('stroke',FLAG).attr('stroke-width',2.5);
+  stages.forEach((d,i)=>{
+    s.append('rect').attr('x',x(d.x)-6).attr('y',y(d.n)-6).attr('width',12).attr('height',12).attr('fill',FLAG);
+    s.append('text').attr('x',x(d.x)).attr('y',y(d.n)-14).attr('text-anchor','middle').attr('class','val').attr('font-size',16).attr('fill',PAPER).text(d.n);
+    d.x.split('\n').forEach((ln,k)=>{
+      s.append('text').attr('x',x(d.x)).attr('y',H-m.b+18+k*12).attr('text-anchor','middle').attr('class','lbl').attr('font-size',9.5).attr('fill',MUTED).text(ln);
+    });
+  });
+})();
+
+/* ---------- D. BAR: загрузки моделей Hugging Face ---------- */
+(function(){
+  const data = [
+    {l:'DeepSeek R1 (мировой ориентир)', v:440063, ref:true},
+    {l:'HyperCLOVA X 32B · Naver', v:23589},
+    {l:'Solar Open · Upstage', v:1208},
+    {l:'K-EXAONE · LG', v:1039},
+    {l:'VAETKI · NC AI', v:665}
+  ];
+  const W=620, H=240, m={t:16,r:80,b:30,l:215};
+  const s = svg('#c-bar-dl', W, H);
+  const x = d3.scaleLog().domain([400, 600000]).range([m.l, W-m.r]);
+  const y = d3.scaleBand().domain(data.map(d=>d.l)).range([m.t, H-m.b]).padding(0.32);
+  [1000,10000,100000].forEach(t=>{
+    s.append('line').attr('x1',x(t)).attr('x2',x(t)).attr('y1',m.t).attr('y2',H-m.b).attr('stroke',GRID);
+    s.append('text').attr('x',x(t)).attr('y',H-m.b+15).attr('text-anchor','middle').attr('class','lbl').attr('font-size',9.5).text(d3.format('~s')(t));
+  });
+  data.forEach(d=>{
+    const yy=y(d.l);
+    s.append('rect').attr('x',m.l).attr('y',yy).attr('width',Math.max(0,x(d.v)-m.l)).attr('height',y.bandwidth())
+      .attr('fill', d.ref?'rgba(255,255,255,.16)':(d.v>5000?FLAG:FLAG2));
+    s.append('text').attr('x',m.l-10).attr('y',yy+y.bandwidth()/2+3.5).attr('text-anchor','end').attr('class','lbl').attr('font-size',10).attr('fill',d.ref?MUTED:PAPER).text(d.l);
+    s.append('text').attr('x',x(d.v)+8).attr('y',yy+y.bandwidth()/2+3.5).attr('class','val').attr('font-size',10.5).attr('fill',d.ref?MUTED:PAPER).text(d3.format(',')(d.v).replace(/,/g,' '));
+  });
+  s.append('text').attr('x',(m.l+W-m.r)/2).attr('y',H-4).attr('text-anchor','middle').attr('class','lbl').attr('font-size',9).attr('fill',MUTED2).text('загрузки (лог)');
+})();
+
+/* ---------- E. TIMELINE / RANGE: правовые вехи ---------- */
+(function(){
+  const data = [
+    {t:'2020-06', l:'Норма о «фальшивых изображениях»', d:'до 5 лет / штраф до 50 млн ₩', tone:'base'},
+    {t:'2024-08', l:'Дипфейк-кризис в Telegram', d:'сотни каналов, 220 000+ подписчиков', tone:'alert'},
+    {t:'2024-10', l:'10 лет тюрьмы + ужесточение', d:'криминализировано даже хранение', tone:'alert'},
+    {t:'2024-12', l:'Принят Базовый закон об ИИ', d:'2-я в мире комплексная норма', tone:'flag'},
+    {t:'2026-01', l:'Закон вступил в силу', d:'все нормы сразу, штраф до 30 млн ₩', tone:'flag'}
+  ];
+  const W=720, H=250, m={t:30,r:24,b:24,l:24};
+  const s = svg('#c-timeline', W, H);
+  const parse = t => { const [y,mo]=t.split('-').map(Number); return y + (mo-1)/12; };
+  const x = d3.scaleLinear().domain([2020, 2026.4]).range([m.l+40, W-m.r-40]);
+  const baseY = m.t+18;
+  // ось времени
+  s.append('line').attr('x1',m.l+30).attr('x2',W-m.r-20).attr('y1',baseY).attr('y2',baseY).attr('stroke',LINE).attr('stroke-width',1.5);
+  [2020,2021,2022,2023,2024,2025,2026].forEach(yr=>{
+    s.append('line').attr('x1',x(yr)).attr('x2',x(yr)).attr('y1',baseY-4).attr('y2',baseY+4).attr('stroke',MUTED2);
+    s.append('text').attr('x',x(yr)).attr('y',baseY-12).attr('text-anchor','middle').attr('class','lbl').attr('font-size',9.5).attr('fill',MUTED2).text(yr);
+  });
+  data.forEach((d,i)=>{
+    const px=x(parse(d.t));
+    const col = d.tone==='alert'?ALERT:(d.tone==='flag'?FLAG:MUTED);
+    const yLab = baseY + 34 + i*36;
+    s.append('line').attr('x1',px).attr('x2',px).attr('y1',baseY).attr('y2',yLab-8).attr('stroke',col).attr('stroke-width',1).attr('stroke-dasharray','2,2');
+    s.append('rect').attr('x',px-5).attr('y',baseY-5).attr('width',10).attr('height',10).attr('fill',col);
+    s.append('text').attr('x',px+10).attr('y',yLab-2).attr('class','val').attr('font-size',12).attr('fill',PAPER).text(d.l);
+    s.append('text').attr('x',px+10).attr('y',yLab+13).attr('class','lbl').attr('font-size',10).attr('fill',MUTED).text(d.d);
+  });
+})();
+
+/* ---------- G. SYMBOL MAP: жертвы дипфейков по странам ---------- */
+(function(){
+  const data = [
+    {c:'Южная Корея', lon:127.8, lat:36.5, v:53, hl:true},
+    {c:'США', lon:-98, lat:39, v:20},
+    {c:'Япония', lon:138, lat:36, v:10},
+    {c:'Великобритания', lon:-2, lat:54, v:6},
+    {c:'Китай', lon:104, lat:35, v:3},
+    {c:'Индия', lon:79, lat:22, v:2},
+    {c:'Тайвань', lon:121, lat:24, v:1.5},
+    {c:'Израиль', lon:35, lat:31, v:1}
+  ];
+  const W=720, H=360, m={t:14,r:14,b:14,l:14};
+  const s = svg('#c-map', W, H);
+  // эквидистантная сетка-фон
+  const x = d3.scaleLinear().domain([-180,180]).range([m.l, W-m.r]);
+  const y = d3.scaleLinear().domain([85,-60]).range([m.t, H-m.b]);
+  for(let lon=-180; lon<=180; lon+=30){ s.append('line').attr('x1',x(lon)).attr('x2',x(lon)).attr('y1',m.t).attr('y2',H-m.b).attr('stroke',GRID).attr('stroke-width',.6); }
+  for(let lat=-60; lat<=80; lat+=30){ s.append('line').attr('x1',m.l).attr('x2',W-m.r).attr('y1',y(lat)).attr('y2',y(lat)).attr('stroke',GRID).attr('stroke-width',.6); }
+  s.append('rect').attr('x',m.l).attr('y',m.t).attr('width',W-m.l-m.r).attr('height',H-m.t-m.b).attr('fill','none').attr('stroke',LINE);
+  // квадраты-символы (площадь ~ доле)
+  const area = d3.scaleLinear().domain([0, 53]).range([8, 2900]); // px^2
+  data.slice().sort((a,b)=>b.v-a.v).forEach(d=>{
+    const side = Math.sqrt(area(d.v));
+    const px=x(d.lon), py=y(d.lat);
+    s.append('rect').attr('x',px-side/2).attr('y',py-side/2).attr('width',side).attr('height',side)
+      .attr('fill', d.hl?FLAG:FLAG2).attr('fill-opacity', d.hl?.85:.5).attr('stroke', d.hl?FLAG:FLAG2).attr('stroke-width',1);
+    const lab = `${d.c} · ${d.v}%`;
+    s.append('text').attr('x',px).attr('y', py + side/2 + 12).attr('text-anchor','middle')
+      .attr('class','lbl').attr('font-size', d.hl?11:9.5).attr('fill', d.hl?PAPER:MUTED).text(lab);
+  });
+})();
+
+/* ---------- H. COLUMN: рост дипфейк-дел ---------- */
+(function(){
+  const data = [
+    {l:'2023\n(весь год)', v:180, note:false},
+    {l:'2024\n(янв.–июль)', v:297, note:true}
+  ];
+  const W=320, H=250, m={t:24,r:16,b:42,l:42};
+  const s = svg('#c-col', W, H);
+  const x = d3.scaleBand().domain(data.map(d=>d.l)).range([m.l, W-m.r]).padding(0.42);
+  const y = d3.scaleLinear().domain([0,320]).range([H-m.b, m.t]);
+  [0,100,200,300].forEach(t=>{
+    s.append('line').attr('x1',m.l).attr('x2',W-m.r).attr('y1',y(t)).attr('y2',y(t)).attr('stroke',GRID);
+    s.append('text').attr('x',m.l-8).attr('y',y(t)+3.5).attr('text-anchor','end').attr('class','lbl').attr('font-size',9.5).text(t);
+  });
+  data.forEach(d=>{
+    s.append('rect').attr('x',x(d.l)).attr('y',y(d.v)).attr('width',x.bandwidth()).attr('height',y(0)-y(d.v))
+      .attr('fill', d.note?ALERT:FLAG2);
+    s.append('text').attr('x',x(d.l)+x.bandwidth()/2).attr('y',y(d.v)-8).attr('text-anchor','middle').attr('class','val').attr('font-size',15).attr('fill',PAPER).text(d.v);
+    d.l.split('\n').forEach((ln,k)=>{
+      s.append('text').attr('x',x(d.l)+x.bandwidth()/2).attr('y',H-m.b+16+k*12).attr('text-anchor','middle').attr('class','lbl').attr('font-size',9.5).attr('fill',MUTED).text(ln);
+    });
+  });
+})();
+
+/* ---------- J. STACKED COLUMN: возраст подозреваемых ---------- */
+(function(){
+  const data = [
+    {l:'2021', minor:65, adult:35},
+    {l:'2024', minor:74, adult:26}
+  ];
+  const W=320, H=250, m={t:20,r:16,b:38,l:42};
+  const s = svg('#c-stack', W, H);
+  const x = d3.scaleBand().domain(data.map(d=>d.l)).range([m.l, W-m.r]).padding(0.46);
+  const y = d3.scaleLinear().domain([0,100]).range([H-m.b, m.t]);
+  [0,50,100].forEach(t=>{
+    s.append('line').attr('x1',m.l).attr('x2',W-m.r).attr('y1',y(t)).attr('y2',y(t)).attr('stroke',GRID);
+    s.append('text').attr('x',m.l-8).attr('y',y(t)+3.5).attr('text-anchor','end').attr('class','lbl').attr('font-size',9.5).text(t);
+  });
+  data.forEach(d=>{
+    const xx=x(d.l), bw=x.bandwidth();
+    s.append('rect').attr('x',xx).attr('y',y(d.minor)).attr('width',bw).attr('height',y(0)-y(d.minor)).attr('fill',FLAG);
+    s.append('rect').attr('x',xx).attr('y',y(d.minor+d.adult)).attr('width',bw).attr('height',y(d.minor)-y(d.minor+d.adult)).attr('fill','rgba(255,255,255,.18)');
+    s.append('text').attr('x',xx+bw/2).attr('y',y(d.minor/2)+4).attr('text-anchor','middle').attr('class','val').attr('font-size',13).attr('fill',PAPER).text(d.minor+'%');
+    s.append('text').attr('x',xx+bw/2).attr('y',H-m.b+16).attr('text-anchor','middle').attr('class','lbl').attr('font-size',10).attr('fill',MUTED).text(d.l);
+  });
+  // легенда
+  s.append('rect').attr('x',m.l).attr('y',H-14).attr('width',9).attr('height',9).attr('fill',FLAG);
+  s.append('text').attr('x',m.l+13).attr('y',H-6).attr('class','lbl').attr('font-size',9).attr('fill',MUTED).text('10–19 лет');
+})();
+
+/* ---------- I. SPLIT BARS: 53% vs 0,63% ---------- */
+(function(){
+  const data = [
+    {l:'Доля в мировых жертвах порно-дипфейков', v:53, tone:'alert'},
+    {l:'Доля в населении мира', v:0.63, tone:'flag'}
+  ];
+  const W=720, H=160, m={t:20,r:60,b:24,l:330};
+  const s = svg('#c-split', W, H);
+  const x = d3.scaleLinear().domain([0,55]).range([m.l, W-m.r]);
+  const y = d3.scaleBand().domain(data.map(d=>d.l)).range([m.t, H-m.b]).padding(0.42);
+  [0,10,20,30,40,50].forEach(t=>{
+    s.append('line').attr('x1',x(t)).attr('x2',x(t)).attr('y1',m.t).attr('y2',H-m.b).attr('stroke',GRID);
+    s.append('text').attr('x',x(t)).attr('y',H-m.b+16).attr('text-anchor','middle').attr('class','lbl').attr('font-size',9.5).text(t+'%');
+  });
+  data.forEach(d=>{
+    const yy=y(d.l);
+    s.append('rect').attr('x',m.l).attr('y',yy).attr('width',Math.max(2,x(d.v)-m.l)).attr('height',y.bandwidth())
+      .attr('fill', d.tone==='alert'?ALERT:FLAG2);
+    s.append('text').attr('x',m.l-12).attr('y',yy+y.bandwidth()/2+3.5).attr('text-anchor','end').attr('class','lbl').attr('font-size',11).attr('fill',PAPER).text(d.l);
+    s.append('text').attr('x',x(d.v)+10).attr('y',yy+y.bandwidth()/2+4).attr('class','val').attr('font-size',15).attr('fill',PAPER).text(d.v+'%');
+  });
+})();
+</script>
+</body>
+</html>

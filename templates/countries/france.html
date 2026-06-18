@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Франция — Искусственный интеллект в странах G20</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+:root{
+  --ink:#060607; --ink-panel:#0c0d0f; --paper:#FFFFFF;
+  --muted:#9a9ca1; --muted-2:#65676c;
+  --line:#1d1f23; --line-2:#2b2e33; --grid:#141518;
+  --f-display:'Archivo',sans-serif; --f-mono:'IBM Plex Mono',monospace; --f-sans:'Inter',sans-serif;
+  --maxw:1320px; --pad:clamp(18px,4vw,44px);
+  /* Ретема Франции: триколор. Красный — основной акцент (читается на чёрном), синий — вторичный */
+  --flag-primary:#EF4135; --flag-secondary:#4A7FC0; --flag-blue:#3D6FB4; --flag-red:#EF4135;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink); color:var(--paper); font-family:var(--f-sans);
+  -webkit-font-smoothing:antialiased; line-height:1.5; overflow-x:hidden;
+  background-image:
+    repeating-linear-gradient(0deg,var(--grid) 0 1px,transparent 1px 64px),
+    repeating-linear-gradient(90deg,var(--grid) 0 1px,transparent 1px 64px);
+}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--pad)}
+h1,h2,h3{font-family:var(--f-display);font-weight:900;letter-spacing:-.01em}
+em{font-style:normal}
+a{color:inherit}
+
+/* ====================== ШАПКА ====================== */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(6,6,7,.86);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .idx{font-family:var(--f-mono);font-size:12px;letter-spacing:.22em;color:var(--muted)}
+.brand .nm{font-family:var(--f-display);font-weight:800;font-size:15px;letter-spacing:.02em}
+.flagbar{display:inline-flex;width:30px;height:14px;border:1px solid var(--line-2)}
+.flagbar i{flex:1}
+.flagbar i.b{background:var(--flag-blue)}
+.flagbar i.w{background:var(--paper)}
+.flagbar i.r{background:var(--flag-red)}
+.topnav{display:flex;gap:22px}
+.topnav a{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none}
+.topnav a:hover{color:var(--paper)}
+@media(max-width:720px){.topnav{display:none}}
+
+/* ====================== HERO ====================== */
+.hero{border-bottom:1px solid var(--line);padding:clamp(48px,9vw,116px) 0 clamp(34px,5vw,60px);position:relative}
+.hero .wrap{position:relative;z-index:2}
+.hero .eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--flag-primary)}
+.hero h1{font-size:clamp(44px,9vw,118px);line-height:.94;margin:18px 0 0;max-width:16ch}
+.hero h1 em{color:var(--flag-primary)}
+.hero .dek{margin:26px 0 0;max-width:66ch;font-size:clamp(16px,2vw,20px);color:var(--muted)}
+.hero .meta{margin-top:30px;display:flex;flex-wrap:wrap;gap:10px 26px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+.hero .meta b{color:var(--paper);font-weight:500}
+.heromark{position:absolute;inset:0;z-index:1;overflow:hidden;opacity:.5}
+.heromark::before{
+  content:"";position:absolute;right:calc(-1*var(--pad));top:50%;transform:translateY(-50%);
+  width:min(46vw,620px);aspect-ratio:1/1;
+  background:repeating-linear-gradient(0deg,var(--grid) 0 1px,transparent 1px 56px),repeating-linear-gradient(90deg,var(--grid) 0 1px,transparent 1px 56px);
+  -webkit-mask:radial-gradient(closest-side,#000 60%,transparent 100%);mask:radial-gradient(closest-side,#000 60%,transparent 100%);
+}
+.heromark .tri{position:absolute;right:calc(-1*var(--pad) + 40px);top:50%;transform:translateY(-50%);display:flex;height:min(30vw,360px);opacity:.5}
+.heromark .tri i{width:min(7vw,80px)}
+.heromark .tri i.b{background:var(--flag-blue)}
+.heromark .tri i.r{background:var(--flag-red)}
+
+/* ====================== KPI-ПОЛОСА ====================== */
+.kpi{border-bottom:1px solid var(--line)}
+.kpi .grid{display:grid;grid-template-columns:repeat(6,1fr)}
+.kpi .cell{padding:22px clamp(12px,1.6vw,22px);border-left:1px solid var(--line)}
+.kpi .cell:first-child{border-left:0}
+.kpi .num{font-family:var(--f-mono);font-weight:500;font-size:clamp(22px,2.6vw,32px);letter-spacing:-.01em;color:var(--paper)}
+.kpi .num .u{font-size:.5em;color:var(--muted);font-weight:500}
+.kpi .lab{display:block;margin-top:10px;font-size:12px;color:var(--muted);line-height:1.4}
+.kpi .sub{display:block;margin-top:4px;font-family:var(--f-mono);font-size:10.5px;color:var(--muted-2);letter-spacing:.02em}
+@media(max-width:1080px){.kpi .grid{grid-template-columns:repeat(3,1fr)}.kpi .cell:nth-child(4){border-left:0}.kpi .cell:nth-child(-n+3){border-bottom:1px solid var(--line)}}
+@media(max-width:560px){.kpi .grid{grid-template-columns:repeat(2,1fr)}.kpi .cell:nth-child(odd){border-left:0}.kpi .cell:nth-child(-n+4){border-bottom:1px solid var(--line)}}
+
+/* ====================== СЕКЦИИ ====================== */
+section{padding:clamp(54px,8vw,104px) 0;border-bottom:1px solid var(--line)}
+.sec-head{display:flex;gap:22px;align-items:baseline;margin-bottom:clamp(30px,4vw,52px)}
+.sec-num{font-family:var(--f-mono);font-size:13px;color:var(--flag-primary);letter-spacing:.1em;flex:none;padding-top:6px}
+.sec-head h2{font-size:clamp(28px,4.6vw,58px);line-height:1.02;letter-spacing:-.015em}
+.sec-head .sd{margin-top:16px;max-width:74ch;color:var(--muted);font-size:clamp(15px,1.5vw,18px)}
+.subhead{font-family:var(--f-mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:clamp(40px,5vw,64px) 0 24px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.subhead b{color:var(--flag-primary);font-weight:600}
+.lede{max-width:74ch;color:#c9cace;font-size:clamp(15px,1.5vw,17px);margin-bottom:30px}
+.lede strong{color:var(--paper);font-weight:600}
+
+/* ====================== ФИГУРЫ ====================== */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,40px)}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+figure.fig{margin:0 0 clamp(20px,3vw,30px);border:1px solid var(--line);background:var(--ink-panel)}
+figure.fig.span2{grid-column:1 / -1}
+.fig .head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:18px 20px 0}
+.fig .t{font-family:var(--f-display);font-weight:700;font-size:clamp(15px,1.7vw,18px);letter-spacing:-.01em}
+.fig .tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);border:1px solid var(--line-2);padding:4px 8px;white-space:nowrap;flex:none}
+.fig .chart{padding:14px 20px 8px}
+.fig figcaption{padding:0 20px 18px;font-size:12.5px;color:var(--muted);line-height:1.5}
+.fig figcaption b{color:#c9cace;font-weight:500}
+.fig svg{width:100%;height:auto;display:block;overflow:visible}
+
+/* SVG примитивы */
+.axis text{font-family:var(--f-mono);font-size:10px;fill:var(--muted-2)}
+.axis line,.axis path{stroke:var(--line-2)}
+.gridline{stroke:var(--line);stroke-width:1}
+.lbl{font-family:var(--f-mono);font-size:10.5px;fill:var(--muted)}
+.lbl-w{font-family:var(--f-mono);font-size:11px;fill:var(--paper)}
+.val{font-family:var(--f-mono);font-size:11px;fill:var(--paper)}
+.zeroline{stroke:var(--muted);stroke-width:1.4}
+
+/* Таблица */
+table.dw{width:100%;border-collapse:collapse;font-size:13px}
+table.dw th,table.dw td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.dw thead th{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);border-bottom:1px solid var(--line-2)}
+table.dw td.cat{font-family:var(--f-display);font-weight:700;white-space:nowrap}
+table.dw .pill{display:inline-block;width:10px;height:10px;margin-right:8px;vertical-align:middle}
+table.dw td .ob{color:var(--muted);font-size:12px}
+
+/* ====================== ФУТЕР ====================== */
+footer{padding:clamp(48px,7vw,88px) 0 60px}
+footer .ft-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;margin-bottom:40px}
+footer h3{font-size:clamp(20px,3vw,30px);max-width:20ch;line-height:1.05}
+footer .note{max-width:42ch;color:var(--muted);font-size:13px}
+.sources{column-count:2;column-gap:40px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);line-height:1.7}
+@media(max-width:680px){.sources{column-count:1}}
+.sources div{break-inside:avoid;padding:7px 0;border-top:1px solid var(--line)}
+.sources span{color:var(--flag-primary);margin-right:10px}
+.colophon{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2)}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <div class="brand">
+    <span class="idx">G20 — 07 / 19</span>
+    <span class="flagbar"><i class="b"></i><i class="w"></i><i class="r"></i></span>
+    <span class="nm">ФРАНЦИЯ</span>
+  </div>
+  <nav class="topnav">
+    <a href="#s1">01 Стратегия</a>
+    <a href="#s2">02 Регулирование</a>
+    <a href="#s3">03 Медиа</a>
+  </nav>
+</div></div>
+
+<header class="hero">
+  <div class="heromark">
+    <div class="tri"><i class="b"></i><i style="background:var(--paper)"></i><i class="r"></i></div>
+  </div>
+  <div class="wrap">
+    <div class="eyebrow">Искусственный интеллект · Профиль страны</div>
+    <h1>Третий путь <em>в эпоху ИИ</em></h1>
+    <p class="dek">Франция сделала ставку на суверенный ИИ: открытые модели Mistral, дешёвая атомная энергия для дата-центров, €109 млрд частных инвестиций и регулятор CNIL, который пытается совместить инновации с защитой данных. Профиль по трём осям курсовой — стратегия, этическое регулирование, медиапрактики.</p>
+    <div class="meta">
+      <span>Источник рейтинга: <b>Tortoise Global AI Index 2024</b></span>
+      <span>Место в мире: <b>5 / 83</b></span>
+      <span>Данные: <b>2024–2026</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="kpi"><div class="wrap"><div class="grid">
+  <div class="cell"><div class="num">€109<span class="u"> млрд</span></div><span class="lab">Частные инвестиции в ИИ, заявленные на саммите в Париже</span><span class="sub">февраль 2025</span></div>
+  <div class="cell"><div class="num">5<span class="u"> /83</span></div><span class="lab">Место в Global AI Index, сразу за Великобританией</span><span class="sub">Tortoise 2024</span></div>
+  <div class="cell"><div class="num">€486,8<span class="u"> млн</span></div><span class="lab">Штрафы CNIL за год — рекорд за всю историю</span><span class="sub">2025</span></div>
+  <div class="cell"><div class="num">1,4<span class="u"> ГВт</span></div><span class="lab">Мощность Paris AI Campus — крупнейшего в Европе</span><span class="sub">запуск к 2028</span></div>
+  <div class="cell"><div class="num">100<span class="u"> тыс.</span></div><span class="lab">Цель: готовить столько ИИ-специалистов в год</span><span class="sub">к 2030</span></div>
+  <div class="cell"><div class="num">31<span class="u"> %</span></div><span class="lab">Доверие к новостям — низкое по мировым меркам</span><span class="sub">Reuters DNR 2025</span></div>
+</div></div></div>
+
+<!-- ============================ 01 СТРАТЕГИЯ ============================ -->
+<section id="s1"><div class="wrap">
+  <div class="sec-head">
+    <div class="sec-num">01</div>
+    <div>
+      <h2>Стратегия: суверенитет<br>и открытые модели</h2>
+      <p class="sd">Национальная стратегия «AI for Humanity» стартовала в 2018 году на основе доклада математика Седрика Виллани и с тех пор обновлялась в рамках программы France 2030. Курс — суверенный, открытый и низкоуглеродный ИИ: чемпион Mistral, государственный фонд Bpifrance, атомная энергетика как конкурентное преимущество и амбиция стать «третьим путём» между США и Китаем.</p>
+    </div>
+  </div>
+
+  <div class="subhead">1.1 — Профиль возможностей <b>// сильные и слабые стороны</b></div>
+  <p class="lede">Tortoise помещает Францию на <strong>5-е место из 83</strong> стран. Сильнее всего — государственная стратегия (Франция тратит на ИИ на 60% больше Великобритании) и разработка открытых моделей; зона роста — масштаб коммерческой экосистемы и удержание талантов, которые часто уезжают за рубеж.</p>
+  <figure class="fig span2">
+    <div class="head"><div class="t">Профиль ИИ-возможностей Франции по семи направлениям Tortoise</div><div class="tag">radar · ординальная шкала 1–5</div></div>
+    <div class="chart"><div id="c_radar"></div></div>
+    <figcaption>Ординальная (1–5) интерпретация качественных оценок пилларов в <b>Tortoise Global AI Index 2024</b>: точные числовые суб-баллы Франции не публикуются в открытом доступе, поэтому оси отражают относительное положение по комментариям отчёта, а не первичные значения индекса. Общее место Франции — 5 из 83.</figcaption>
+  </figure>
+
+  <div class="subhead">1.2 — Деньги <b>// откуда €109 млрд</b></div>
+  <div class="grid-2">
+    <figure class="fig">
+      <div class="head"><div class="t">Заявленные инвестиционные обязательства, по источнику</div><div class="tag">bar · €млрд</div></div>
+      <div class="chart"><div id="c_invest"></div></div>
+      <figcaption>Выборка крупнейших обязательств, озвученных на <b>AI Action Summit</b> (февраль 2025). Совокупная заявленная сумма — €109 млрд; большая часть приходится на фонд MGX (ОАЭ). Источники: Bloomberg, CNBC, Casimir Pulaski Foundation, DCD.</figcaption>
+    </figure>
+    <figure class="fig">
+      <div class="head"><div class="t">Финансирование нацстратегии France 2030: кто платит</div><div class="tag">stacked bar · 100%</div></div>
+      <div class="chart"><div id="c_funding"></div></div>
+      <figcaption>Профильная стратегия ИИ в рамках France 2030: <b>€1,5 млрд</b> государственных средств и <b>€506 млн</b> частного софинансирования. Структура «государство ведёт, бизнес добавляет» характерна для французской модели. Источник: France 2030 / Introl.</figcaption>
+    </figure>
+  </div>
+
+  <div class="subhead">1.3 — Вычисления <b>// от мегаватт к гигаваттам</b></div>
+  <div class="grid-2">
+    <figure class="fig">
+      <div class="head"><div class="t">План наращивания мощностей Mistral Compute</div><div class="tag">line · МВт</div></div>
+      <div class="chart"><div id="c_mistral"></div></div>
+      <figcaption>Mistral Compute — суверенное облако на €4 млрд: с <b>44 МВт</b> в 2026-м до <b>200 МВт</b> в 2027-м и <b>1 ГВт</b> к 2030-му. Площадка в Брюйер-ле-Шатель уже обучает модели на чипах NVIDIA. Источник: VentureBeat, NVIDIA.</figcaption>
+    </figure>
+    <figure class="fig">
+      <div class="head"><div class="t">География ИИ-инфраструктуры Франции</div><div class="tag">symbol map · МВт</div></div>
+      <div class="chart"><div id="c_map"></div></div>
+      <figcaption>Дата-центры под ИИ концентрируются в Эссонне к югу от Парижа (Брюйер-ле-Шатель, Ле-Юлис, Нозэ); южный выброс — площадка Evroc под Каннами. Размер маркера — мощность в МВт. Контур схематичный. Источники: DataCenterDynamics, NVIDIA, BlackRidge.</figcaption>
+    </figure>
+  </div>
+</div></section>
+
+<!-- ============================ 02 РЕГУЛИРОВАНИЕ ============================ -->
+<section id="s2"><div class="wrap">
+  <div class="sec-head">
+    <div class="sec-num">02</div>
+    <div>
+      <h2>Этическое<br>регулирование</h2>
+      <p class="sd">Франция регулирует данные с 1978 года, а сегодня CNIL — один из самых активных надзорных органов Европы. Регулятор запустил «План действий по ИИ» (2023) и серию практических рекомендаций по применению GDPR к ИИ, одновременно работая внутри общеевропейского AI Act. Линия CNIL — баланс: давать бизнесу правовую определённость, но жёстко наказывать за манипуляции с согласием и небрежность с данными.</p>
+    </div>
+  </div>
+
+  <div class="subhead">2.1 — Принуждение к исполнению <b>// штрафы растут рывками</b></div>
+  <p class="lede">2025 год стал рекордным: <strong>€486,8 млн</strong> штрафов против €55 млн годом ранее — почти весь объём дали два решения, Google (€325 млн) и Shein (€150 млн). При этом число санкций растёт стабильно, а размер каждого отдельного штрафа в «обычные» годы снижался — регулятор перешёл на упрощённую процедуру и стал наказывать чаще.</p>
+  <div class="grid-2">
+    <figure class="fig">
+      <div class="head"><div class="t">Сумма штрафов CNIL по годам</div><div class="tag">column · €млн</div></div>
+      <div class="chart"><div id="c_fines"></div></div>
+      <figcaption>Совокупные штрафы restricted committee CNIL. Пики 2021 и 2025 годов — следствие отдельных крупных дел (WhatsApp; Google и Shein). Источники: CNIL, CMS GDPR Enforcement Tracker.</figcaption>
+    </figure>
+    <figure class="fig">
+      <div class="head"><div class="t">Число санкций CNIL по годам</div><div class="tag">line · санкции</div></div>
+      <div class="chart"><div id="c_sanctions"></div></div>
+      <figcaption>В отличие от суммы штрафов, количество санкций растёт почти монотонно — с 8 в 2019-м до 87 в 2024-м — благодаря упрощённой процедуре, введённой в 2022 году. Источник: CMS GDPR Enforcement Tracker, CNIL.</figcaption>
+    </figure>
+  </div>
+
+  <div class="grid-2">
+    <figure class="fig">
+      <div class="head"><div class="t">Крупнейшие отдельные штрафы CNIL</div><div class="tag">dot plot · €млн</div></div>
+      <div class="chart"><div id="c_topfines"></div></div>
+      <figcaption>Большинство рекордных штрафов — за нарушения правил cookie и прозрачности. Google фигурирует четырежды (2019, 2020, 2022, 2025), что CNIL прямо назвал отягчающим обстоятельством. Источники: CNIL, Goodwin, EDPB.</figcaption>
+    </figure>
+    <figure class="fig">
+      <div class="head"><div class="t">Санкции против суммы штрафов, по годам</div><div class="tag">scatter · год = точка</div></div>
+      <div class="chart"><div id="c_scatter"></div></div>
+      <figcaption>Каждая точка — год. Видно расхождение: 2024-й — много санкций при малой сумме, 2025-й — резкий выброс по деньгам. «Больше дел, но меньше денег за каждое» сменилось мегаштрафами. Источник: CMS, CNIL.</figcaption>
+    </figure>
+  </div>
+
+  <div class="subhead">2.3 — Общеевропейская рамка <b>// EU AI Act по уровням риска</b></div>
+  <figure class="fig span2">
+    <div class="head"><div class="t">Регламент EU AI Act (2024/1689): четыре уровня риска</div><div class="tag">table</div></div>
+    <div class="chart"><div id="c_table"></div></div>
+    <figcaption>Франция применяет ИИ внутри риск-ориентированного Регламента ЕС об ИИ. Запреты вступили в силу в феврале 2025-го, правила для моделей общего назначения — с августа 2025-го, основной массив требований к высокорисковым системам — к 2026–2027 годам. Источник: Регламент (ЕС) 2024/1689.</figcaption>
+  </figure>
+</div></section>
+
+<!-- ============================ 03 МЕДИА ============================ -->
+<section id="s3"><div class="wrap">
+  <div class="sec-head">
+    <div class="sec-num">03</div>
+    <div>
+      <h2>Медиапрактики<br>и доверие</h2>
+      <p class="sd">Именно в Париже в 2023 году «Репортёры без границ» с 16 партнёрами приняли первую международную Парижскую хартию по ИИ и журналистике — 10 принципов под председательством нобелевского лауреата Марии Рессы. Французские игроки (AFP, France Televisions, Arte) стояли у её истоков. Но публика настроена скептически: доверие к новостям — 31%, а к полностью сгенерированным ИИ новостям — кратно ниже.</p>
+    </div>
+  </div>
+
+  <div class="subhead">3.1 — Ожидания от ИИ в новостях <b>// дешевле, но менее достойно доверия</b></div>
+  <p class="lede">Аудитория ждёт, что ИИ удешевит и ускорит производство новостей, но опасается за прозрачность, точность и доверие. Нетто-баланс (доля «улучшит» минус «ухудшит») положителен для скорости и цены, но уходит в минус по качеству — особенно по доверию (<strong>−18</strong>).</p>
+  <figure class="fig span2">
+    <div class="head"><div class="t">Как ИИ повлияет на качества новостей — нетто-баланс мнений</div><div class="tag">diverging bars · п.п.</div></div>
+    <div class="chart"><div id="c_diverge"></div></div>
+    <figcaption>Разница между долями ответивших «больше» и «меньше» по шести качествам новостей (опрос по шести странам, включая Францию). Источник: Reuters Institute, Generative AI and News Report 2025.</figcaption>
+  </figure>
+
+  <div class="subhead">3.2 — Доверие и проверка <b>// к кому идут за правдой</b></div>
+  <div class="grid-2">
+    <figure class="fig">
+      <div class="head"><div class="t">Чем люди проверяют сомнительные новости</div><div class="tag">bar · % выбравших</div></div>
+      <div class="chart"><div id="c_verify"></div></div>
+      <figcaption>Доверенный новостной бренд остаётся первым выбором; ИИ-чатботы — на последнем месте (9%) из-за галлюцинаций. Во Франции до 35 лет 22% смотрят новостника HugoDecrypte — сдвиг к инфлюенсерам. Источник: Reuters Institute DNR 2025.</figcaption>
+    </figure>
+    <figure class="fig">
+      <div class="head"><div class="t">Комфорт с ИИ в новостях: разрыв по роли и по задаче</div><div class="tag">range plot · %</div></div>
+      <div class="chart"><div id="c_range"></div></div>
+      <figcaption>Чем больше человеческого контроля, тем выше комфорт: от 12% за полностью ИИ-новости до 62% за полностью человеческие. По типу задачи — от ИИ-ведущих (19%) до правки грамматики (55%). Источник: Reuters Institute, Generative AI and News Report 2025.</figcaption>
+    </figure>
+  </div>
+
+  <figure class="fig span2">
+    <div class="head"><div class="t">Комфорт против воспринимаемого использования ИИ, по задачам</div><div class="tag">grouped column · %</div></div>
+    <div class="chart"><div id="c_grouped"></div></div>
+    <figcaption>Восприятие совпадает с предпочтениями: люди считают, что ИИ чаще используется там, где он им комфортен (правка текста), и реже там, где нет (синтетические ведущие). Источник: Reuters Institute, Generative AI and News Report 2025.</figcaption>
+  </figure>
+</div></section>
+
+<!-- ============================ ФУТЕР ============================ -->
+<footer><div class="wrap">
+  <div class="ft-top">
+    <h3>Франция: ставка на открытость и суверенитет</h3>
+    <p class="note">Все показатели — реальные, из первоисточников и рецензируемых индексов. Цифры приведены на даты публикации соответствующих отчётов (2024–2026). Радар — ординальная интерпретация качественных оценок, а не первичные значения индекса.</p>
+  </div>
+  <div class="sources">
+    <div><span>01</span>Tortoise Media. The Global AI Index 2024 (5-е место Франции из 83).</div>
+    <div><span>02</span>Oxford Insights. Government AI Readiness Index 2024 (Франция — 4-е место).</div>
+    <div><span>03</span>Bloomberg, CNBC, Elysee. Paris AI Action Summit 2025 — €109 млрд.</div>
+    <div><span>04</span>Casimir Pulaski Foundation; NVIDIA Blog; DataCenterDynamics; VentureBeat — стратегия и инфраструктура.</div>
+    <div><span>05</span>CNIL. Годовые отчёты 2023, 2024; Санкции и корректирующие меры 2025.</div>
+    <div><span>06</span>CMS Law. GDPR Enforcement Tracker — France (суммы и число санкций по годам).</div>
+    <div><span>07</span>Reporters Without Borders. Paris Charter on AI and Journalism, 2023.</div>
+    <div><span>08</span>Reuters Institute. Digital News Report 2025; Generative AI and News Report 2025.</div>
+    <div><span>09</span>Регламент (ЕС) 2024/1689 (EU AI Act) — уровни риска и сроки вступления в силу.</div>
+  </div>
+  <div class="colophon">
+    <span>G20 · Искусственный интеллект</span>
+    <span>Франция · Профиль 07 / 19</span>
+    <span>Данные 2024–2026</span>
+  </div>
+</div></footer>
+
+<script>
+"use strict";
+const INK="#060607", PAPER="#FFFFFF", MUTED="#9a9ca1", MUTED2="#65676c",
+      LINE="#1d1f23", LINE2="#2b2e33", RED="#EF4135", BLUE="#4A7FC0", BLUEDK="#3D6FB4";
+const FM="'IBM Plex Mono', monospace", FD="'Archivo', sans-serif";
+
+function svg(sel, w, h){
+  return d3.select(sel).append("svg")
+    .attr("viewBox","0 0 "+w+" "+h)
+    .attr("preserveAspectRatio","xMidYMid meet")
+    .attr("width","100%");
+}
+function fmtMln(v){ return v.toLocaleString("ru-RU"); }
+
+/* ---------------- 1.1 RADAR (полигональный, квадратные узлы) ---------------- */
+(function(){
+  const data=[
+    {ax:"Госстратегия",v:5},{ax:"Разработка / open-source",v:5},
+    {ax:"Исследования",v:4},{ax:"Таланты",v:4},
+    {ax:"Инфраструктура",v:4},{ax:"Операционная среда",v:4},
+    {ax:"Коммерческая экосистема",v:3}
+  ];
+  const W=820,H=460,cx=W/2,cy=H/2+6,R=158,maxV=5,n=data.length;
+  const s=svg("#c_radar",W,H);
+  const ang=i=>(-Math.PI/2)+i*2*Math.PI/n;
+  const pt=(i,r)=>[cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))];
+  for(let g=1;g<=maxV;g++){
+    const r=R*g/maxV;
+    const poly=d3.range(n).map(i=>pt(i,r).join(",")).join(" ");
+    s.append("polygon").attr("points",poly).attr("fill","none")
+      .attr("stroke",g===maxV?LINE2:LINE).attr("stroke-width",1);
+  }
+  d3.range(n).forEach(i=>{
+    const p=pt(i,R);
+    s.append("line").attr("x1",cx).attr("y1",cy).attr("x2",p[0]).attr("y2",p[1])
+      .attr("stroke",LINE).attr("stroke-width",1);
+    const lp=pt(i,R+30), a=ang(i);
+    s.append("text").attr("x",lp[0]).attr("y",lp[1])
+      .attr("text-anchor",Math.abs(Math.cos(a))<0.3?"middle":(Math.cos(a)>0?"start":"end"))
+      .attr("dominant-baseline","middle").attr("font-family",FM).attr("font-size",11)
+      .attr("fill",MUTED).text(data[i].ax);
+  });
+  const poly=data.map((d,i)=>pt(i,R*d.v/maxV).join(",")).join(" ");
+  s.append("polygon").attr("points",poly).attr("fill",RED).attr("fill-opacity",.16)
+    .attr("stroke",RED).attr("stroke-width",2);
+  data.forEach((d,i)=>{
+    const p=pt(i,R*d.v/maxV);
+    s.append("rect").attr("x",p[0]-4).attr("y",p[1]-4).attr("width",8).attr("height",8)
+      .attr("fill",RED);
+    s.append("text").attr("x",p[0]).attr("y",p[1]-12).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",11).attr("fill",PAPER).text(d.v);
+  });
+})();
+
+/* ---------------- 1.2 BAR (горизонтальный, ранжированный) ---------------- */
+(function(){
+  const data=[
+    {k:"MGX / ОАЭ (кампус, ЦОД)",v:50},
+    {k:"Brookfield (к 2030)",v:20},
+    {k:"Bpifrance (к 2029)",v:10},
+    {k:"Fluidstack (гига-кластер)",v:10},
+    {k:"Mistral Compute",v:4},
+    {k:"Iliad",v:3}
+  ];
+  const W=820,H=300,m={t:10,r:60,b:28,l:188};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const s=svg("#c_invest",W,H).append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([0,55]).range([0,iw]);
+  const y=d3.scaleBand().domain(data.map(d=>d.k)).range([0,ih]).padding(.34);
+  x.ticks(6).forEach(t=>{
+    s.append("line").attr("x1",x(t)).attr("x2",x(t)).attr("y1",0).attr("y2",ih).attr("class","gridline");
+    s.append("text").attr("x",x(t)).attr("y",ih+18).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(t);
+  });
+  data.forEach(d=>{
+    s.append("rect").attr("x",0).attr("y",y(d.k)).attr("width",x(d.v)).attr("height",y.bandwidth())
+      .attr("fill",d.v===50?RED:BLUE);
+    s.append("text").attr("x",-12).attr("y",y(d.k)+y.bandwidth()/2).attr("text-anchor","end")
+      .attr("dominant-baseline","middle").attr("font-family",FM).attr("font-size",11).attr("fill",MUTED).text(d.k);
+    s.append("text").attr("x",x(d.v)+8).attr("y",y(d.k)+y.bandwidth()/2).attr("dominant-baseline","middle")
+      .attr("font-family",FM).attr("font-size",11).attr("fill",PAPER).text("€"+d.v+" млрд");
+  });
+})();
+
+/* ---------------- 1.3 STACKED BAR (одна полоса, доли) ---------------- */
+(function(){
+  const pub=1.5, priv=0.506, tot=pub+priv;
+  const W=820,H=150,m={t:40,r:20,b:40,l:20};
+  const iw=W-m.l-m.r, bh=46;
+  const s=svg("#c_funding",W,H).append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([0,tot]).range([0,iw]);
+  const segs=[{k:"Государство",v:pub,c:BLUE},{k:"Частное софинансирование",v:priv,c:RED}];
+  let acc=0;
+  segs.forEach(seg=>{
+    s.append("rect").attr("x",x(acc)).attr("y",0).attr("width",x(seg.v)).attr("height",bh).attr("fill",seg.c);
+    const pct=Math.round(seg.v/tot*100);
+    s.append("text").attr("x",x(acc)+x(seg.v)/2).attr("y",bh/2).attr("text-anchor","middle")
+      .attr("dominant-baseline","middle").attr("font-family",FM).attr("font-size",12).attr("fill",PAPER).text(pct+"%");
+    s.append("rect").attr("x",x(acc)).attr("y",bh+14).attr("width",10).attr("height",10).attr("fill",seg.c);
+    s.append("text").attr("x",x(acc)+16).attr("y",bh+23).attr("font-family",FM).attr("font-size",11).attr("fill",MUTED)
+      .text(seg.k+" · €"+(seg.v).toLocaleString("ru-RU")+" млрд");
+    acc+=seg.v;
+  });
+  s.append("text").attr("x",0).attr("y",-14).attr("font-family",FM).attr("font-size",11).attr("fill",MUTED2)
+    .text("ИТОГО ≈ €2,0 МЛРД ЗА 5 ЛЕТ");
+})();
+
+/* ---------------- 1.4 LINE (рост мощностей) ---------------- */
+(function(){
+  const data=[{y:2026,v:44},{y:2027,v:200},{y:2030,v:1000}];
+  const W=820,H=300,m={t:20,r:30,b:34,l:54};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const s=svg("#c_mistral",W,H).append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([2026,2030]).range([0,iw]);
+  const y=d3.scaleLinear().domain([0,1050]).range([ih,0]);
+  [0,250,500,750,1000].forEach(t=>{
+    s.append("line").attr("x1",0).attr("x2",iw).attr("y1",y(t)).attr("y2",y(t)).attr("class","gridline");
+    s.append("text").attr("x",-10).attr("y",y(t)).attr("text-anchor","end").attr("dominant-baseline","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(t);
+  });
+  data.forEach(d=>{
+    s.append("text").attr("x",x(d.y)).attr("y",ih+18).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(d.y);
+  });
+  const line=d3.line().x(d=>x(d.y)).y(d=>y(d.v));
+  s.append("path").datum(data).attr("d",line).attr("fill","none").attr("stroke",RED).attr("stroke-width",2.5);
+  data.forEach(d=>{
+    s.append("rect").attr("x",x(d.y)-4).attr("y",y(d.v)-4).attr("width",8).attr("height",8).attr("fill",RED);
+    s.append("text").attr("x",x(d.y)).attr("y",y(d.v)-12).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",11).attr("fill",PAPER)
+      .text(d.v>=1000?(d.v/1000)+" ГВт":d.v+" МВт");
+  });
+})();
+
+/* ---------------- 1.5 SYMBOL MAP (l'Hexagone, маркеры по МВт) ---------------- */
+(function(){
+  const W=820,H=520,m={t:10,r:10,b:10,l:10};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const s=svg("#c_map",W,H).append("g").attr("transform","translate("+m.l+","+m.t+")");
+  // Линейная проекция метрополии: lon [-5,9.5], lat [41,51.5]
+  const lonD=[-5,9.5], latD=[41,51.5];
+  const px=lon=>(lon-lonD[0])/(lonD[1]-lonD[0])*iw;
+  const py=lat=>(latD[1]-lat)/(latD[1]-latD[0])*ih;
+  // Схематичный контур Франции (упрощённый "шестиугольник")
+  const outline=[
+    [2.55,51.05],[1.6,50.95],[-1.1,49.35],[-1.8,48.6],[-4.8,48.3],[-4.3,47.8],
+    [-1.0,46.3],[-1.25,44.6],[1.5,42.6],[3.05,42.45],[3.1,43.05],[4.9,43.4],
+    [7.5,43.75],[7.55,44.1],[6.9,45.1],[7.05,45.9],[6.1,46.4],[7.6,47.6],
+    [8.2,48.95],[7.6,49.55],[5.9,49.5],[4.2,49.95],[2.55,51.05]
+  ];
+  const path="M"+outline.map(p=>px(p[0]).toFixed(1)+","+py(p[1]).toFixed(1)).join("L")+"Z";
+  s.append("path").attr("d",path).attr("fill","#101114").attr("stroke",LINE2).attr("stroke-width",1.4);
+  const sites=[
+    {n:"Paris AI Campus",lon:2.30,lat:48.62,mw:1400},
+    {n:"Нозэ",lon:2.21,lat:48.66,mw:250},
+    {n:"Icade Rungis",lon:2.35,lat:48.75,mw:130},
+    {n:"Evroc (Мужен)",lon:7.00,lat:43.60,mw:96},
+    {n:"NTT (Корбей)",lon:2.48,lat:48.55,mw:84},
+    {n:"Mistral / Eclairion",lon:2.27,lat:48.61,mw:44},
+    {n:"Ле-Юлис",lon:2.17,lat:48.68,mw:10}
+  ];
+  const rsc=d3.scaleSqrt().domain([0,1400]).range([0,30]);
+  // Jean Zay — национальный суперкомпьютер (отдельная категория, квадрат)
+  s.append("rect").attr("x",px(2.17)-5).attr("y",py(48.71)-5).attr("width",10).attr("height",10)
+    .attr("fill","none").attr("stroke",PAPER).attr("stroke-width",1.6);
+  s.append("text").attr("x",px(2.17)+10).attr("y",py(48.71)-6).attr("font-family",FM).attr("font-size",9.5)
+    .attr("fill",PAPER).text("Jean Zay (суперкомпьютер)");
+  sites.forEach(d=>{
+    s.append("circle").attr("cx",px(d.lon)).attr("cy",py(d.lat)).attr("r",rsc(d.mw))
+      .attr("fill",RED).attr("fill-opacity",.4).attr("stroke",RED).attr("stroke-width",1.2);
+    const lab=d.n+" · "+(d.mw>=1000?(d.mw/1000)+" ГВт":d.mw+" МВт");
+    s.append("text").attr("x",px(d.lon)+(d.lon>6?-10:rsc(d.mw)+6))
+      .attr("y",py(d.lat)+3).attr("text-anchor",d.lon>6?"end":"start")
+      .attr("font-family",FM).attr("font-size",9.5).attr("fill",MUTED).text(lab);
+  });
+  // Легенда размеров
+  const lg=[100,500,1400], lx=iw-30, ly=ih-20;
+  lg.forEach((v,i)=>{
+    const r=rsc(v), cyv=ly-r;
+    s.append("circle").attr("cx",lx).attr("cy",cyv).attr("r",r).attr("fill","none").attr("stroke",MUTED2);
+    s.append("text").attr("x",lx).attr("y",cyv-r-3).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",9).attr("fill",MUTED2).text(v>=1000?(v/1000)+"ГВт":v);
+  });
+})();
+
+/* ---------------- 2.1 COLUMN (штрафы по годам) ---------------- */
+(function(){
+  const data=[
+    {y:2019,v:51.4},{y:2020,v:138.5},{y:2021,v:214.1},
+    {y:2022,v:101.3},{y:2023,v:89.2},{y:2024,v:55.2},{y:2025,v:486.8}
+  ];
+  const W=820,H=330,m={t:24,r:14,b:32,l:52};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const s=svg("#c_fines",W,H).append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleBand().domain(data.map(d=>d.y)).range([0,iw]).padding(.3);
+  const y=d3.scaleLinear().domain([0,520]).range([ih,0]);
+  [0,100,200,300,400,500].forEach(t=>{
+    s.append("line").attr("x1",0).attr("x2",iw).attr("y1",y(t)).attr("y2",y(t)).attr("class","gridline");
+    s.append("text").attr("x",-10).attr("y",y(t)).attr("text-anchor","end").attr("dominant-baseline","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(t);
+  });
+  data.forEach(d=>{
+    s.append("rect").attr("x",x(d.y)).attr("y",y(d.v)).attr("width",x.bandwidth()).attr("height",ih-y(d.v))
+      .attr("fill",d.v>400?RED:BLUE);
+    s.append("text").attr("x",x(d.y)+x.bandwidth()/2).attr("y",ih+16).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(d.y);
+    s.append("text").attr("x",x(d.y)+x.bandwidth()/2).attr("y",y(d.v)-7).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",PAPER).text(fmtMln(d.v));
+  });
+})();
+
+/* ---------------- 2.2 LINE (число санкций) ---------------- */
+(function(){
+  const data=[
+    {y:2019,v:8},{y:2020,v:14},{y:2021,v:18},{y:2022,v:21},{y:2023,v:42},{y:2024,v:87},{y:2025,v:83}
+  ];
+  const W=820,H=330,m={t:24,r:30,b:32,l:42};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const s=svg("#c_sanctions",W,H).append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scalePoint().domain(data.map(d=>d.y)).range([0,iw]).padding(.5);
+  const y=d3.scaleLinear().domain([0,95]).range([ih,0]);
+  [0,25,50,75].forEach(t=>{
+    s.append("line").attr("x1",0).attr("x2",iw).attr("y1",y(t)).attr("y2",y(t)).attr("class","gridline");
+    s.append("text").attr("x",-10).attr("y",y(t)).attr("text-anchor","end").attr("dominant-baseline","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(t);
+  });
+  data.forEach(d=>{
+    s.append("text").attr("x",x(d.y)).attr("y",ih+16).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(d.y);
+  });
+  const line=d3.line().x(d=>x(d.y)).y(d=>y(d.v));
+  s.append("path").datum(data).attr("d",line).attr("fill","none").attr("stroke",BLUE).attr("stroke-width",2.5);
+  data.forEach(d=>{
+    s.append("rect").attr("x",x(d.y)-4).attr("y",y(d.v)-4).attr("width",8).attr("height",8).attr("fill",BLUE);
+    s.append("text").attr("x",x(d.y)).attr("y",y(d.v)-11).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",PAPER).text(d.v);
+  });
+})();
+
+/* ---------------- 2.3 DOT PLOT (крупнейшие штрафы) ---------------- */
+(function(){
+  const data=[
+    {k:"Google — 2025",v:325},{k:"WhatsApp — 2021",v:225},{k:"Shein — 2025",v:150},
+    {k:"Google — 2022",v:150},{k:"Google — 2020",v:100},{k:"Google — 2019",v:50},
+    {k:"Criteo — 2023",v:40},{k:"Amazon — 2020",v:35}
+  ];
+  const W=820,H=330,m={t:12,r:60,b:28,l:160};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const s=svg("#c_topfines",W,H).append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([0,350]).range([0,iw]);
+  const y=d3.scalePoint().domain(data.map(d=>d.k)).range([0,ih]).padding(.5);
+  [0,100,200,300].forEach(t=>{
+    s.append("line").attr("x1",x(t)).attr("x2",x(t)).attr("y1",0).attr("y2",ih).attr("class","gridline");
+    s.append("text").attr("x",x(t)).attr("y",ih+18).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(t);
+  });
+  data.forEach(d=>{
+    s.append("line").attr("x1",0).attr("x2",x(d.v)).attr("y1",y(d.k)).attr("y2",y(d.k))
+      .attr("stroke",LINE2).attr("stroke-width",1);
+    s.append("rect").attr("x",x(d.v)-5).attr("y",y(d.k)-5).attr("width",10).attr("height",10)
+      .attr("fill",d.k.indexOf("Google")===0?RED:BLUE);
+    s.append("text").attr("x",-12).attr("y",y(d.k)).attr("text-anchor","end").attr("dominant-baseline","middle")
+      .attr("font-family",FM).attr("font-size",10.5).attr("fill",MUTED).text(d.k);
+    s.append("text").attr("x",x(d.v)+10).attr("y",y(d.k)).attr("dominant-baseline","middle")
+      .attr("font-family",FM).attr("font-size",10.5).attr("fill",PAPER).text("€"+d.v+" млн");
+  });
+})();
+
+/* ---------------- 2.4 SCATTER (санкции против штрафов) ---------------- */
+(function(){
+  const data=[
+    {y:2019,c:8,e:51.4},{y:2020,c:14,e:138.5},{y:2021,c:18,e:214.1},
+    {y:2022,c:21,e:101.3},{y:2023,c:42,e:89.2},{y:2024,c:87,e:55.2},{y:2025,c:83,e:486.8}
+  ];
+  const W=820,H=340,m={t:18,r:24,b:46,l:54};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const s=svg("#c_scatter",W,H).append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([0,95]).range([0,iw]);
+  const y=d3.scaleLinear().domain([0,520]).range([ih,0]);
+  [0,25,50,75].forEach(t=>{
+    s.append("line").attr("x1",x(t)).attr("x2",x(t)).attr("y1",0).attr("y2",ih).attr("class","gridline");
+    s.append("text").attr("x",x(t)).attr("y",ih+18).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(t);
+  });
+  [0,100,200,300,400,500].forEach(t=>{
+    s.append("line").attr("x1",0).attr("x2",iw).attr("y1",y(t)).attr("y2",y(t)).attr("class","gridline");
+    s.append("text").attr("x",-10).attr("y",y(t)).attr("text-anchor","end").attr("dominant-baseline","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(t);
+  });
+  s.append("text").attr("x",iw/2).attr("y",ih+38).attr("text-anchor","middle")
+    .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED).text("ЧИСЛО САНКЦИЙ ЗА ГОД");
+  s.append("text").attr("transform","rotate(-90)").attr("x",-ih/2).attr("y",-40).attr("text-anchor","middle")
+    .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED).text("СУММА ШТРАФОВ, €МЛН");
+  data.forEach(d=>{
+    s.append("rect").attr("x",x(d.c)-5).attr("y",y(d.e)-5).attr("width",10).attr("height",10)
+      .attr("fill",d.y===2025?RED:BLUE);
+    s.append("text").attr("x",x(d.c)+9).attr("y",y(d.e)-7).attr("font-family",FM).attr("font-size",10)
+      .attr("fill",MUTED).text(d.y);
+  });
+})();
+
+/* ---------------- 2.5 TABLE (EU AI Act) ---------------- */
+(function(){
+  const rows=[
+    {c:"Неприемлемый",col:RED,ex:"Соцскоринг, манипулятивные техники, биометрическая категоризация",ob:"Полный запрет (с февраля 2025)"},
+    {c:"Высокий",col:"#E07B3A",ex:"Найм, кредитование, образование, критическая инфраструктура",ob:"Оценка рисков, журналирование, человеческий надзор, регистрация"},
+    {c:"Ограниченный",col:BLUE,ex:"Чат-боты, дипфейки, генеративный контент",ob:"Обязательное раскрытие: пользователь знает, что это ИИ"},
+    {c:"Минимальный",col:MUTED2,ex:"Спам-фильтры, рекомендательные системы, игры",ob:"Без обязательных требований; добровольные кодексы"}
+  ];
+  const t=d3.select("#c_table").append("table").attr("class","dw");
+  const thead=t.append("thead").append("tr");
+  ["Уровень риска","Примеры систем","Обязательства"].forEach(h=>thead.append("th").text(h));
+  const tb=t.append("tbody");
+  rows.forEach(r=>{
+    const tr=tb.append("tr");
+    const td0=tr.append("td").attr("class","cat");
+    td0.append("span").attr("class","pill").style("background",r.col);
+    td0.append("span").text(r.c);
+    tr.append("td").append("span").attr("class","ob").text(r.ex);
+    tr.append("td").append("span").attr("class","ob").text(r.ob);
+  });
+})();
+
+/* ---------------- 3.1 DIVERGING BARS (нетто-ожидания) ---------------- */
+(function(){
+  const data=[
+    {k:"Дешевле производить",v:29},
+    {k:"Оперативнее",v:16},
+    {k:"Понятнее",v:7},
+    {k:"Прозрачнее",v:-8},
+    {k:"Точнее",v:-8},
+    {k:"Достойнее доверия",v:-18}
+  ];
+  const W=820,H=320,m={t:16,r:30,b:32,l:170};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const s=svg("#c_diverge",W,H).append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([-25,35]).range([0,iw]);
+  const y=d3.scaleBand().domain(data.map(d=>d.k)).range([0,ih]).padding(.34);
+  [-20,-10,0,10,20,30].forEach(t=>{
+    s.append("line").attr("x1",x(t)).attr("x2",x(t)).attr("y1",0).attr("y2",ih)
+      .attr("stroke",t===0?MUTED:LINE).attr("stroke-width",t===0?1.4:1);
+    s.append("text").attr("x",x(t)).attr("y",ih+18).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text((t>0?"+":"")+t);
+  });
+  data.forEach(d=>{
+    const x0=x(Math.min(0,d.v)), w=Math.abs(x(d.v)-x(0));
+    s.append("rect").attr("x",x0).attr("y",y(d.k)).attr("width",w).attr("height",y.bandwidth())
+      .attr("fill",d.v>=0?BLUE:RED);
+    s.append("text").attr("x",-12).attr("y",y(d.k)+y.bandwidth()/2).attr("text-anchor","end")
+      .attr("dominant-baseline","middle").attr("font-family",FM).attr("font-size",11).attr("fill",MUTED).text(d.k);
+    s.append("text").attr("x",d.v>=0?x(d.v)+8:x(d.v)-8).attr("y",y(d.k)+y.bandwidth()/2)
+      .attr("text-anchor",d.v>=0?"start":"end").attr("dominant-baseline","middle")
+      .attr("font-family",FM).attr("font-size",11).attr("fill",PAPER).text((d.v>0?"+":"")+d.v);
+  });
+})();
+
+/* ---------------- 3.2 BAR (источники проверки) ---------------- */
+(function(){
+  const data=[
+    {k:"Доверенный новостной бренд",v:38},
+    {k:"Официальные источники",v:35},
+    {k:"Поисковые системы",v:33},
+    {k:"Фактчек-сайты",v:25},
+    {k:"ИИ-чатботы",v:9}
+  ];
+  const W=820,H=290,m={t:10,r:50,b:28,l:200};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const s=svg("#c_verify",W,H).append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([0,45]).range([0,iw]);
+  const y=d3.scaleBand().domain(data.map(d=>d.k)).range([0,ih]).padding(.34);
+  [0,10,20,30,40].forEach(t=>{
+    s.append("line").attr("x1",x(t)).attr("x2",x(t)).attr("y1",0).attr("y2",ih).attr("class","gridline");
+    s.append("text").attr("x",x(t)).attr("y",ih+18).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(t);
+  });
+  data.forEach(d=>{
+    s.append("rect").attr("x",0).attr("y",y(d.k)).attr("width",x(d.v)).attr("height",y.bandwidth())
+      .attr("fill",d.k.indexOf("ИИ")===0?RED:BLUE);
+    s.append("text").attr("x",-12).attr("y",y(d.k)+y.bandwidth()/2).attr("text-anchor","end")
+      .attr("dominant-baseline","middle").attr("font-family",FM).attr("font-size",11).attr("fill",MUTED).text(d.k);
+    s.append("text").attr("x",x(d.v)+8).attr("y",y(d.k)+y.bandwidth()/2).attr("dominant-baseline","middle")
+      .attr("font-family",FM).attr("font-size",11).attr("fill",PAPER).text(d.v+"%");
+  });
+})();
+
+/* ---------------- 3.3 RANGE PLOT (комфорт: разрывы) ---------------- */
+(function(){
+  const data=[
+    {k:"По роли производства",lo:12,hi:62,loL:"полностью ИИ",hiL:"полностью человек"},
+    {k:"По типу задачи",lo:19,hi:55,loL:"ИИ-ведущие",hiL:"правка грамматики"}
+  ];
+  const W=820,H=210,m={t:30,r:40,b:34,l:170};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const s=svg("#c_range",W,H).append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([0,70]).range([0,iw]);
+  const y=d3.scalePoint().domain(data.map(d=>d.k)).range([0,ih]).padding(.6);
+  [0,20,40,60].forEach(t=>{
+    s.append("line").attr("x1",x(t)).attr("x2",x(t)).attr("y1",-8).attr("y2",ih).attr("class","gridline");
+    s.append("text").attr("x",x(t)).attr("y",ih+18).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(t+"%");
+  });
+  data.forEach(d=>{
+    s.append("line").attr("x1",x(d.lo)).attr("x2",x(d.hi)).attr("y1",y(d.k)).attr("y2",y(d.k))
+      .attr("stroke",LINE2).attr("stroke-width",2);
+    s.append("rect").attr("x",x(d.lo)-5).attr("y",y(d.k)-5).attr("width",10).attr("height",10).attr("fill",RED);
+    s.append("rect").attr("x",x(d.hi)-5).attr("y",y(d.k)-5).attr("width",10).attr("height",10).attr("fill",BLUE);
+    s.append("text").attr("x",-12).attr("y",y(d.k)).attr("text-anchor","end").attr("dominant-baseline","middle")
+      .attr("font-family",FM).attr("font-size",11).attr("fill",MUTED).text(d.k);
+    s.append("text").attr("x",x(d.lo)).attr("y",y(d.k)-12).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",RED).text(d.lo+"% ·"+d.loL);
+    s.append("text").attr("x",x(d.hi)).attr("y",y(d.k)-12).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",BLUE).text(d.hi+"% ·"+d.hiL);
+  });
+})();
+
+/* ---------------- 3.4 GROUPED COLUMN (комфорт против использования) ---------------- */
+(function(){
+  const data=[
+    {k:"Правка грамматики",comfort:55,used:51},
+    {k:"ИИ-ведущие новостей",comfort:19,used:20}
+  ];
+  const W=820,H=300,m={t:24,r:20,b:46,l:46};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const s=svg("#c_grouped",W,H).append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x0=d3.scaleBand().domain(data.map(d=>d.k)).range([0,iw]).padding(.42);
+  const x1=d3.scaleBand().domain(["comfort","used"]).range([0,x0.bandwidth()]).padding(.18);
+  const y=d3.scaleLinear().domain([0,60]).range([ih,0]);
+  [0,20,40,60].forEach(t=>{
+    s.append("line").attr("x1",0).attr("x2",iw).attr("y1",y(t)).attr("y2",y(t)).attr("class","gridline");
+    s.append("text").attr("x",-10).attr("y",y(t)).attr("text-anchor","end").attr("dominant-baseline","middle")
+      .attr("font-family",FM).attr("font-size",10).attr("fill",MUTED2).text(t);
+  });
+  const cmap={comfort:BLUE,used:RED};
+  const cname={comfort:"Комфортно",used:"Считают, что используется"};
+  data.forEach(d=>{
+    ["comfort","used"].forEach(key=>{
+      s.append("rect").attr("x",x0(d.k)+x1(key)).attr("y",y(d[key]))
+        .attr("width",x1.bandwidth()).attr("height",ih-y(d[key])).attr("fill",cmap[key]);
+      s.append("text").attr("x",x0(d.k)+x1(key)+x1.bandwidth()/2).attr("y",y(d[key])-7)
+        .attr("text-anchor","middle").attr("font-family",FM).attr("font-size",10).attr("fill",PAPER).text(d[key]+"%");
+    });
+    s.append("text").attr("x",x0(d.k)+x0.bandwidth()/2).attr("y",ih+18).attr("text-anchor","middle")
+      .attr("font-family",FM).attr("font-size",10.5).attr("fill",MUTED).text(d.k);
+  });
+  // легенда
+  let lx=0;
+  ["comfort","used"].forEach(key=>{
+    s.append("rect").attr("x",lx).attr("y",ih+30).attr("width",10).attr("height",10).attr("fill",cmap[key]);
+    const tw=cname[key].length*6.4+24;
+    s.append("text").attr("x",lx+16).attr("y",ih+39).attr("font-family",FM).attr("font-size",10).attr("fill",MUTED).text(cname[key]);
+    lx+=tw+20;
+  });
+})();
+</script>
+</body>
+</html>

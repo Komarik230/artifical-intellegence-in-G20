@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Канада — ИИ в странах G20</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===================================================================
+   ЕДИНЫЙ ШАБЛОН ПРОЕКТА G20 . ИИ
+   Меняется только блок --flag-* (цвета флага страны).
+   Остальные токены (ink, paper, line, muted) общие для всех стран.
+   =================================================================== */
+:root{
+  --ink:#060607;
+  --paper:#FFFFFF;
+  --muted:#6B6B70;
+  --faint:#9A9AA0;
+  --line:rgba(6,6,7,0.14);
+  --line-strong:rgba(6,6,7,0.34);
+  --grid:rgba(6,6,7,0.08);
+  --panel:#F4F4F2;
+
+  /* --- БЛОК СТРАНЫ: Канада (красный/белый) --- */
+  --flag-a:#D80621;
+  --flag-a-deep:#A60419;
+  --flag-soft:rgba(216,6,33,0.10);
+
+  --f-display:'Archivo',system-ui,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,monospace;
+  --f-body:'Inter',system-ui,sans-serif;
+  --maxw:1320px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--f-body);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+a{color:inherit}
+img,svg{display:block}
+::selection{background:var(--flag-a);color:#fff}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+@media(max-width:640px){.wrap{padding:0 18px}}
+
+/* ---------- ТОПБАР ---------- */
+.topbar{
+  background:var(--ink);color:#fff;
+  border-bottom:1px solid rgba(255,255,255,0.16);
+  position:sticky;top:0;z-index:50;
+}
+.topbar .row{display:flex;align-items:center;justify-content:space-between;height:58px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--f-mono);
+  font-size:12px;letter-spacing:.22em;text-transform:uppercase}
+.flagmark{width:16px;height:16px;background:var(--flag-a);display:inline-block}
+.topnav{display:flex;gap:26px;font-family:var(--f-mono);font-size:11px;
+  letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.66)}
+.topnav a{text-decoration:none;padding:4px 0;border-bottom:1px solid transparent}
+.topnav a:hover{color:#fff;border-bottom-color:var(--flag-a)}
+@media(max-width:760px){.topnav{display:none}}
+
+/* ---------- HERO (чёрный мастхед) ---------- */
+.hero{background:var(--ink);color:#fff;padding:60px 0 50px;
+  border-bottom:1px solid rgba(255,255,255,0.16)}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.26em;
+  text-transform:uppercase;color:var(--flag-a);margin-bottom:26px}
+.eyebrow .sep{color:rgba(255,255,255,.34);margin:0 10px}
+.htitle{font-family:var(--f-display);font-weight:900;
+  font-size:clamp(66px,13vw,176px);line-height:.86;letter-spacing:-.02em;
+  text-transform:uppercase}
+.htitle .en{display:block;font-size:clamp(13px,1.4vw,17px);font-weight:600;
+  letter-spacing:.42em;color:rgba(255,255,255,.5);margin-top:22px;
+  font-family:var(--f-mono);text-transform:uppercase}
+.standfirst{max-width:760px;margin-top:30px;font-size:clamp(15px,1.5vw,18px);
+  color:rgba(255,255,255,.82);line-height:1.65}
+.standfirst b{color:#fff;font-weight:600}
+
+/* ---------- KPI ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:1px solid rgba(255,255,255,0.16);margin-top:46px}
+.kpi{padding:26px 24px 24px;border-right:1px solid rgba(255,255,255,0.16)}
+.kpi:last-child{border-right:none}
+.kpi .v{font-family:var(--f-display);font-weight:900;
+  font-size:clamp(30px,3.6vw,46px);line-height:1;letter-spacing:-.01em}
+.kpi .v .u{font-size:.5em;font-weight:600;color:var(--flag-a);margin-left:4px}
+.kpi .l{font-family:var(--f-mono);font-size:11px;line-height:1.45;
+  letter-spacing:.03em;color:rgba(255,255,255,.6);margin-top:14px}
+@media(max-width:860px){.kpis{grid-template-columns:repeat(2,1fr)}
+  .kpi:nth-child(2){border-right:none}
+  .kpi:nth-child(1),.kpi:nth-child(2){border-bottom:1px solid rgba(255,255,255,0.16)}}
+@media(max-width:460px){.kpis{grid-template-columns:1fr}
+  .kpi{border-right:none;border-bottom:1px solid rgba(255,255,255,0.16)}}
+
+/* ---------- СЕКЦИИ ---------- */
+.section{padding:78px 0 18px;border-top:1px solid var(--line)}
+.sec-head{display:flex;align-items:flex-start;gap:26px;margin-bottom:14px}
+.sec-num{font-family:var(--f-display);font-weight:900;font-size:clamp(40px,5vw,64px);
+  line-height:.8;color:var(--ink)}
+.sec-num em{font-style:normal;color:var(--flag-a)}
+.sec-titlewrap{padding-top:6px}
+.sec-kicker{font-family:var(--f-mono);font-size:11px;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.sec-title{font-family:var(--f-display);font-weight:800;
+  font-size:clamp(26px,3.4vw,40px);line-height:1.02;letter-spacing:-.01em}
+.sec-intro{max-width:780px;margin:22px 0 40px;font-size:16px;color:#26262a;line-height:1.7}
+.sec-intro b{font-weight:600}
+.sec-intro+.sec-intro{margin-top:-22px}
+
+/* ---------- ФИГУРЫ ---------- */
+.figrow{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:8px}
+.figrow.one{grid-template-columns:1fr}
+@media(max-width:900px){.figrow{grid-template-columns:1fr}}
+.fig{border:1px solid var(--line);background:var(--paper);margin-bottom:30px;
+  display:flex;flex-direction:column}
+.fig .head{padding:20px 22px 16px;border-bottom:1px solid var(--line)}
+.fig .tag{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--flag-a);display:flex;
+  justify-content:space-between;align-items:center;gap:10px;margin-bottom:11px}
+.fig .tag .dw{color:var(--faint);text-align:right}
+.fig .t{font-family:var(--f-display);font-weight:800;font-size:19px;
+  line-height:1.18;letter-spacing:-.005em}
+.fig .sub{font-size:13px;color:var(--muted);margin-top:7px;line-height:1.5}
+.fig .chart{padding:18px 20px 8px;flex:1;min-height:60px}
+.fig figcaption{padding:13px 22px 18px;border-top:1px solid var(--line);
+  font-family:var(--f-mono);font-size:10.5px;line-height:1.55;
+  color:var(--faint);letter-spacing:.02em}
+.fig figcaption b{color:var(--muted);font-weight:500}
+
+/* таблица */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);text-align:left;
+  padding:12px 14px;border-bottom:1px solid var(--line-strong);font-weight:500}
+.tbl td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td .yr{font-family:var(--f-mono);font-weight:600;color:var(--ink)}
+.tbl td.ev{font-weight:500}
+.tbl .st{font-family:var(--f-mono);font-size:11px;letter-spacing:.02em;
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.tbl .st .dot{width:8px;height:8px;display:inline-block}
+.st.live .dot{background:var(--ink)}
+.st.dead .dot{background:var(--flag-a)}
+.st.soft .dot{background:var(--faint)}
+.st.dead{color:var(--flag-a-deep);font-weight:600}
+@media(max-width:680px){.tbl .hidecol{display:none}}
+
+/* ---------- ФУТЕР ---------- */
+.footer{background:var(--ink);color:rgba(255,255,255,.7);margin-top:60px;
+  padding:60px 0 50px;border-top:1px solid rgba(255,255,255,0.16)}
+.footer .ft-kicker{font-family:var(--f-mono);font-size:11px;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--flag-a);margin-bottom:26px}
+.srcs{display:grid;grid-template-columns:repeat(2,1fr);gap:0 48px;
+  border-top:1px solid rgba(255,255,255,0.16)}
+.src{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.16);
+  font-size:13px;line-height:1.5}
+.src .n{font-family:var(--f-mono);font-size:11px;color:var(--flag-a);
+  flex:0 0 28px;padding-top:2px}
+.src .b b{color:#fff;font-weight:600;display:block;margin-bottom:3px;font-family:var(--f-body)}
+.src .b span{color:rgba(255,255,255,.5);font-family:var(--f-mono);font-size:11px;word-break:break-all}
+@media(max-width:760px){.srcs{grid-template-columns:1fr}}
+.colophon{margin-top:34px;font-family:var(--f-mono);font-size:11px;
+  letter-spacing:.04em;color:rgba(255,255,255,.4);line-height:1.7}
+.colophon .flagmark{vertical-align:-2px;margin-right:8px;width:13px;height:13px}
+</style>
+</head>
+<body>
+
+<!-- ТОПБАР -->
+<header class="topbar">
+  <div class="wrap row">
+    <div class="brand"><span class="flagmark"></span>G20 . Искусственный интеллект</div>
+    <nav class="topnav">
+      <a href="#strategy">01 Стратегия</a>
+      <a href="#ethics">02 Регулирование</a>
+      <a href="#media">03 Медиа</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Досье 09<span class="sep">/</span>Северная Америка<span class="sep">/</span>G20 . ИИ</div>
+    <h1 class="htitle">Канада<span class="en">Canada . Artificial Intelligence</span></h1>
+    <p class="standfirst">Канада запустила <b>первую в мире национальную стратегию ИИ</b> в 2017 году и вырастила одну из сильнейших исследовательских школ планеты. Но к 2026 году страна осталась <b>единственной в G7 без обязательного закона об ИИ</b>, уступает по инфраструктуре и операционной среде и делает многомиллиардную ставку на собственные вычислительные мощности, чтобы конвертировать научное лидерство в экономическое.</p>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="v">2017</div>
+        <div class="l">Первая в мире национальная стратегия ИИ</div>
+      </div>
+      <div class="kpi">
+        <div class="v">2,4<span class="u">млрд $</span></div>
+        <div class="l">Пакет мер по ИИ в Бюджете-2024 (CAD)</div>
+      </div>
+      <div class="kpi">
+        <div class="v">143</div>
+        <div class="l">Кресла Canada CIFAR AI Chairs — 3-й по влиянию AI-кластер мира</div>
+      </div>
+      <div class="kpi">
+        <div class="v">8-е</div>
+        <div class="l">Tortoise Global AI Index 2024 — падение с 4-го места в 2021</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 01 СТРАТЕГИЯ -->
+<section class="section" id="strategy">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">0<em>1</em></div>
+      <div class="sec-titlewrap">
+        <div class="sec-kicker">Государственная стратегия</div>
+        <h2 class="sec-title">Ранний старт, дорогая ставка на вычисления</h2>
+      </div>
+    </div>
+    <p class="sec-intro">Профиль Канады противоречив. Страна — мировой пионер государственной политики в ИИ и держит <b>3-е место по комплексности госстратегии</b> в индексе Tortoise, но проседает по инфраструктуре (18-е) и операционной среде (16-е). Именно поэтому совокупный рейтинг упал с 4-го места в 2021 году до 8-го в 2024-м.</p>
+    <p class="sec-intro">Финансирование росло ступенчато: 125 млн CAD на первую фазу Пан-канадской стратегии (2017), 443 млн на вторую (2021) и затем резкий скачок — пакет на 2,4 млрд CAD в Бюджете-2024, из которого <b>83% уходит в вычислительные мощности</b>. Исследовательская сила при этом реальна: около 10% мировых топ-исследователей ИИ работают в Канаде (2-е место в мире), а страна первая в G7 по числу научных статей по ИИ на душу населения.</p>
+
+    <div class="figrow one">
+      <figure class="fig">
+        <div class="head">
+          <div class="tag"><span>Рис. 01 . Радар сильных и слабых сторон</span><span class="dw">сигнатура проекта</span></div>
+          <div class="t">Канада в индексе Tortoise 2024: сильная стратегия, слабая инфраструктура</div>
+          <div class="sub">Ранг из 83 стран по суб-пилларам, где он опубликован (ближе к краю = выше место). Показаны 4 из 7 суб-пилларов с раскрытым рангом Канады.</div>
+        </div>
+        <div class="chart" id="c-radar"></div>
+        <figcaption><b>Источник:</b> Tortoise Media, The Global AI Index 2024 (122 индикатора, 83 страны). Точные ранги Канады по talent / research / development в публичных материалах не раскрыты; научно-кадровая сила Канады показана числами в тексте и на рис. 04.</figcaption>
+      </figure>
+    </div>
+
+    <div class="figrow">
+      <figure class="fig">
+        <div class="head">
+          <div class="tag"><span>Рис. 02 . Столбцы</span><span class="dw">Datawrapper . Column chart</span></div>
+          <div class="t">Федеральные обязательства по ИИ, млн CAD</div>
+          <div class="sub">Пакет 2024 года почти впятеро превышает все вложения в стратегию за предыдущие семь лет.</div>
+        </div>
+        <div class="chart" id="c-funding"></div>
+        <figcaption><b>Источник:</b> ISED, Бюджет-2017 и Бюджет-2021; CIFAR (вторая фаза PCAIS, 443 млн на 10 лет); Бюджет-2024 (пакет мер по ИИ, 2,4 млрд).</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <div class="tag"><span>Рис. 03 . Стопка</span><span class="dw">Datawrapper . Stacked bars</span></div>
+          <div class="t">Из чего состоят 2,4 млрд CAD Бюджета-2024</div>
+          <div class="sub">Подавляющая часть пакета — вычислительная инфраструктура, а не регулирование или адаптация.</div>
+        </div>
+        <div class="chart" id="c-budget"></div>
+        <figcaption><b>Источник:</b> Правительство Канады, Бюджет-2024; canada.ca — Canadian Sovereign AI Compute Strategy. Сумма около 2 405 млн CAD.</figcaption>
+      </figure>
+    </div>
+
+    <div class="figrow one">
+      <figure class="fig">
+        <div class="head">
+          <div class="tag"><span>Рис. 04 . Картосхема символов</span><span class="dw">Datawrapper . Symbol map</span></div>
+          <div class="t">Три исследовательских хаба, ведёт Монреаль</div>
+          <div class="sub">Размер маркера — число кресел Canada CIFAR AI Chairs при институте; всего по стране 143 кресла.</div>
+        </div>
+        <div class="chart" id="c-map"></div>
+        <figcaption><b>Источник:</b> CIFAR и национальные институты Mila, Vector, Amii. Кресла по институтам: Mila около 53, Vector около 38, Amii 32 (данные институтов, 2021-2026). Совокупно — 3-й по научному влиянию AI-кластер мира.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 02 РЕГУЛИРОВАНИЕ -->
+<section class="section" id="ethics">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">0<em>2</em></div>
+      <div class="sec-titlewrap">
+        <div class="sec-kicker">Этическое регулирование</div>
+        <h2 class="sec-title">Закон, который не дожил до голосования</h2>
+      </div>
+    </div>
+    <p class="sec-intro">Канада дважды подходила к рамочному закону об ИИ и оба раза осталась без него. Закон об ИИ и данных (AIDA) был внесён в составе билля C-27 в июне 2022 года, два года провёл в комитете под шквалом критики — и <b>умер 6 января 2025 года</b>, когда парламент был пророгирован после отставки премьера. К началу 2026 года Канада — <b>единственная страна G7 без обязательного закона об ИИ</b>: действуют закон о приватности 2000 года, добровольный кодекс и лоскутное провинциальное регулирование (Quebec Law 25, Ontario Bill 194). Первый в истории страны министр ИИ Эван Соломон (с мая 2025) обещает новый закон в логике <b>«light, tight, right»</b>, но проект пока не внесён.</p>
+
+    <div class="figrow one">
+      <figure class="fig">
+        <div class="head">
+          <div class="tag"><span>Рис. 05 . Таблица</span><span class="dw">Datawrapper . Table</span></div>
+          <div class="t">Хронология управления ИИ в Канаде, 2017-2026</div>
+          <div class="sub">От первой в мире стратегии до регуляторного вакуума и новой попытки.</div>
+        </div>
+        <div class="chart" style="padding:6px 8px 8px">
+          <table class="tbl">
+            <thead>
+              <tr><th style="width:74px">Год</th><th>Событие</th><th class="hidecol">Инструмент</th><th style="width:140px">Статус</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="yr">2017</span></td>
+                <td class="ev">Пан-канадская стратегия ИИ (PCAIS), 125 млн CAD</td>
+                <td class="hidecol">Нацстратегия (CIFAR)</td>
+                <td><span class="st live"><span class="dot"></span>Действует</span></td>
+              </tr>
+              <tr>
+                <td><span class="yr">2022</span></td>
+                <td class="ev">AIDA внесён в составе билля C-27</td>
+                <td class="hidecol">Законопроект</td>
+                <td><span class="st soft"><span class="dot"></span>В комитете</span></td>
+              </tr>
+              <tr>
+                <td><span class="yr">2023</span></td>
+                <td class="ev">Добровольный кодекс по генеративному ИИ</td>
+                <td class="hidecol">Саморегулирование</td>
+                <td><span class="st soft"><span class="dot"></span>Не обязателен</span></td>
+              </tr>
+              <tr>
+                <td><span class="yr">2024</span></td>
+                <td class="ev">Запуск Института безопасности ИИ (CAISI), 50 млн CAD</td>
+                <td class="hidecol">Институт</td>
+                <td><span class="st live"><span class="dot"></span>Действует</span></td>
+              </tr>
+              <tr>
+                <td><span class="yr">2025</span></td>
+                <td class="ev">Пророгация парламента — AIDA и C-27 умирают</td>
+                <td class="hidecol">Order Paper</td>
+                <td><span class="st dead"><span class="dot"></span>Закон умер</span></td>
+              </tr>
+              <tr>
+                <td><span class="yr">2025</span></td>
+                <td class="ev">Эван Соломон — первый министр ИИ Канады</td>
+                <td class="hidecol">Министерство</td>
+                <td><span class="st live"><span class="dot"></span>Действует</span></td>
+              </tr>
+              <tr>
+                <td><span class="yr">2026</span></td>
+                <td class="ev">Новая стратегия и новый закон об ИИ</td>
+                <td class="hidecol">В разработке</td>
+                <td><span class="st soft"><span class="dot"></span>В работе</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption><b>Источник:</b> ISED Canada; Schwartz Reisman Institute (What's Next After AIDA); IAPP; BetaKit — заявления министра Э. Соломона. Пророгация — 6 января 2025 года.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 03 МЕДИА -->
+<section class="section" id="media">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">0<em>3</em></div>
+      <div class="sec-titlewrap">
+        <div class="sec-kicker">Медиа и общественное мнение</div>
+        <h2 class="sec-title">Научная держава со скептическим обществом</h2>
+      </div>
+    </div>
+    <p class="sec-intro">Парадокс Канады выходит за пределы политики: одна из ведущих исследовательских школ мира соседствует с одним из самых настороженных обществ. По данным Ipsos (отчёт Stanford AI Index 2025), лишь <b>40% канадцев</b> считают, что продукты и сервисы с ИИ приносят больше пользы, чем вреда — почти столько же, сколько в США (39%) и Нидерландах (36%), и вдвое меньше, чем в Китае (83%) или Индонезии (80%). Этот разрыв в доверии — фон для всей дискуссии о внедрении: около трёх из четырёх канадских компаний пока не используют ИИ.</p>
+
+    <div class="figrow one">
+      <figure class="fig">
+        <div class="head">
+          <div class="tag"><span>Рис. 06 . Точечный график</span><span class="dw">Datawrapper . Dot plot</span></div>
+          <div class="t">«ИИ приносит больше пользы, чем вреда» — доля согласных, %</div>
+          <div class="sub">Канада — у нижней границы мирового распределения, рядом с США и Нидерландами.</div>
+        </div>
+        <div class="chart" id="c-opinion"></div>
+        <figcaption><b>Источник:</b> Stanford HAI, AI Index 2025 (глава 8, данные Ipsos, 32 страны). Вопрос: доля согласных, что продукты и сервисы с ИИ несут больше пользы, чем вреда.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ФУТЕР -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="ft-kicker">Источники и данные</div>
+    <div class="srcs">
+      <div class="src"><span class="n">01</span><span class="b"><b>Tortoise Media — The Global AI Index 2024</b><span>tortoisemedia.com/data/global-ai</span></span></div>
+      <div class="src"><span class="n">02</span><span class="b"><b>Stanford HAI — AI Index 2025 / Global AI Vibrancy Tool</b><span>hai.stanford.edu/ai-index</span></span></div>
+      <div class="src"><span class="n">03</span><span class="b"><b>ISED Canada — Pan-Canadian AI Strategy; Sovereign AI Compute Strategy</b><span>ised-isde.canada.ca</span></span></div>
+      <div class="src"><span class="n">04</span><span class="b"><b>CIFAR — Canada CIFAR AI Chairs; вторая фаза PCAIS</b><span>cifar.ca/ai</span></span></div>
+      <div class="src"><span class="n">05</span><span class="b"><b>Правительство Канады — Бюджет-2024 (пакет мер по ИИ)</b><span>canada.ca</span></span></div>
+      <div class="src"><span class="n">06</span><span class="b"><b>Schwartz Reisman Institute / IAPP / BetaKit — AIDA, билль C-27, министр ИИ</b><span>srinstitute.utoronto.ca</span></span></div>
+      <div class="src"><span class="n">07</span><span class="b"><b>Ipsos — AI Monitor 2024 / 2025</b><span>ipsos.com</span></span></div>
+    </div>
+    <div class="colophon">
+      <span class="flagmark"></span>G20 . Искусственный интеллект — курсовой проект. Канада, досье 09.<br>
+      Все данные реальны и сверены с первоисточниками. Типы визуализаций: радар (сигнатура) плюс 5 типов Datawrapper — столбцы, стопка, картосхема символов, таблица, точечный график.
+    </div>
+  </div>
+</footer>
+
+<script>
+/* =====================================================================
+   D3 v7 . общие соглашения проекта:
+   квадратные маркеры, hairline-сетка, нулевые скругления, моно-подписи.
+   ===================================================================== */
+var INK="#060607", FLAG="#D80621", FLAGDEEP="#A60419",
+    MUTED="#6B6B70", FAINT="#9A9AA0",
+    GRID="rgba(6,6,7,0.08)", BASE="rgba(6,6,7,0.34)",
+    MONO="'IBM Plex Mono',monospace", DISP="'Archivo',sans-serif",
+    G1="#3a3a3e", G2="#6f6f74", G3="#9a9aa0", G4="#c2c2c6", G5="#dedee1";
+
+function spaced(n){ return d3.format(",")(n).replace(/,/g," "); }
+
+function svg(id,w,h){
+  return d3.select("#"+id).append("svg")
+    .attr("viewBox","0 0 "+w+" "+h)
+    .attr("width","100%")
+    .attr("preserveAspectRatio","xMidYMid meet")
+    .style("overflow","visible");
+}
+
+/* ---------- РИС. 01 . РАДАР (4 суб-пиллара Tortoise) ---------- */
+(function(){
+  var W=720, H=470, cx=W/2, cy=H/2+4, R=152, N=83;
+  var s=svg("c-radar",W,H);
+  var data=[
+    {k:"Госстратегия",rank:3},
+    {k:"Коммерциализация",rank:6},
+    {k:"Операционная среда",rank:16},
+    {k:"Инфраструктура",rank:18}
+  ];
+  var rr=function(rk){ return R*(N-rk)/(N-1); };
+  var ang=function(i){ return -Math.PI/2 + i*2*Math.PI/data.length; };
+  var rings=[1,10,25,50,83];
+  rings.forEach(function(rk){
+    var r=rr(rk);
+    var pts=data.map(function(d,i){ return [cx+r*Math.cos(ang(i)), cy+r*Math.sin(ang(i))]; });
+    s.append("polygon").attr("points",pts.map(function(p){return p.join(",");}).join(" "))
+      .attr("fill","none").attr("stroke",GRID).attr("stroke-width",1);
+    s.append("text").attr("x",cx+5).attr("y",cy-r-3)
+      .attr("font-family",MONO).attr("font-size","9.5px").attr("fill",FAINT)
+      .text(rk+"-е");
+  });
+  data.forEach(function(d,i){
+    var a=ang(i), ex=cx+R*Math.cos(a), ey=cy+R*Math.sin(a);
+    s.append("line").attr("x1",cx).attr("y1",cy).attr("x2",ex).attr("y2",ey)
+      .attr("stroke",GRID).attr("stroke-width",1);
+    var lx=cx+(R+24)*Math.cos(a), ly=cy+(R+24)*Math.sin(a);
+    var anchor = Math.abs(Math.cos(a))<0.3 ? "middle" : (Math.cos(a)>0 ? "start" : "end");
+    s.append("text").attr("x",lx).attr("y",ly).attr("text-anchor",anchor)
+      .attr("dominant-baseline","middle").attr("font-family",MONO).attr("font-size","11px")
+      .attr("fill",INK).attr("font-weight","500").text(d.k);
+    s.append("text").attr("x",lx).attr("y",ly+14).attr("text-anchor",anchor)
+      .attr("dominant-baseline","middle").attr("font-family",MONO).attr("font-size","10px")
+      .attr("fill",FLAGDEEP).attr("font-weight","600").text(d.rank+"-е место");
+  });
+  var poly=data.map(function(d,i){ return [cx+rr(d.rank)*Math.cos(ang(i)), cy+rr(d.rank)*Math.sin(ang(i))]; });
+  s.append("polygon").attr("points",poly.map(function(p){return p.join(",");}).join(" "))
+    .attr("fill","rgba(216,6,33,0.12)").attr("stroke",FLAG).attr("stroke-width",2);
+  poly.forEach(function(p){
+    s.append("rect").attr("x",p[0]-4).attr("y",p[1]-4).attr("width",8).attr("height",8).attr("fill",FLAG);
+  });
+})();
+
+/* ---------- РИС. 02 . СТОЛБЦЫ (финансирование) ---------- */
+(function(){
+  var W=640, H=420, m={t:36,r:20,b:62,l:62};
+  var iw=W-m.l-m.r, ih=H-m.t-m.b;
+  var s=svg("c-funding",W,H);
+  var g=s.append("g").attr("transform","translate("+m.l+","+m.t+")");
+  var data=[
+    {y:"2017",lab:["PCAIS","Фаза 1"],v:125},
+    {y:"2021",lab:["PCAIS","Фаза 2"],v:443},
+    {y:"2024",lab:["Пакет","Бюджета-2024"],v:2400}
+  ];
+  var x=d3.scaleBand().domain(data.map(function(d){return d.y;})).range([0,iw]).padding(0.42);
+  var y=d3.scaleLinear().domain([0,2500]).range([ih,0]);
+  y.ticks(5).forEach(function(t){
+    g.append("line").attr("x1",0).attr("x2",iw).attr("y1",y(t)).attr("y2",y(t))
+      .attr("stroke",GRID).attr("stroke-width",1);
+    g.append("text").attr("x",-10).attr("y",y(t)).attr("text-anchor","end")
+      .attr("dominant-baseline","middle").attr("font-family",MONO).attr("font-size","10.5px")
+      .attr("fill",MUTED).text(t===0?"0":spaced(t));
+  });
+  g.append("line").attr("x1",0).attr("x2",iw).attr("y1",ih).attr("y2",ih)
+    .attr("stroke",BASE).attr("stroke-width",1);
+  data.forEach(function(d,i){
+    var fill = i===2 ? FLAG : INK;
+    g.append("rect").attr("x",x(d.y)).attr("y",y(d.v)).attr("width",x.bandwidth())
+      .attr("height",ih-y(d.v)).attr("fill",fill);
+    g.append("text").attr("x",x(d.y)+x.bandwidth()/2).attr("y",y(d.v)-9).attr("text-anchor","middle")
+      .attr("font-family",MONO).attr("font-size","13px").attr("font-weight","600").attr("fill",fill)
+      .text(spaced(d.v));
+    g.append("text").attr("x",x(d.y)+x.bandwidth()/2).attr("y",ih+22).attr("text-anchor","middle")
+      .attr("font-family",DISP).attr("font-size","15px").attr("font-weight","800").attr("fill",INK)
+      .text(d.y);
+    d.lab.forEach(function(ln,j){
+      g.append("text").attr("x",x(d.y)+x.bandwidth()/2).attr("y",ih+38+j*12).attr("text-anchor","middle")
+        .attr("font-family",MONO).attr("font-size","9.5px").attr("fill",MUTED).text(ln);
+    });
+  });
+  s.append("text").attr("x",2).attr("y",18).attr("font-family",MONO).attr("font-size","9.5px")
+    .attr("fill",FAINT).text("млн CAD");
+})();
+
+/* ---------- РИС. 03 . СТОПКА (структура пакета 2024) ---------- */
+(function(){
+  var W=640, H=304, m={l:20,r:20};
+  var s=svg("c-budget",W,H);
+  var segs=[
+    {k:"Вычисления (Compute Fund + Sovereign Strategy)",v:2000,c:FLAG,light:true},
+    {k:"Адаптация по секторам (агентства RDA)",v:200,c:G1,light:true},
+    {k:"NRC IRAP — помощь МСП",v:100,c:G2,light:true},
+    {k:"Переобучение работников",v:50,c:G3,light:false},
+    {k:"Институт безопасности ИИ (CAISI)",v:50,c:G4,light:false},
+    {k:"Офис комиссара по ИИ и данным (AIDA)",v:5.1,c:G5,light:false}
+  ];
+  var total=d3.sum(segs,function(d){return d.v;});
+  var iw=W-m.l-m.r, barY=46, barH=62;
+  var x=d3.scaleLinear().domain([0,total]).range([0,iw]);
+  s.append("text").attr("x",m.l).attr("y",22).attr("font-family",DISP).attr("font-size","15px")
+    .attr("font-weight","800").attr("fill",INK).text("83% пакета — вычислительные мощности");
+  var acc=0;
+  segs.forEach(function(d){
+    var x0=x(acc), w=x(acc+d.v)-x(acc);
+    s.append("rect").attr("x",m.l+x0).attr("y",barY).attr("width",Math.max(w,1)).attr("height",barH)
+      .attr("fill",d.c);
+    if(w>42){
+      s.append("text").attr("x",m.l+x0+w/2).attr("y",barY+barH/2+1).attr("text-anchor","middle")
+        .attr("dominant-baseline","middle").attr("font-family",MONO).attr("font-size","12px")
+        .attr("font-weight","600").attr("fill",d.light?"#fff":INK).text(spaced(d.v));
+    }
+    acc+=d.v;
+  });
+  s.append("line").attr("x1",m.l).attr("x2",m.l+iw).attr("y1",barY+barH).attr("y2",barY+barH)
+    .attr("stroke",BASE).attr("stroke-width",1);
+  var lg=s.append("g").attr("transform","translate("+m.l+","+(barY+barH+24)+")");
+  segs.forEach(function(d,i){
+    var gy=i*23;
+    lg.append("rect").attr("x",0).attr("y",gy).attr("width",10).attr("height",10).attr("fill",d.c);
+    lg.append("text").attr("x",18).attr("y",gy+9).attr("font-family",MONO).attr("font-size","10.5px")
+      .attr("fill",MUTED).text(d.k+" — "+spaced(d.v)+" млн");
+  });
+})();
+
+/* ---------- РИС. 04 . КАРТОСХЕМА СИМВОЛОВ (хабы) ---------- */
+(function(){
+  var W=720, H=440;
+  var s=svg("c-map",W,H);
+  // стилизованный контур Канады (схематичный)
+  var path="M62,168 L122,140 L182,156 L242,136 L300,152 L350,136 L362,206 L402,262 L452,206 "
+         + "L472,138 L540,154 L602,140 L662,162 L646,212 L662,252 L620,256 L642,300 L600,296 "
+         + "L584,272 L560,300 L520,300 L470,320 L432,302 L470,332 L440,338 L300,332 L182,334 "
+         + "L120,322 L96,300 L112,250 L76,210 Z";
+  s.append("path").attr("d",path).attr("fill","#F4F4F2").attr("stroke","rgba(6,6,7,0.30)")
+    .attr("stroke-width",1).attr("stroke-linejoin","round");
+  var hubs=[
+    {name:"Монреаль",inst:"Mila",chairs:53,x:548,y:276,lx:566,ly:276,anc:"start"},
+    {name:"Торонто",inst:"Vector",chairs:38,x:470,y:300,lx:470,ly:330,anc:"middle"},
+    {name:"Эдмонтон",inst:"Amii",chairs:32,x:212,y:286,lx:194,ly:286,anc:"end"}
+  ];
+  hubs.forEach(function(h){
+    var side = 9 + Math.sqrt(h.chairs)*2.4;
+    s.append("rect").attr("x",h.x-side/2).attr("y",h.y-side/2).attr("width",side).attr("height",side)
+      .attr("fill","rgba(216,6,33,0.85)").attr("stroke",FLAGDEEP).attr("stroke-width",1);
+    s.append("text").attr("x",h.lx).attr("y",h.ly-4).attr("text-anchor",h.anc)
+      .attr("font-family",MONO).attr("font-size","12px").attr("font-weight","600").attr("fill",INK)
+      .text(h.name);
+    s.append("text").attr("x",h.lx).attr("y",h.ly+10).attr("text-anchor",h.anc)
+      .attr("font-family",MONO).attr("font-size","10.5px").attr("fill",MUTED)
+      .text(h.inst+" — "+h.chairs+" кресла");
+  });
+  // легенда размера
+  var lgx=70, lgy=372;
+  s.append("text").attr("x",lgx).attr("y",lgy-12).attr("font-family",MONO).attr("font-size","10px")
+    .attr("fill",FAINT).text("Размер маркера = кресла Canada CIFAR AI Chairs");
+  [{v:32,x:lgx},{v:53,x:lgx+86}].forEach(function(d){
+    var side=9+Math.sqrt(d.v)*2.4;
+    s.append("rect").attr("x",d.x).attr("y",lgy-side/2+4).attr("width",side).attr("height",side)
+      .attr("fill","none").attr("stroke","rgba(6,6,7,0.45)").attr("stroke-width",1);
+    s.append("text").attr("x",d.x+side+8).attr("y",lgy+5).attr("font-family",MONO)
+      .attr("font-size","10.5px").attr("fill",MUTED).text(d.v);
+  });
+})();
+
+/* ---------- РИС. 06 . ТОЧЕЧНЫЙ ГРАФИК (мнение) ---------- */
+(function(){
+  var W=640, H=326, m={t:22,r:34,b:42,l:116};
+  var iw=W-m.l-m.r, ih=H-m.t-m.b;
+  var s=svg("c-opinion",W,H);
+  var g=s.append("g").attr("transform","translate("+m.l+","+m.t+")");
+  var data=[
+    {c:"Китай",v:83},
+    {c:"Индонезия",v:80},
+    {c:"Таиланд",v:77},
+    {c:"Канада",v:40,hl:true},
+    {c:"США",v:39},
+    {c:"Нидерланды",v:36}
+  ];
+  var x=d3.scaleLinear().domain([0,100]).range([0,iw]);
+  var y=d3.scalePoint().domain(data.map(function(d){return d.c;})).range([0,ih]).padding(0.6);
+  [0,25,50,75,100].forEach(function(t){
+    g.append("line").attr("x1",x(t)).attr("x2",x(t)).attr("y1",0).attr("y2",ih)
+      .attr("stroke",GRID).attr("stroke-width",1);
+    g.append("text").attr("x",x(t)).attr("y",ih+20).attr("text-anchor","middle")
+      .attr("font-family",MONO).attr("font-size","10px").attr("fill",MUTED).text(t+"%");
+  });
+  data.forEach(function(d){
+    var cy=y(d.c), col=d.hl?FLAG:INK;
+    g.append("line").attr("x1",0).attr("x2",x(d.v)).attr("y1",cy).attr("y2",cy)
+      .attr("stroke",d.hl?"rgba(216,6,33,0.35)":"rgba(6,6,7,0.16)").attr("stroke-width",d.hl?2:1);
+    var sz=d.hl?13:10;
+    g.append("rect").attr("x",x(d.v)-sz/2).attr("y",cy-sz/2).attr("width",sz).attr("height",sz).attr("fill",col);
+    g.append("text").attr("x",-14).attr("y",cy).attr("text-anchor","end").attr("dominant-baseline","middle")
+      .attr("font-family",MONO).attr("font-size","12px").attr("fill",d.hl?FLAGDEEP:INK)
+      .attr("font-weight",d.hl?"600":"400").text(d.c);
+    g.append("text").attr("x",x(d.v)+sz/2+8).attr("y",cy).attr("dominant-baseline","middle")
+      .attr("font-family",MONO).attr("font-size","12px").attr("fill",col).attr("font-weight","600")
+      .text(d.v+"%");
+  });
+})();
+</script>
+</body>
+</html>

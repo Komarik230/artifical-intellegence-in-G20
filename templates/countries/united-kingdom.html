@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Великобритания — Искусственный интеллект в странах G20</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+/* ===================================================================
+   Единый чёрный шаблон для всех стран G20.
+   Под каждую страну меняется ТОЛЬКО блок --flag-* (цвета флага).
+   Остальные токены (ink, paper, line, muted) общие для всех страниц.
+   =================================================================== */
+:root {
+  /* --- Акцент страны: Великобритания (Union Jack) --- */
+  /* Красный ведёт визуально и означает амбиции/лидерство/сильные стороны */
+  --flag-primary:   #D81E40;   /* красный Union Jack */
+  --flag-primary-2: #F0586F;   /* светлее, для ховера/выделения */
+  --flag-secondary: #4A6AE0;   /* синий Union Jack, осветлён: закон/структура */
+  --alert:          #F5A524;   /* янтарный: пробел / только добровольное / тревога */
+
+  /* --- Общая монохромная база (для всех стран одинаковая) --- */
+  --ink:        #060607;
+  --ink-panel:  #0B0C0E;
+  --paper:      #FFFFFF;
+  --muted:      rgba(255,255,255,.56);
+  --muted-2:    rgba(255,255,255,.40);
+  --line:       rgba(255,255,255,.16);
+  --line-2:     rgba(255,255,255,.30);
+  --grid:       rgba(255,255,255,.07);
+
+  --maxw: 1320px;
+  --pad: clamp(16px, 4vw, 56px);
+
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --f-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--ink); -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--ink); color: var(--paper);
+  font-family: var(--f-body); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+::selection { background: var(--flag-primary); color: #fff; }
+a { color: inherit; }
+
+.wrap { width: min(var(--maxw), 100%); margin: 0 auto; padding-inline: var(--pad); }
+
+/* ---------- Утилитарные текстовые элементы ---------- */
+.eyebrow { font-family: var(--f-mono); font-size: 11.5px; font-weight: 500; letter-spacing: .26em; text-transform: uppercase; color: var(--flag-primary); margin: 0; }
+.mono { font-family: var(--f-mono); }
+.muted { color: var(--muted); }
+h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 900; }
+
+/* Смысловые цветовые помощники для Великобритании */
+.strong { color: var(--flag-primary); }   /* красный: амбиции, лидерство, сильные стороны */
+.bind   { color: var(--flag-secondary); }  /* синий: обязательная норма, закон, структура */
+.gap    { color: var(--alert); }           /* янтарный: добровольное, пробел, тревога */
+b, strong { color: var(--paper); font-weight: 600; }
+
+/* ====================== ШАПКА / БРЕНД-БАР ====================== */
+.topbar { border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 50; background: rgba(6,6,7,.86); backdrop-filter: blur(8px); }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 56px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+/* флаг-марка: мини Union Jack, нарисованный CSS-градиентами (резкий, без скруглений) */
+.flagmark {
+  position: relative; width: 34px; height: 22px; flex: 0 0 auto;
+  border: 1px solid var(--line-2); overflow: hidden;
+  background:
+    /* красная косая накрест (поверх белой) */
+    linear-gradient(to bottom right, transparent calc(50% - 1.2px), #C8102E calc(50% - 1.2px), #C8102E calc(50% + 1.2px), transparent calc(50% + 1.2px)),
+    linear-gradient(to bottom left,  transparent calc(50% - 1.2px), #C8102E calc(50% - 1.2px), #C8102E calc(50% + 1.2px), transparent calc(50% + 1.2px)),
+    /* белая косая накрест (саль­тир) */
+    linear-gradient(to bottom right, transparent calc(50% - 2.6px), #FFFFFF calc(50% - 2.6px), #FFFFFF calc(50% + 2.6px), transparent calc(50% + 2.6px)),
+    linear-gradient(to bottom left,  transparent calc(50% - 2.6px), #FFFFFF calc(50% - 2.6px), #FFFFFF calc(50% + 2.6px), transparent calc(50% + 2.6px)),
+    /* красный прямой крест (вертикаль + горизонталь) */
+    linear-gradient(to right,  transparent calc(50% - 1.8px), #C8102E calc(50% - 1.8px), #C8102E calc(50% + 1.8px), transparent calc(50% + 1.8px)),
+    linear-gradient(to bottom, transparent calc(50% - 1.8px), #C8102E calc(50% - 1.8px), #C8102E calc(50% + 1.8px), transparent calc(50% + 1.8px)),
+    /* белый прямой крест */
+    linear-gradient(to right,  transparent calc(50% - 3.4px), #FFFFFF calc(50% - 3.4px), #FFFFFF calc(50% + 3.4px), transparent calc(50% + 3.4px)),
+    linear-gradient(to bottom, transparent calc(50% - 3.4px), #FFFFFF calc(50% - 3.4px), #FFFFFF calc(50% + 3.4px), transparent calc(50% + 3.4px)),
+    /* синее поле */
+    #012169;
+}
+.brand b { font-family: var(--f-mono); font-weight: 600; font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--paper); }
+.topbar nav { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); display: flex; gap: 22px; }
+.topbar nav a { color: var(--muted); text-decoration: none; }
+.topbar nav a:hover { color: var(--flag-primary); }
+@media (max-width: 720px){ .topbar nav { display: none; } }
+
+/* ====================== ГЕРОЙ ====================== */
+.hero { padding-top: clamp(40px, 7vw, 96px); padding-bottom: clamp(30px, 4vw, 52px); }
+.hero .eyebrow { margin-bottom: 26px; }
+.hero h1 { font-size: clamp(46px, 8.2vw, 112px); line-height: .9; letter-spacing: -.025em; max-width: 17ch; }
+.hero h1 .ce { color: var(--flag-primary); }
+.lead { margin: 30px 0 0; max-width: 66ch; font-size: clamp(17px, 1.7vw, 21px); line-height: 1.55; color: var(--muted); }
+.lead strong { color: var(--paper); font-weight: 600; }
+.byline { margin-top: 28px; font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-2); }
+.rule-thick { height: 3px; background: var(--paper); margin: clamp(30px,5vw,52px) 0 0; }
+
+/* Легенда цвета */
+.legend { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 22px; font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend i { width: 12px; height: 12px; display: inline-block; }
+.sw-strong { background: var(--flag-primary); }
+.sw-bind { background: var(--flag-secondary); }
+.sw-gap { background: var(--alert); }
+
+/* ====================== ПОЛОСА KPI ====================== */
+.kpis { margin-top: clamp(34px, 5vw, 56px); display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.kpi { background: var(--ink); padding: 22px clamp(16px, 1.6vw, 24px) 20px; }
+.kpi .v { font-family: var(--f-display); font-weight: 800; font-size: clamp(30px, 3.6vw, 50px); line-height: 1; letter-spacing: -.03em; }
+.kpi .v.g { color: var(--flag-primary); }
+.kpi .v.y { color: var(--flag-secondary); }
+.kpi .v.r { color: var(--alert); }
+.kpi .l { margin-top: 14px; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.kpi .l b { color: var(--paper); }
+@media (max-width: 860px){ .kpis { grid-template-columns: repeat(2, 1fr); } }
+
+/* ====================== СЕКЦИИ ====================== */
+.section { padding-block: clamp(56px, 8vw, 104px); border-top: 1px solid var(--line); }
+.sechead { display: grid; grid-template-columns: auto 1fr; gap: clamp(16px, 3vw, 40px); align-items: end; margin-bottom: clamp(28px, 4vw, 48px); }
+.sec-no { font-family: var(--f-display); font-weight: 800; font-size: clamp(40px, 6vw, 84px); line-height: .8; letter-spacing: -.04em; color: transparent; -webkit-text-stroke: 1.4px var(--line-2); }
+.sec-titles .eyebrow { margin-bottom: 12px; }
+.sec-titles h2 { font-size: clamp(28px, 4vw, 52px); line-height: 1; letter-spacing: -.025em; max-width: 20ch; }
+.dek { margin: 22px 0 0; max-width: 72ch; color: var(--muted); font-size: clamp(15px, 1.3vw, 18px); }
+.dek strong { color: var(--paper); font-weight: 600; }
+
+/* ---------- Фигуры / графики ---------- */
+.fig { margin-top: clamp(36px, 5vw, 60px); border: 1px solid var(--line); background: var(--ink-panel); }
+.fig .head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 16px clamp(16px,2vw,22px) 0; }
+.fig .head .t { font-family: var(--f-display); font-weight: 800; font-size: clamp(15px, 1.5vw, 19px); letter-spacing: -.01em; line-height: 1.2; }
+.fig .head .tag { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-2); white-space: nowrap; flex: 0 0 auto; }
+.fig .chart { padding: 10px clamp(10px,2vw,18px) 6px; }
+.fig figcaption { padding: 0 clamp(16px,2vw,22px) 16px; font-size: 12px; line-height: 1.5; color: var(--muted-2); border-top: 1px solid var(--line); margin-top: 8px; padding-top: 12px; }
+.fig figcaption b { color: var(--muted); font-weight: 600; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(18px,2.6vw,30px); background: transparent; border: 0; }
+.grid2 .fig { margin-top: 0; border: 0; background: var(--ink-panel); }
+/* Карта-локатор: полностью чёрный блок без серой рамки */
+.fig.map-fig { background: var(--ink); border: 0; }
+@media (max-width: 880px){ .grid2 { grid-template-columns: 1fr; } }
+
+.lede { margin: clamp(34px,5vw,56px) 0 0; max-width: 74ch; font-size: clamp(16px,1.4vw,19px); line-height: 1.6; color: var(--paper); }
+.lede b { font-weight: 600; }
+.note { margin: clamp(28px,4vw,44px) 0 0; max-width: 74ch; font-size: 14.5px; line-height: 1.6; color: var(--muted); border-left: 2px solid var(--line-2); padding-left: 18px; }
+.note b { color: var(--paper); font-weight: 600; }
+
+/* ---------- Сравнительная таблица ---------- */
+.ctable { margin-top: clamp(36px,5vw,60px); border: 1px solid var(--line); width: 100%; border-collapse: collapse; font-size: 14px; }
+.ctable caption { text-align: left; font-family: var(--f-display); font-weight: 800; font-size: clamp(15px,1.5vw,19px); padding: 16px clamp(14px,2vw,20px) 14px; border-bottom: 1px solid var(--line); }
+.ctable th, .ctable td { padding: 13px clamp(12px,1.6vw,18px); text-align: left; vertical-align: top; border-top: 1px solid var(--line); }
+.ctable thead th { font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); border-top: 0; }
+.ctable thead th:nth-child(2) { color: var(--flag-primary); }
+.ctable thead th:nth-child(3) { color: var(--flag-secondary); }
+.ctable tbody th { font-family: var(--f-body); font-weight: 600; color: var(--paper); width: 26%; }
+.ctable td { color: var(--muted); }
+.ctable tbody tr td:first-of-type { color: rgba(255,255,255,.78); }
+@media (max-width: 720px){ .ctable { font-size: 12.5px; } .ctable tbody th { width: 34%; } }
+
+/* ---------- Графика D3: общий вид ---------- */
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: var(--f-mono); fill: var(--muted); }
+.axis-label { font-size: 11px; letter-spacing: .04em; fill: var(--muted-2); }
+.val-label { font-family: var(--f-display); font-weight: 800; fill: var(--paper); }
+
+/* ====================== ПОДВАЛ ====================== */
+.footer { border-top: 1px solid var(--line); padding-block: clamp(48px,7vw,88px); }
+.footer .eyebrow { margin-bottom: 22px; }
+.footer h3 { font-family: var(--f-display); font-weight: 800; font-size: clamp(20px,2.4vw,30px); letter-spacing: -.02em; margin-bottom: 26px; max-width: 24ch; }
+.sources { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.sources li { background: var(--ink); padding: 14px 18px; font-size: 12.5px; line-height: 1.5; color: var(--muted); display: flex; gap: 12px; }
+.sources li .n { font-family: var(--f-mono); color: var(--flag-primary); flex: 0 0 auto; }
+.sources li b { color: var(--paper); font-weight: 600; }
+@media (max-width: 720px){ .sources { grid-template-columns: 1fr; } }
+.colophon { margin-top: 34px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-2); line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<!-- ====================== ШАПКА ====================== -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="flagmark" aria-hidden="true"></span>
+      <b>AI · G20 / United Kingdom</b>
+    </div>
+    <nav>
+      <a href="#strategy">Стратегия</a>
+      <a href="#ethics">Регулирование</a>
+      <a href="#media">Медиа</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ====================== ГЕРОЙ ====================== -->
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Искусственный интеллект в странах G20 — Великобритания</p>
+    <h1>Лидер, который <span class="ce">не пишет закон</span></h1>
+    <p class="lead">Великобритания — в четвёрке мировых держав ИИ и обещает инфраструктуру мирового класса: <strong>×20 суверенных вычислений к 2030 году</strong> и десятки миллиардов частных вложений. Но регулирует страна принципиально иначе — <strong>необязательными принципами вместо закона</strong>. И там, где у Бразилии строится обязательная рамка, у Британии остаётся пробел: дипфейки на выборах, обязательные правила для передовых моделей. Когда собственное общество всё громче просит правил.</p>
+    <p class="byline">Дата-история · Источники: gov.uk, Stanford HAI, Tortoise, Ada Lovelace Institute, Ofcom · Данные 2021–2026</p>
+    <div class="rule-thick"></div>
+    <div class="legend" aria-hidden="true">
+      <span><i class="sw-strong"></i> Красный — амбиции и сильные стороны</span>
+      <span><i class="sw-bind"></i> Синий — обязательная норма, закон</span>
+      <span><i class="sw-gap"></i> Янтарный — добровольное / пробел</span>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="v g">£14 млрд</div><div class="l">частных обязательств в <b>первую неделю</b> после AI Opportunities Action Plan, январь 2025</div></div>
+      <div class="kpi"><div class="v g">×20</div><div class="l">рост <b>суверенных вычислений</b> к 2030 году (план правительства)</div></div>
+      <div class="kpi"><div class="v y">50 / 50</div><div class="l">все <b>50 рекомендаций</b> плана приняты правительством полностью или частично</div></div>
+      <div class="kpi"><div class="v r">0</div><div class="l">обязательных «горизонтальных» <b>законов об ИИ</b> к началу 2026 года</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 01 СТРАТЕГИЯ ================= -->
+<section class="section" id="strategy">
+  <div class="wrap">
+    <div class="sechead">
+      <div class="sec-no">01</div>
+      <div class="sec-titles">
+        <p class="eyebrow">01 — Стратегия и позиция</p>
+        <h2>Амбиция мирового масштаба</h2>
+        <p class="dek">AI Opportunities Action Plan (январь 2025) — это ставка на <strong>скорость и масштаб</strong>: суверенные вычисления, зоны роста ИИ, частный капитал. По готовности инфраструктуры и стратегии Британия в мировой элите. Но в гонке частных инвестиций она в тени двух сверхдержав.</p>
+      </div>
+    </div>
+
+    <figure class="fig">
+      <div class="head"><span class="t">Ставка на вычисления: путь к 420 экзафлопс</span><span class="tag">Площадь · ExaFLOPs</span></div>
+      <div class="chart" id="c_area"></div>
+      <figcaption><b>Источник:</b> AI Opportunities Action Plan (DSIT), январь 2025; AI Research Resource. Сплошная линия — достигнуто (2025), пунктир — цель 2030. 1 ExaFLOP = 10^18 операций/с.</figcaption>
+    </figure>
+
+    <p class="lede">К 2025 году суверенный публичный ресурс уже вырос примерно <b>в 10 раз</b> — с 2 до 21 ExaFLOP. План требует ещё <b class="strong">×20 к 2030 году</b>. Это не плавный рост, а заявленный скачок.</p>
+
+    <div class="grid2" style="margin-top: clamp(34px,5vw,56px);">
+      <figure class="fig">
+        <div class="head"><span class="t">Скачок ×20 за пять лет</span><span class="tag">Стрелка · 2025 → 2030</span></div>
+        <div class="chart" id="c_arrow"></div>
+        <figcaption><b>Источник:</b> AI Opportunities Action Plan (DSIT), 2025. Цель — нарастить вычисления с 21 до 420 ExaFLOP и обучающие курсы по ИИ с 1 до 10 млн.</figcaption>
+      </figure>
+      <figure class="fig">
+        <div class="head"><span class="t">Венчурный капитал в ИИ-компании Британии</span><span class="tag">Столбцы · £ млрд/год</span></div>
+        <div class="chart" id="c_vc"></div>
+        <figcaption><b>Источник:</b> отраслевой обзор (The AI Insider), 2026. Привлечённый венчурный капитал британскими ИИ-стартапами по годам.</figcaption>
+      </figure>
+    </div>
+
+    <figure class="fig map-fig">
+      <div class="head"><span class="t">Где строится инфраструктура ИИ</span><span class="tag">Локатор-карта · Великобритания</span></div>
+      <div class="chart" id="c_map"></div>
+      <figcaption><b>Источник:</b> DSIT; University of Bristol; University of Cambridge; правительственные анонсы AI Growth Zones, 2025. Карта — Великобритания (Северная Ирландия не показана; объектов там нет). Зоны роста отмечены как регионы, а не точные адреса.</figcaption>
+    </figure>
+
+    <p class="lede">Два публичных суперкомпьютера уже работают: <b class="strong">Isambard-AI</b> в Бристоле (запуск — июль 2025) и <b class="strong">DAWN</b> в Кембридже. Поверх них — пять <b>зон роста ИИ</b>: от Калэма в Оксфордшире (пилот, малый модульный реактор до 500 МВт) до Ланаркшира в Шотландии (£8,2 млрд частных вложений, 3400+ рабочих мест).</p>
+
+    <div class="grid2" style="margin-top: clamp(34px,5vw,56px);">
+      <figure class="fig">
+        <div class="head"><span class="t">Профиль Британии: места в мире</span><span class="tag">Радар · 6 осей</span></div>
+        <div class="chart" id="c_radar"></div>
+        <figcaption><b>Источник:</b> Tortoise Global AI Index, издание 2023 (суб-показатели, ранги среди 62 стран). Внешнее кольцо = 1-е место (лучше), центр = ниже. Ось перевёрнута: чем дальше от центра, тем выше ранг.</figcaption>
+      </figure>
+      <figure class="fig">
+        <div class="head"><span class="t">Частные инвестиции в ИИ, 2024</span><span class="tag">Точечный график · $ млрд</span></div>
+        <div class="chart" id="c_dot"></div>
+        <figcaption><b>Источник:</b> Stanford HAI, AI Index 2025. Частные инвестиции в ИИ за 2024 год, млрд долларов США. Британия — третий рынок мира, но разрыв с США кратный.</figcaption>
+      </figure>
+    </div>
+
+    <p class="note"><b>Где тонко.</b> По стратегии и инфраструктуре Британия рядом с лидерами (издание Tortoise 2023: места 5–10 по таланту, исследованиям, коммерции, госстратегии). Но <b class="gap">по операционной среде — 40-е место</b> из 62, а в гонке частного капитала она отстаёт от США примерно <b class="strong">в 24 раза</b>. <span class="muted">По общему рейтингу Tortoise за 2024 год Британия — 4-я из 83 стран; по индексу динамичности Stanford HAI за 2024 год — 3-я. Радар показывает ранги именно издания 2023 года.</span></p>
+  </div>
+</section>
+
+<!-- ================= 02 ЭТИЧЕСКОЕ РЕГУЛИРОВАНИЕ ================= -->
+<section class="section" id="ethics">
+  <div class="wrap">
+    <div class="sechead">
+      <div class="sec-no">02</div>
+      <div class="sec-titles">
+        <p class="eyebrow">02 — Этическое регулирование</p>
+        <h2>Принципы вместо закона</h2>
+        <p class="dek">Британия выбрала «<strong>проинновационный</strong>» путь: пять <strong>необязательных принципов</strong> и отраслевые регуляторы вместо единого закона об ИИ. Это зеркальная противоположность Бразилии, которая строит обязательную рамку в духе ЕС. Подход даёт гибкость — и оставляет пробелы.</p>
+      </div>
+    </div>
+
+    <figure class="fig">
+      <div class="head"><span class="t">От стратегии к «закону, которого нет»</span><span class="tag">Таймлайн · 2021 → 2026</span></div>
+      <div class="chart" id="c_timeline"></div>
+      <figcaption><b>Источник:</b> gov.uk; White Paper «A pro-innovation approach to AI regulation» (Cmd 815, 2023); Bletchley Declaration (2023); Data (Use and Access) Act 2025. Синим — обязательные шаги, янтарным — добровольное / пробел.</figcaption>
+    </figure>
+
+    <p class="lede">Пять принципов Белой книги (безопасность; прозрачность; справедливость; подотчётность; оспоримость) — это <b>не закон</b>. Нет ни единого регулятора ИИ, ни санкций за их нарушение. AI Safety Institute в 2025 году переименован в AI <b>Security</b> Institute, а Data (Use and Access) Act 2025 правит британский GDPR, но это <b class="gap">не закон об ИИ</b>.</p>
+
+    <figure class="fig">
+      <div class="head"><span class="t">Британия по типам вреда от ИИ: чем регулируется</span><span class="tag">Матрица · статус нормы</span></div>
+      <div class="chart" id="c_matrix"></div>
+      <figcaption><b>Источник:</b> Online Safety Act 2023; Equality Act 2010; Data (Use and Access) Act 2025; материалы DSIT и AISI. Заполненный квадрат — действующий статус по каждому типу вреда.</figcaption>
+    </figure>
+
+    <p class="note"><b>Картина двойственная.</b> Там, где сработал общественный нажим, появились <b class="bind">обязательные нормы</b>: распространение и создание сексуальных дипфейков — уголовные преступления (Online Safety Act). Но <b class="gap">политические дипфейки на выборах</b> остаются без специального закона: правительство отказалось их криминализировать, а Избирательная комиссия заявляет, что у неё нет полномочий. Передовые модели регулируются только <b class="gap">добровольно</b>.</p>
+
+    <table class="ctable">
+      <caption>Британия и ЕС: два подхода к регулированию ИИ</caption>
+      <thead>
+        <tr><th>Параметр</th><th>Великобритания</th><th>Европейский союз</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>Правовой инструмент</th><td>5 необязательных принципов + отраслевые регуляторы</td><td>EU AI Act — единый обязательный регламент</td></tr>
+        <tr><th>Юридическая сила</th><td>Необязательная (soft law)</td><td>Обязательная, прямого действия</td></tr>
+        <tr><th>Что регулируется</th><td>Применение ИИ в каждом секторе</td><td>Сама технология по уровням риска</td></tr>
+        <tr><th>Классификация рисков</th><td>Нет формальной классификации</td><td>4 уровня: от минимального до неприемлемого</td></tr>
+        <tr><th>Надзорный орган</th><td>ICO, Ofcom, FCA, CMA, MHRA (каждый в своей сфере)</td><td>European AI Office + национальные органы</td></tr>
+        <tr><th>Штрафы за нарушение</th><td>Нет специальных для ИИ</td><td>До €35 млн или 7% мирового оборота</td></tr>
+        <tr><th>Статус (начало 2026)</th><td>Единый закон об ИИ маловероятен в близкой перспективе</td><td>Поэтапно вступает в силу с 2024 года</td></tr>
+      </tbody>
+    </table>
+    <p class="note"><span class="muted">Для сравнения: Бразилия (PL 2338/2023) идёт по пути ЕС — классификация по риску, надзорный орган и штрафы. Британия сознательно выбрала противоположную модель.</span></p>
+  </div>
+</section>
+
+<!-- ================= 03 МЕДИА И ОБЩЕСТВО ================= -->
+<section class="section" id="media">
+  <div class="wrap">
+    <div class="sechead">
+      <div class="sec-no">03</div>
+      <div class="sec-titles">
+        <p class="eyebrow">03 — Медиа и общество</p>
+        <h2>Общество просит правил</h2>
+        <p class="dek">Британцы относятся к ИИ <strong>прагматично</strong>: одобряют там, где видна польза (медицина, безопасность), и тревожатся там, где не понимают последствий. И всё больше людей говорят, что <strong>законы сделали бы их спокойнее</strong>. Параллельно 11 000+ человек высказались против правительственного подхода к ИИ и авторскому праву.</p>
+      </div>
+    </div>
+
+    <figure class="fig">
+      <div class="head"><span class="t">Польза против тревоги: как британцы воспринимают ИИ</span><span class="tag">Расходящиеся столбцы · % </span></div>
+      <div class="chart" id="c_diverging"></div>
+      <figcaption><b>Источник:</b> Ada Lovelace Institute / Alan Turing Institute, «How do people feel about AI?», волна 2024/25 (n=3 513). Слева (янтарный) — доля встревоженных, справа (красный) — доля видящих пользу.</figcaption>
+    </figure>
+
+    <p class="lede">Картина не про «страх ИИ», а про <b>контекст</b>. ИИ для выявления рака: польза <b class="strong">86%</b> против тревоги 30%. Беспилотные авто: тревога <b class="gap">75%</b> против пользы 45%. Чем ближе технология к здоровью и автономным решениям о человеке, тем осторожнее общество.</p>
+
+    <div class="grid2" style="margin-top: clamp(34px,5vw,56px);">
+      <figure class="fig">
+        <div class="head"><span class="t">«Законы сделали бы меня спокойнее»</span><span class="tag">Наклон · 2023 → 2024/25</span></div>
+        <div class="chart" id="c_slope"></div>
+        <figcaption><b>Источник:</b> Ada Lovelace / Alan Turing Institute, опрос общественного мнения. Доля согласных, что регулирование повысит их доверие к ИИ.</figcaption>
+      </figure>
+      <figure class="fig">
+        <div class="head"><span class="t">ИИ и авторское право: чего хотят ответившие</span><span class="tag">Горизонтальные столбцы · %</span></div>
+        <div class="chart" id="c_copyright"></div>
+        <figcaption><b>Источник:</b> консультация DSIT / IPO по ИИ и авторскому праву, ответ правительства (11 000+ ответов). Доля среди тех, кто назвал предпочтительный вариант.</figcaption>
+      </figure>
+    </div>
+
+    <p class="note"><b>Важная оговорка.</b> Участники консультации <b>не были репрезентативной выборкой</b>: их мобилизовала кампания творческих индустрий «Make It Fair», а 400+ артистов (Маккартни, Элтон Джон, Coldplay, Кейт Буш) подписали открытое письмо премьеру. Поэтому <b class="strong">88%</b> за «лицензии во всех случаях» — это не опрос населения, а голос организованной стороны. При этом <b class="gap">правительство продвигало вариант, который выбрали лишь ~3%</b>. Палата лордов четырежды отклоняла позицию правительства; Data (Use and Access) Act согласован парламентом 11 июня 2025 года. <span class="muted">Контекст дипфейков: по данным Ofcom, 43% взрослых и половина детей 8–15 лет считают, что видели дипфейк за полгода; правительство криминализировало сексуальные дипфейки, но отклонило отдельный состав за политические.</span></p>
+  </div>
+</section>
+
+<!-- ====================== ПОДВАЛ ====================== -->
+<footer class="footer">
+  <div class="wrap">
+    <p class="eyebrow">Методология</p>
+    <h3>Источники и данные</h3>
+    <ol class="sources">
+      <li><span class="n">01</span><span><b>AI Opportunities Action Plan</b> (DSIT, январь 2025) — вычисления 2→21→420 ExaFLOPs, курсы 1→10 млн; delivery.ai.gov.uk; Hansard, 16.01.2025.</span></li>
+      <li><span class="n">02</span><span><b>The Register</b> (13.01.2025) — все 50 рекомендаций приняты, +£47 млрд/год и +1,5% производительности (заявлено).</span></li>
+      <li><span class="n">03</span><span><b>The AI Insider</b> (01.06.2026) — венчурный капитал 2,6/4/6 £ млрд; пять зон роста ИИ, включая Ланаркшир (£8,2 млрд).</span></li>
+      <li><span class="n">04</span><span><b>University of Bristol / Cambridge</b> — суперкомпьютеры Isambard-AI (июль 2025) и DAWN.</span></li>
+      <li><span class="n">05</span><span><b>Tortoise Global AI Index</b> — издание 2024 (Британия 4-я из 83) и суб-показатели издания 2023 (ранги среди 62).</span></li>
+      <li><span class="n">06</span><span><b>Stanford HAI, AI Index 2025</b> — частные инвестиции 2024: США 109,1; Китай 9,3; Великобритания 4,5 млрд $.</span></li>
+      <li><span class="n">07</span><span><b>Stanford HAI Global AI Vibrancy 2024</b> — Британия 3-я по динамичности экосистемы ИИ.</span></li>
+      <li><span class="n">08</span><span><b>White Paper «A pro-innovation approach to AI regulation»</b> (Cmd 815, март 2023) — 5 необязательных принципов, без закона и единого регулятора.</span></li>
+      <li><span class="n">09</span><span><b>Bletchley Declaration</b> (ноябрь 2023, 28 стран + ЕС); AI Safety Institute → AI Security Institute (2025).</span></li>
+      <li><span class="n">10</span><span><b>Data (Use and Access) Act 2025</b> — правит британский GDPR (ст. 22), не является законом об ИИ; royal assent — июнь 2025.</span></li>
+      <li><span class="n">11</span><span><b>Online Safety Act 2023</b> + поправка 2024 — состав за создание сексуальных дипфейков; <b>Equality Act 2010</b> — дискриминация.</span></li>
+      <li><span class="n">12</span><span><b>Ada Lovelace Institute / Alan Turing Institute</b> — «How do people feel about AI?», волна 2024/25 (n=3 513); attitudestoai.uk.</span></li>
+      <li><span class="n">13</span><span><b>DSIT / IPO</b> — ответ на консультацию по ИИ и авторскому праву (11 000+ ответов): 88% / 7% / 3% / 0,5%.</span></li>
+      <li><span class="n">14</span><span><b>Ofcom</b> — оценки распространённости дипфейков (43% взрослых, ~50% детей 8–15 лет).</span></li>
+    </ol>
+    <p class="colophon">Искусственный интеллект в странах G20 · Великобритания<br>Единый визуальный шаблон проекта · смена страны = смена только блока флаговых цветов<br>Графика: D3.js · без скруглённых форм · все числа — реальные, проверены по источникам</p>
+  </div>
+</footer>
+
+<script>
+/* ===================================================================
+   Встроенная геометрия Великобритании (упрощённый GeoJSON, Великобритания).
+   =================================================================== */
+const UK_GEO = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"United Kingdom"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-3.09,58.71],[-3.14,58.71],[-3.19,58.68],[-3.28,58.67],[-3.34,58.69],[-3.41,58.68],[-3.48,58.64],[-3.57,58.64],[-3.67,58.64],[-3.76,58.61],[-3.86,58.59],[-3.97,58.6],[-4.03,58.62],[-4.08,58.58],[-4.17,58.58],[-4.25,58.57],[-4.34,58.58],[-4.4,58.56],[-4.44,58.59],[-4.56,58.6],[-4.64,58.59],[-4.69,58.6],[-4.76,58.62],[-4.85,58.63],[-4.96,58.64],[-5.03,58.65],[-5.06,58.56],[-5.11,58.55],[-5.16,58.5],[-5.15,58.45],[-5.24,58.39],[-5.22,58.35],[-5.24,58.3],[-5.32,58.28],[-5.43,58.28],[-5.45,58.23],[-5.38,58.18],[-5.38,58.13],[-5.47,58.13],[-5.49,58.08],[-5.51,58.02],[-5.53,57.98],[-5.6,57.95],[-5.67,57.91],[-5.75,57.89],[-5.86,57.87],[-5.84,57.83],[-5.85,57.74],[-5.83,57.7],[-5.86,57.64],[-5.83,57.61],[-5.87,57.59],[-5.89,57.53],[-5.89,57.45],[-5.87,57.42],[-5.9,57.37],[-5.95,57.35],[-5.98,57.42],[-5.94,57.56],[-5.95,57.6],[-6.0,57.6],[-6.03,57.56],[-6.08,57.49],[-6.12,57.47],[-6.08,57.55],[-6.11,57.6],[-6.2,57.68],[-6.26,57.73],[-6.31,57.74],[-6.37,57.72],[-6.37,57.69],[-6.47,57.66],[-6.42,57.59],[-6.44,57.55],[-6.49,57.56],[-6.48,57.58],[-6.51,57.61],[-6.58,57.63],[-6.67,57.63],[-6.67,57.59],[-6.7,57.53],[-6.74,57.53],[-6.77,57.51],[-6.81,57.47],[-6.82,57.42],[-6.79,57.39],[-6.75,57.36],[-6.62,57.32],[-6.54,57.32],[-6.51,57.29],[-6.37,57.17],[-6.29,57.12],[-6.21,57.11],[-6.16,57.15],[-6.15,57.12],[-6.1,57.11],[-6.03,57.13],[-6.07,57.05],[-6.04,57.01],[-5.92,57.02],[-5.84,57.06],[-5.89,56.99],[-5.95,56.92],[-5.95,56.9],[-5.92,56.86],[-5.84,56.86],[-5.92,56.81],[-5.98,56.8],[-6.08,56.79],[-6.2,56.77],[-6.26,56.74],[-6.26,56.7],[-6.18,56.67],[-6.27,56.63],[-6.34,56.62],[-6.37,56.55],[-6.41,56.54],[-6.5,56.48],[-6.51,56.44],[-6.46,56.44],[-6.36,56.47],[-6.42,56.43],[-6.31,56.42],[-6.21,56.42],[-6.25,56.4],[-6.24,56.36],[-6.32,56.37],[-6.41,56.37],[-6.48,56.36],[-6.48,56.32],[-6.5,56.28],[-6.41,56.25],[-6.3,56.24],[-6.11,56.26],[-5.93,56.29],[-5.78,56.31],[-5.64,56.39],[-5.59,56.44],[-5.52,56.46],[-5.49,56.45],[-5.57,56.43],[-5.68,56.34],[-5.71,56.28],[-5.77,56.27],[-5.85,56.23],[-5.83,56.2],[-5.77,56.2],[-5.79,56.14],[-5.91,56.1],[-6.0,56.03],[-6.06,55.96],[-6.14,55.95],[-6.2,55.94],[-6.32,55.92],[-6.48,55.9],[-6.5,55.83],[-6.53,55.75],[-6.56,55.68],[-6.53,55.65],[-6.45,55.66],[-6.36,55.7],[-6.32,55.66],[-6.36,55.63],[-6.37,55.58],[-6.3,55.56],[-6.18,55.58],[-6.0,55.64],[-5.98,55.68],[-6.0,55.76],[-5.92,55.78],[-5.88,55.84],[-5.72,56.05],[-5.65,56.09],[-5.71,56.0],[-5.77,55.93],[-5.76,55.9],[-5.69,55.87],[-5.71,55.83],[-5.67,55.79],[-5.67,55.75],[-5.72,55.75],[-5.77,55.72],[-5.84,55.68],[-5.8,55.62],[-5.76,55.56],[-5.77,55.46],[-5.84,55.4],[-5.83,55.32],[-5.82,55.28],[-5.75,55.27],[-5.67,55.29],[-5.64,55.27],[-5.54,55.26],[-5.53,55.3],[-5.51,55.32],[-5.48,55.38],[-5.52,55.43],[-5.47,55.48],[-5.44,55.56],[-5.44,55.61],[-5.4,55.59],[-5.39,55.52],[-5.37,55.46],[-5.27,55.41],[-5.12,55.4],[-5.08,55.42],[-5.05,55.47],[-5.05,55.52],[-5.06,55.56],[-5.08,55.59],[-5.11,55.67],[-5.2,55.72],[-5.29,55.76],[-5.28,55.79],[-5.26,55.82],[-5.2,55.76],[-5.12,55.75],[-5.08,55.72],[-5.03,55.7],[-4.94,55.68],[-4.88,55.62],[-4.74,55.6],[-4.74,55.56],[-4.68,55.5],[-4.71,55.46],[-4.79,55.42],[-4.86,55.36],[-4.88,55.29],[-4.97,55.21],[-5.04,55.14],[-5.14,55.04],[-5.22,54.98],[-5.21,54.86],[-5.09,54.78],[-5.02,54.66],[-4.9,54.61],[-4.83,54.62],[-4.83,54.66],[-4.83,54.69],[-4.88,54.72],[-4.9,54.8],[-4.84,54.83],[-4.7,54.77],[-4.53,54.69],[-4.39,54.65],[-4.33,54.69],[-4.33,54.75],[-4.32,54.81],[-4.18,54.74],[-4.0,54.75],[-3.85,54.78],[-3.7,54.85],[-3.59,54.85],[-3.53,54.9],[-3.53,54.94],[-3.43,54.95],[-3.34,54.94],[-3.46,54.85],[-3.49,54.77],[-3.55,54.74],[-3.59,54.67],[-3.63,54.59],[-3.67,54.54],[-3.68,54.5],[-3.48,54.35],[-3.49,54.3],[-3.39,54.2],[-3.3,54.16],[-3.31,54.09],[-3.24,54.03],[-3.16,54.04],[-3.05,54.09],[-3.04,54.14],[-2.94,54.14],[-2.87,54.16],[-2.86,54.11],[-2.9,54.08],[-2.95,54.03],[-2.93,53.96],[-3.02,53.95],[-3.08,53.93],[-3.1,53.79],[-3.09,53.73],[-2.99,53.71],[-3.13,53.59],[-3.16,53.55],[-3.1,53.47],[-3.16,53.44],[-3.26,53.4],[-3.21,53.33],[-3.3,53.38],[-3.35,53.38],[-3.56,53.32],[-3.69,53.32],[-3.86,53.36],[-3.92,53.35],[-3.89,53.3],[-3.95,53.31],[-3.98,53.32],[-4.01,53.33],[-4.09,53.34],[-4.18,53.32],[-4.21,53.37],[-4.24,53.42],[-4.32,53.44],[-4.44,53.44],[-4.6,53.42],[-4.6,53.4],[-4.61,53.33],[-4.68,53.35],[-4.74,53.32],[-4.73,53.28],[-4.64,53.24],[-4.57,53.21],[-4.51,53.15],[-4.37,53.09],[-4.42,53.03],[-4.55,52.98],[-4.66,52.95],[-4.76,52.87],[-4.84,52.76],[-4.82,52.73],[-4.75,52.75],[-4.67,52.78],[-4.61,52.8],[-4.56,52.77],[-4.52,52.76],[-4.46,52.79],[-4.43,52.81],[-4.45,52.84],[-4.36,52.86],[-4.27,52.89],[-4.19,52.89],[-4.16,52.85],[-4.17,52.8],[-4.09,52.71],[-4.16,52.66],[-4.16,52.6],[-4.09,52.51],[-4.15,52.38],[-4.29,52.25],[-4.36,52.24],[-4.43,52.21],[-4.54,52.16],[-4.69,52.15],[-4.77,52.12],[-4.81,52.08],[-4.97,52.04],[-5.04,52.05],[-5.1,52.04],[-5.12,51.99],[-5.32,51.93],[-5.38,51.88],[-5.37,51.84],[-5.28,51.85],[-5.15,51.84],[-5.16,51.8],[-5.28,51.77],[-5.33,51.75],[-5.34,51.7],[-5.28,51.67],[-5.24,51.68],[-5.17,51.66],[-5.1,51.64],[-5.11,51.61],[-5.0,51.59],[-4.9,51.58],[-4.85,51.62],[-4.75,51.62],[-4.66,51.62],[-4.65,51.65],[-4.66,51.7],[-4.55,51.72],[-4.39,51.69],[-4.35,51.62],[-4.36,51.56],[-4.26,51.52],[-4.17,51.52],[-4.09,51.54],[-3.94,51.55],[-3.92,51.58],[-3.84,51.58],[-3.75,51.48],[-3.69,51.44],[-3.56,51.38],[-3.34,51.36],[-3.17,51.38],[-3.11,51.43],[-3.05,51.5],[-2.91,51.51],[-2.74,51.54],[-2.86,51.48],[-2.99,51.41],[-3.05,51.34],[-3.05,51.29],[-3.06,51.23],[-3.16,51.23],[-3.25,51.22],[-3.4,51.22],[-3.51,51.25],[-3.58,51.25],[-3.7,51.25],[-3.89,51.25],[-4.22,51.24],[-4.26,51.18],[-4.3,51.15],[-4.25,51.09],[-4.29,51.05],[-4.37,51.01],[-4.45,51.04],[-4.55,51.05],[-4.57,50.98],[-4.6,50.93],[-4.58,50.81],[-4.77,50.69],[-4.81,50.64],[-4.92,50.61],[-5.0,50.59],[-5.05,50.56],[-5.08,50.46],[-5.17,50.43],[-5.18,50.36],[-5.25,50.35],[-5.27,50.3],[-5.38,50.27],[-5.44,50.23],[-5.51,50.24],[-5.61,50.22],[-5.71,50.17],[-5.73,50.11],[-5.74,50.06],[-5.7,50.01],[-5.6,50.03],[-5.52,50.06],[-5.48,50.1],[-5.33,50.05],[-5.3,50.0],[-5.26,49.94],[-5.18,49.94],[-5.14,49.97],[-5.09,49.98],[-5.03,50.06],[-5.05,50.09],[-5.0,50.12],[-4.94,50.16],[-4.86,50.2],[-4.78,50.2],[-4.74,50.25],[-4.71,50.3],[-4.66,50.31],[-4.46,50.31],[-4.41,50.33],[-4.33,50.34],[-4.24,50.29],[-4.15,50.3],[-4.05,50.28],[-3.91,50.26],[-3.93,50.23],[-3.82,50.2],[-3.71,50.18],[-3.62,50.21],[-3.61,50.29],[-3.5,50.33],[-3.46,50.4],[-3.53,50.43],[-3.44,50.44],[-3.44,50.47],[-3.47,50.49],[-3.47,50.52],[-3.42,50.58],[-3.28,50.61],[-3.23,50.65],[-3.1,50.66],[-2.9,50.7],[-2.8,50.7],[-2.68,50.65],[-2.49,50.55],[-2.49,50.51],[-2.46,50.49],[-2.38,50.55],[-2.42,50.58],[-2.42,50.61],[-2.16,50.58],[-2.08,50.55],[-2.01,50.57],[-1.94,50.58],[-1.91,50.62],[-1.88,50.67],[-1.78,50.68],[-1.69,50.71],[-1.6,50.69],[-1.64,50.65],[-1.54,50.65],[-1.43,50.61],[-1.32,50.55],[-1.16,50.58],[-1.13,50.63],[-1.04,50.69],[-1.08,50.72],[-1.09,50.75],[-0.94,50.76],[-0.85,50.72],[-0.79,50.71],[-0.71,50.75],[-0.42,50.78],[-0.18,50.81],[0.21,50.72],[0.27,50.71],[0.39,50.81],[0.6,50.82],[0.67,50.86],[0.76,50.9],[0.85,50.9],[1.0,50.9],[1.01,50.94],[1.01,50.99],[1.1,51.04],[1.22,51.06],[1.34,51.11],[1.43,51.15],[1.41,51.3],[1.48,51.35],[1.47,51.39],[1.39,51.41],[1.06,51.39],[0.99,51.36],[0.97,51.4],[0.9,51.44],[0.76,51.47],[0.78,51.5],[0.88,51.53],[0.98,51.61],[0.98,51.64],[0.98,51.69],[0.99,51.75],[1.09,51.75],[1.2,51.77],[1.34,51.85],[1.33,51.91],[1.49,52.03],[1.61,52.08],[1.66,52.27],[1.79,52.46],[1.79,52.6],[1.72,52.75],[1.27,52.96],[1.06,52.99],[0.85,53.0],[0.63,53.0],[0.47,52.98],[0.42,52.91],[0.36,52.85],[0.27,52.84],[0.21,52.89],[0.11,52.92],[0.15,52.97],[0.17,52.99],[0.37,53.07],[0.42,53.13],[0.38,53.23],[0.3,53.37],[0.19,53.5],[0.06,53.55],[0.04,53.59],[0.16,53.57],[0.18,53.6],[0.13,53.67],[-0.17,54.0],[-0.16,54.07],[-0.06,54.09],[-0.03,54.13],[-0.21,54.2],[-0.35,54.31],[-0.52,54.46],[-0.71,54.56],[-1.12,54.66],[-1.13,54.71],[-1.24,54.76],[-1.26,54.83],[-1.32,54.91],[-1.32,54.96],[-1.36,54.99],[-1.49,55.15],[-1.46,55.19],[-1.54,55.28],[-1.52,55.35],[-1.57,55.37],[-1.54,55.43],[-1.6,55.55],[-1.66,55.6],[-1.74,55.65],[-1.77,55.7],[-1.87,55.71],[-2.0,55.81],[-2.08,55.91],[-2.19,55.94],[-2.3,55.94],[-2.44,56.02],[-2.55,56.02],[-2.58,56.07],[-2.8,56.08],[-2.88,56.06],[-2.91,56.02],[-2.95,55.99],[-3.07,55.96],[-3.16,56.0],[-3.23,56.0],[-3.25,56.03],[-3.16,56.02],[-3.1,56.03],[-3.14,56.06],[-3.13,56.1],[-2.93,56.19],[-2.87,56.17],[-2.79,56.18],[-2.63,56.23],[-2.55,56.28],[-2.61,56.31],[-2.69,56.34],[-2.77,56.35],[-2.79,56.41],[-2.77,56.45],[-2.72,56.45],[-2.69,56.49],[-2.58,56.55],[-2.54,56.55],[-2.48,56.59],[-2.47,56.63],[-2.49,56.65],[-2.44,56.68],[-2.42,56.7],[-2.39,56.75],[-2.27,56.81],[-2.18,56.89],[-2.18,56.96],[-2.06,57.08],[-2.02,57.14],[-2.05,57.18],[-1.96,57.31],[-1.75,57.45],[-1.75,57.5],[-1.8,57.62],[-1.91,57.69],[-2.09,57.73],[-2.17,57.71],[-2.3,57.72],[-2.42,57.69],[-2.6,57.71],[-2.86,57.72],[-3.04,57.68],[-3.13,57.7],[-3.3,57.75],[-3.51,57.72],[-3.55,57.68],[-3.75,57.67],[-3.87,57.61],[-4.04,57.61],[-3.78,57.81],[-3.73,57.88],[-3.82,57.88],[-3.88,57.85],[-3.96,57.87],[-3.97,57.89],[-3.96,57.94],[-3.85,57.98],[-3.79,58.03],[-3.62,58.1],[-3.47,58.16],[-3.36,58.24],[-3.27,58.26],[-3.13,58.31],[-3.01,58.46],[-3.03,58.5],[-3.1,58.51],[-3.0,58.6],[-2.99,58.65],[-3.05,58.67],[-3.09,58.71]]]]}}]};
+
+/* ===================================================================
+   Палитра из CSS-переменных и общие помощники
+   =================================================================== */
+const CSS = getComputedStyle(document.documentElement);
+const C = {
+  primary:   CSS.getPropertyValue('--flag-primary').trim(),
+  primary2:  CSS.getPropertyValue('--flag-primary-2').trim(),
+  secondary: CSS.getPropertyValue('--flag-secondary').trim(),
+  alert:     CSS.getPropertyValue('--alert').trim(),
+  paper:     '#FFFFFF',
+  muted:     'rgba(255,255,255,.56)',
+  muted2:    'rgba(255,255,255,.40)',
+  line:      'rgba(255,255,255,.16)',
+  line2:     'rgba(255,255,255,.30)',
+  grid:      'rgba(255,255,255,.07)',
+  ink:       '#060607'
+};
+
+/* Подготовка контейнера: чистим и возвращаем размеры */
+function mount(id, height) {
+  const el = document.getElementById(id);
+  el.innerHTML = '';
+  const w = Math.round(el.getBoundingClientRect().width) || 700;
+  const svg = d3.select(el).append('svg')
+    .attr('viewBox', '0 0 ' + w + ' ' + height)
+    .attr('width', w).attr('height', height);
+  return { svg: svg, w: w, h: height };
+}
+
+/* Квадратный маркер (никогда не круг) */
+function squareMarker(sel, x, y, size, fill) {
+  return sel.append('rect')
+    .attr('x', x - size / 2).attr('y', y - size / 2)
+    .attr('width', size).attr('height', size)
+    .attr('fill', fill);
+}
+
+/* ===================================================================
+   01 — Площадь: путь суверенных вычислений к 420 ExaFLOPs
+   =================================================================== */
+function drawArea() {
+  const { svg, w } = mount('c_area', 340);
+  const m = { t: 30, r: 64, b: 36, l: 46 };
+  const iw = w - m.l - m.r, ih = 340 - m.t - m.b;
+  const data = [
+    { year: 2024, v: 2,   label: '2 EF' },
+    { year: 2025, v: 21,  label: '21 EF' },
+    { year: 2030, v: 420, label: '420 EF' }
+  ];
+  const x = d3.scaleLinear().domain([2024, 2030]).range([m.l, m.l + iw]);
+  const y = d3.scaleLinear().domain([0, 440]).range([m.t + ih, m.t]);
+
+  const grid = svg.append('g');
+  [0, 100, 200, 300, 400].forEach(t => {
+    grid.append('line').attr('x1', m.l).attr('x2', m.l + iw).attr('y1', y(t)).attr('y2', y(t))
+      .attr('stroke', C.grid).attr('stroke-width', 1);
+    grid.append('text').attr('x', m.l - 8).attr('y', y(t) + 3).attr('text-anchor', 'end')
+      .attr('class', 'axis-label').text(t);
+  });
+
+  const achieved = data.filter(d => d.year <= 2025);
+  const projected = data.filter(d => d.year >= 2025);
+
+  const area = d3.area().x(d => x(d.year)).y0(y(0)).y1(d => y(d.v));
+  const line = d3.line().x(d => x(d.year)).y(d => y(d.v));
+
+  svg.append('path').datum(achieved).attr('d', area).attr('fill', C.primary).attr('opacity', 0.24);
+  svg.append('path').datum(projected).attr('d', area).attr('fill', C.primary).attr('opacity', 0.10);
+  svg.append('path').datum(achieved).attr('d', line).attr('fill', 'none').attr('stroke', C.primary).attr('stroke-width', 2.4);
+  svg.append('path').datum(projected).attr('d', line).attr('fill', 'none').attr('stroke', C.primary).attr('stroke-width', 2.4).attr('stroke-dasharray', '6 5');
+
+  data.forEach(d => {
+    squareMarker(svg, x(d.year), y(d.v), 9, C.primary);
+    svg.append('text').attr('x', x(d.year)).attr('y', y(d.v) - 14).attr('text-anchor', d.year === 2030 ? 'end' : 'middle')
+      .attr('class', 'val-label').style('font-size', '15px').attr('fill', C.paper).text(d.label);
+  });
+
+  [2024, 2025, 2030].forEach(t => {
+    svg.append('text').attr('x', x(t)).attr('y', m.t + ih + 22).attr('text-anchor', 'middle')
+      .attr('class', 'axis-label').text(t);
+  });
+  svg.append('text').attr('x', x(2027.5)).attr('y', m.t + 14).attr('text-anchor', 'middle')
+    .attr('class', 'axis-label').attr('fill', C.muted2).text('пунктир — цель 2030');
+}
+
+/* ===================================================================
+   01 — Стрелка: скачок x20 (вычисления) и x10 (курсы)
+   =================================================================== */
+function drawArrow() {
+  const { svg, w } = mount('c_arrow', 230);
+  const m = { l: 150, r: 28, t: 40, b: 18 };
+  const x0 = m.l, x1 = w - m.r;
+  const rows = [
+    { name: 'Вычисления', from: '21 EF', to: '420 EF', mult: '×20', y: 86 },
+    { name: 'Курсы по ИИ', from: '1 млн', to: '10 млн', mult: '×10', y: 168 }
+  ];
+
+  rows.forEach(r => {
+    svg.append('text').attr('x', m.l - 16).attr('y', r.y + 4).attr('text-anchor', 'end')
+      .style('font-size', '12.5px').attr('fill', C.paper).style('font-family', 'var(--f-body)').style('font-weight', 600).text(r.name);
+
+    svg.append('line').attr('x1', x0).attr('x2', x1 - 14).attr('y1', r.y).attr('y2', r.y)
+      .attr('stroke', C.primary).attr('stroke-width', 2.4);
+    svg.append('path').attr('d', 'M' + (x1 - 16) + ',' + (r.y - 7) + ' L' + x1 + ',' + r.y + ' L' + (x1 - 16) + ',' + (r.y + 7) + ' Z')
+      .attr('fill', C.primary);
+
+    squareMarker(svg, x0, r.y, 11, C.primary);
+    svg.append('text').attr('x', x0).attr('y', r.y - 16).attr('text-anchor', 'start')
+      .attr('class', 'mono').style('font-size', '12px').attr('fill', C.muted).text(r.from);
+    svg.append('text').attr('x', x1 - 8).attr('y', r.y - 16).attr('text-anchor', 'end')
+      .attr('class', 'val-label').style('font-size', '14px').attr('fill', C.paper).text(r.to);
+
+    svg.append('text').attr('x', (x0 + x1) / 2).attr('y', r.y + 26).attr('text-anchor', 'middle')
+      .attr('class', 'val-label').style('font-size', '17px').attr('fill', C.primary).text(r.mult);
+  });
+
+  svg.append('text').attr('x', x0).attr('y', 24).attr('text-anchor', 'start')
+    .attr('class', 'axis-label').attr('fill', C.muted2).text('2025 → цель 2030 · каждая шкала своя');
+}
+
+/* ===================================================================
+   01 — Столбцы: венчурный капитал в ИИ-стартапы (£ млрд)
+   =================================================================== */
+function drawVC() {
+  const { svg, w } = mount('c_vc', 300);
+  const m = { t: 32, r: 16, b: 36, l: 40 };
+  const iw = w - m.l - m.r, ih = 300 - m.t - m.b;
+  const data = [
+    { y: '2023', v: 2.6 },
+    { y: '2024', v: 4.0 },
+    { y: '2025', v: 6.0 }
+  ];
+  const x = d3.scaleBand().domain(data.map(d => d.y)).range([m.l, m.l + iw]).padding(0.34);
+  const y = d3.scaleLinear().domain([0, 7]).range([m.t + ih, m.t]);
+
+  [0, 2, 4, 6].forEach(t => {
+    svg.append('line').attr('x1', m.l).attr('x2', m.l + iw).attr('y1', y(t)).attr('y2', y(t))
+      .attr('stroke', C.grid).attr('stroke-width', 1);
+    svg.append('text').attr('x', m.l - 8).attr('y', y(t) + 3).attr('text-anchor', 'end').attr('class', 'axis-label').text(t);
+  });
+
+  data.forEach(d => {
+    svg.append('rect').attr('x', x(d.y)).attr('y', y(d.v)).attr('width', x.bandwidth()).attr('height', y(0) - y(d.v)).attr('fill', C.primary);
+    svg.append('text').attr('x', x(d.y) + x.bandwidth() / 2).attr('y', y(d.v) - 10).attr('text-anchor', 'middle')
+      .attr('class', 'val-label').style('font-size', '15px').attr('fill', C.paper).text('£' + d.v.toFixed(1));
+    svg.append('text').attr('x', x(d.y) + x.bandwidth() / 2).attr('y', m.t + ih + 22).attr('text-anchor', 'middle').attr('class', 'axis-label').text(d.y);
+  });
+}
+
+/* ===================================================================
+   01 — Локатор-карта: инфраструктура ИИ Великобритании
+   =================================================================== */
+function drawMap() {
+  // Фиксированная система координат viewBox -> рендер не зависит от замера ширины.
+  const VBW = 1000, VBH = 600;
+  const el = document.getElementById('c_map');
+  el.innerHTML = '';
+  const svg = d3.select(el).append('svg')
+    .attr('viewBox', '0 0 ' + VBW + ' ' + VBH)
+    .attr('preserveAspectRatio', 'xMidYMid meet')
+    .style('width', '100%').style('height', 'auto');
+
+  // Карта слева (узкая вертикальная область под вытянутую Великобританию)
+  const mapBox = [[20, 16], [430, VBH - 16]];
+  // Собственная планарная проекция: контур и точки используют ОДНО отображение.
+  // (устраняет проблему инверсии полигона в d3.geoMercator при обратной намотке)
+  const ring = UK_GEO.features[0].geometry.coordinates[0][0];
+  const kLat = Math.cos(54.325 * Math.PI / 180); // сжатие долготы для широты Британии
+  const raw = p => [p[0] * kLat, -p[1]];
+  const rxs = ring.map(p => raw(p)[0]), rys = ring.map(p => raw(p)[1]);
+  const rx0 = Math.min(...rxs), rx1 = Math.max(...rxs), ry0 = Math.min(...rys), ry1 = Math.max(...rys);
+  const bw = mapBox[1][0] - mapBox[0][0], bh = mapBox[1][1] - mapBox[0][1];
+  const s = Math.min(bw / (rx1 - rx0), bh / (ry1 - ry0));
+  const tx = mapBox[0][0] + (bw - (rx1 - rx0) * s) / 2;
+  const ty = mapBox[0][1] + (bh - (ry1 - ry0) * s) / 2;
+  const proj = p => { const r = raw(p); return [tx + (r[0] - rx0) * s, ty + (r[1] - ry0) * s]; };
+
+  const d = ring.map((p, i) => (i ? 'L' : 'M') + proj([p[0], p[1]]).map(v => v.toFixed(1)).join(',')).join('') + 'Z';
+  svg.append('path').attr('d', d)
+    .attr('fill', '#171A21').attr('stroke', C.line2).attr('stroke-width', 1).attr('stroke-linejoin', 'round');
+
+  const sites = [
+    { i: 1, n: 'Isambard-AI · Бристоль', sub: 'суперкомпьютер, запуск июль 2025', lat: 51.46, lon: -2.60, type: 'op' },
+    { i: 2, n: 'DAWN · Кембридж',        sub: 'суперкомпьютер', lat: 52.21, lon: 0.12,  type: 'op' },
+    { i: 3, n: 'Калэм · Оксфордшир',     sub: 'зона роста, пилот SMR', lat: 51.66, lon: -1.23, type: 'zone' },
+    { i: 4, n: 'Северо-Восток',          sub: 'зона роста', lat: 54.98, lon: -1.61, type: 'zone' },
+    { i: 5, n: 'Северный Уэльс',         sub: 'зона роста', lat: 53.05, lon: -3.00, type: 'zone' },
+    { i: 6, n: 'Южный Уэльс',            sub: 'зона роста', lat: 51.55, lon: -3.05, type: 'zone' },
+    { i: 7, n: 'Ланаркшир · Шотландия',  sub: 'зона роста, £8,2 млрд', lat: 55.67, lon: -3.78, type: 'zone' }
+  ];
+
+  // Маркеры на карте + номер рядом
+  sites.forEach(s => {
+    const p = proj([s.lon, s.lat]);
+    const col = s.type === 'op' ? C.primary : C.secondary;
+    squareMarker(svg, p[0], p[1], 13, col).attr('stroke', C.ink).attr('stroke-width', 1.5);
+    svg.append('text').attr('x', p[0]).attr('y', p[1] + 3.5).attr('text-anchor', 'middle')
+      .attr('class', 'val-label').style('font-size', '9px').attr('fill', '#fff').text(s.i);
+  });
+
+  // Легенда-список справа
+  const lx = 500;
+  const lg = svg.append('g').attr('transform', 'translate(' + lx + ',40)');
+  squareMarker(lg, 7, 0, 14, C.primary);
+  lg.append('text').attr('x', 24).attr('y', 5).attr('class', 'mono').style('font-size', '13px').attr('fill', C.muted).text('действующий суперкомпьютер');
+  squareMarker(lg, 7, 30, 14, C.secondary);
+  lg.append('text').attr('x', 24).attr('y', 35).attr('class', 'mono').style('font-size', '13px').attr('fill', C.muted).text('зона роста ИИ (регион)');
+
+  const startY = 96, rowH = 64;
+  sites.forEach((s, k) => {
+    const ry = startY + k * rowH;
+    const col = s.type === 'op' ? C.primary : C.secondary;
+    const row = svg.append('g').attr('transform', 'translate(' + lx + ',' + ry + ')');
+    squareMarker(row, 11, 0, 22, col);
+    row.append('text').attr('x', 11).attr('y', 5).attr('text-anchor', 'middle').attr('class', 'val-label').style('font-size', '13px').attr('fill', '#fff').text(s.i);
+    row.append('text').attr('x', 36).attr('y', -2).style('font-size', '17px').attr('fill', C.paper).style('font-family', 'var(--f-body)').style('font-weight', 600).text(s.n);
+    row.append('text').attr('x', 36).attr('y', 20).attr('class', 'mono').style('font-size', '12px').attr('fill', C.muted2).text(s.sub);
+    if (k < sites.length - 1) {
+      row.append('line').attr('x1', 0).attr('x2', 460).attr('y1', rowH - 22).attr('y2', rowH - 22).attr('stroke', C.line).attr('stroke-width', 1);
+    }
+  });
+}
+
+/* ===================================================================
+   01 — Радар: суб-показатели Tortoise 2023 (ранги среди 62)
+   =================================================================== */
+function drawRadar() {
+  const H = 430;
+  const { svg, w } = mount('c_radar', H);
+  const cx = w / 2, cy = H / 2 + 6;
+  const R = Math.min(w, H) / 2 - 74;
+  const axes = [
+    { k: 'Талант', rank: 5 },
+    { k: 'Исследования', rank: 5 },
+    { k: 'Коммерция', rank: 5 },
+    { k: 'Госстратегия', rank: 10 },
+    { k: 'Инфраструктура', rank: 24 },
+    { k: 'Опер. среда', rank: 40 }
+  ];
+  const N = axes.length;
+  const rScale = d3.scaleLinear().domain([45, 1]).range([0, R]);
+  const ang = i => (Math.PI * 2 * i) / N - Math.PI / 2;
+  const pt = (i, rr) => [cx + Math.cos(ang(i)) * rr, cy + Math.sin(ang(i)) * rr];
+
+  const rings = [1, 10, 20, 30, 40];
+  rings.forEach(rk => {
+    const rr = rScale(rk);
+    const poly = d3.range(N).map(i => pt(i, rr).join(',')).join(' ');
+    svg.append('polygon').attr('points', poly).attr('fill', 'none').attr('stroke', C.grid).attr('stroke-width', 1);
+    svg.append('text').attr('x', cx + 4).attr('y', cy - rr - 2).attr('class', 'axis-label').attr('fill', C.muted2).style('font-size', '9.5px').text(rk);
+  });
+
+  d3.range(N).forEach(i => {
+    const o = pt(i, R);
+    svg.append('line').attr('x1', cx).attr('y1', cy).attr('x2', o[0]).attr('y2', o[1]).attr('stroke', C.line).attr('stroke-width', 1);
+  });
+
+  const poly = axes.map((d, i) => pt(i, rScale(d.rank)).join(',')).join(' ');
+  svg.append('polygon').attr('points', poly).attr('fill', C.primary).attr('opacity', 0.20);
+  svg.append('polygon').attr('points', poly).attr('fill', 'none').attr('stroke', C.primary).attr('stroke-width', 2.2);
+
+  axes.forEach((d, i) => {
+    const v = pt(i, rScale(d.rank));
+    squareMarker(svg, v[0], v[1], 8, C.primary);
+    const o = pt(i, R + 18);
+    const anchor = Math.abs(o[0] - cx) < 6 ? 'middle' : (o[0] > cx ? 'start' : 'end');
+    svg.append('text').attr('x', o[0]).attr('y', o[1]).attr('text-anchor', anchor).attr('dominant-baseline', 'middle')
+      .style('font-size', '11.5px').attr('fill', C.paper).style('font-family', 'var(--f-body)').style('font-weight', 600).text(d.k);
+    svg.append('text').attr('x', o[0]).attr('y', o[1] + 14).attr('text-anchor', anchor).attr('dominant-baseline', 'middle')
+      .attr('class', 'val-label').style('font-size', '12px').attr('fill', C.primary).text('№' + d.rank);
+  });
+}
+
+/* ===================================================================
+   01 — Точечный график: частные инвестиции в ИИ 2024 ($ млрд)
+   =================================================================== */
+function drawDot() {
+  const { svg, w } = mount('c_dot', 260);
+  const m = { t: 26, r: 64, b: 34, l: 132 };
+  const iw = w - m.l - m.r, ih = 260 - m.t - m.b;
+  const data = [
+    { k: 'США',           v: 109.1, hot: false },
+    { k: 'Китай',         v: 9.3,   hot: false },
+    { k: 'Великобритания', v: 4.5,  hot: true }
+  ];
+  const x = d3.scaleLinear().domain([0, 115]).range([m.l, m.l + iw]);
+  const y = d3.scalePoint().domain(data.map(d => d.k)).range([m.t + 6, m.t + ih - 6]).padding(0.5);
+
+  [0, 25, 50, 75, 100].forEach(t => {
+    svg.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', m.t).attr('y2', m.t + ih).attr('stroke', C.grid).attr('stroke-width', 1);
+    svg.append('text').attr('x', x(t)).attr('y', m.t + ih + 22).attr('text-anchor', 'middle').attr('class', 'axis-label').text(t);
+  });
+
+  data.forEach(d => {
+    const col = d.hot ? C.primary : C.secondary;
+    svg.append('line').attr('x1', x(0)).attr('x2', x(d.v)).attr('y1', y(d.k)).attr('y2', y(d.k))
+      .attr('stroke', col).attr('stroke-width', d.hot ? 2.4 : 1.6).attr('opacity', d.hot ? 1 : 0.7);
+    squareMarker(svg, x(d.v), y(d.k), d.hot ? 13 : 11, col);
+    svg.append('text').attr('x', x(d.v) + 12).attr('y', y(d.k) + 4).attr('text-anchor', 'start')
+      .attr('class', 'val-label').style('font-size', '14px').attr('fill', d.hot ? C.primary : C.paper).text(d.v.toFixed(1));
+    svg.append('text').attr('x', m.l - 14).attr('y', y(d.k) + 4).attr('text-anchor', 'end')
+      .style('font-size', '11.5px').attr('fill', d.hot ? C.paper : C.muted).style('font-family', 'var(--f-body)').style('font-weight', d.hot ? 600 : 500).text(d.k);
+  });
+
+  svg.append('text').attr('x', m.l + iw).attr('y', m.t - 10).attr('text-anchor', 'end').attr('class', 'axis-label').attr('fill', C.muted2).text('млрд $, 2024');
+}
+
+/* ===================================================================
+   02 — Таймлайн: от стратегии к "закону, которого нет"
+   =================================================================== */
+function drawTimeline() {
+  const H = 320;
+  const { svg, w } = mount('c_timeline', H);
+  const m = { l: 24, r: 24 };
+  const x = d3.scaleLinear().domain([2021.4, 2026.25]).range([m.l, w - m.r]);
+  const axisY = H / 2;
+
+  // типы: bind (синий, обязательно), gap (янтарный, пробел/добровольно), neutral (белый, веха)
+  const ev = [
+    { t: 2021.67, d: 'Сен 2021', title: 'National AI Strategy', type: 'neutral' },
+    { t: 2023.20, d: 'Мар 2023', title: 'Белая книга: 5 принципов', type: 'gap' },
+    { t: 2023.84, d: 'Ноя 2023', title: 'Саммит + Bletchley', type: 'neutral' },
+    { t: 2024.12, d: 'Фев 2024', title: 'Ответ: принципы без закона', type: 'gap' },
+    { t: 2024.52, d: 'Июл 2024', title: 'Новое правительство', type: 'neutral' },
+    { t: 2025.04, d: 'Янв 2025', title: 'AI Opportunities Plan', type: 'neutral' },
+    { t: 2025.13, d: 'Фев 2025', title: 'AISI → AI Security Inst.', type: 'neutral' },
+    { t: 2025.45, d: 'Июн 2025', title: 'Data (Use & Access) Act', type: 'bind' },
+    { t: 2026.05, d: '2026', title: 'Закона об ИИ всё нет', type: 'gap' }
+  ];
+  const colOf = t => t === 'bind' ? C.secondary : (t === 'gap' ? C.alert : C.paper);
+
+  svg.append('line').attr('x1', m.l).attr('x2', w - m.r).attr('y1', axisY).attr('y2', axisY).attr('stroke', C.line2).attr('stroke-width', 1.4);
+  [2022, 2023, 2024, 2025, 2026].forEach(yr => {
+    svg.append('line').attr('x1', x(yr)).attr('x2', x(yr)).attr('y1', axisY - 5).attr('y2', axisY + 5).attr('stroke', C.line2).attr('stroke-width', 1);
+    svg.append('text').attr('x', x(yr)).attr('y', axisY + 22).attr('text-anchor', 'middle').attr('class', 'axis-label').attr('fill', C.muted2).text(yr);
+  });
+
+  function wrap(text, sel, tx, ty, anchor, fill) {
+    const words = text.split(' ');
+    let lines = [], cur = '';
+    words.forEach(wd => {
+      if ((cur + ' ' + wd).trim().length > 18) { lines.push(cur.trim()); cur = wd; }
+      else cur = (cur + ' ' + wd).trim();
+    });
+    if (cur) lines.push(cur);
+    lines.forEach((ln, i) => {
+      sel.append('text').attr('x', tx).attr('y', ty + i * 13).attr('text-anchor', anchor)
+        .style('font-size', '11px').attr('fill', fill).style('font-family', 'var(--f-body)').style('font-weight', 500).text(ln);
+    });
+    return lines.length;
+  }
+
+  ev.forEach((e, i) => {
+    const above = i % 2 === 0;
+    const col = colOf(e.type);
+    const stem = above ? -34 : 34;
+    svg.append('line').attr('x1', x(e.t)).attr('x2', x(e.t)).attr('y1', axisY).attr('y2', axisY + stem).attr('stroke', col).attr('stroke-width', 1).attr('opacity', 0.6);
+    squareMarker(svg, x(e.t), axisY, 10, col).attr('stroke', C.ink).attr('stroke-width', 1);
+    const dy = above ? axisY - 48 : axisY + 50;
+    svg.append('text').attr('x', x(e.t)).attr('y', above ? axisY - 62 : axisY + 50).attr('text-anchor', 'middle')
+      .attr('class', 'mono').style('font-size', '9.5px').attr('fill', col).text(e.d);
+    wrap(e.title, svg, x(e.t), above ? axisY - 48 : axisY + 64, 'middle', C.paper);
+  });
+}
+
+/* ===================================================================
+   02 — Матрица: тип вреда от ИИ x статус нормы
+   =================================================================== */
+function drawMatrix() {
+  const rows = [
+    { harm: 'Сексуальные дипфейки', col: 0, basis: 'Online Safety Act' },
+    { harm: 'Дискриминация / предвзятость', col: 0, basis: 'Equality Act 2010' },
+    { harm: 'Автоматич. решения: выплаты, кредиты', col: 0, basis: 'DUAA · UK GDPR ст.22' },
+    { harm: 'Передовые модели: катастроф. риск', col: 1, basis: 'AISI · добровольно' },
+    { harm: 'Высокорисковый ИИ (общий)', col: 1, basis: '5 принципов' },
+    { harm: 'Политические дипфейки на выборах', col: 2, basis: 'нет состава' }
+  ];
+  const cols = ['Обязательный закон', 'Добровольное / руководство', 'Нет спец. правил'];
+  const colColor = [C.secondary, C.paper, C.alert];
+
+  const rowH = 50, headH = 40;
+  const H = headH + rows.length * rowH + 10;
+  const { svg, w } = mount('c_matrix', H);
+  const labelW = Math.min(280, w * 0.34);
+  const gridW = w - labelW;
+  const cw = gridW / 3;
+
+  cols.forEach((c, j) => {
+    svg.append('text').attr('x', labelW + cw * j + cw / 2).attr('y', 22).attr('text-anchor', 'middle')
+      .attr('class', 'mono').style('font-size', '10.5px').attr('fill', colColor[j]).style('letter-spacing', '.04em').text(c.toUpperCase());
+  });
+
+  rows.forEach((r, i) => {
+    const ry = headH + i * rowH;
+    svg.append('line').attr('x1', 0).attr('x2', w).attr('y1', ry).attr('y2', ry).attr('stroke', C.line).attr('stroke-width', 1);
+    svg.append('text').attr('x', 0).attr('y', ry + rowH / 2 + 4).attr('text-anchor', 'start')
+      .style('font-size', '12.5px').attr('fill', C.paper).style('font-family', 'var(--f-body)').style('font-weight', 500).text(r.harm);
+
+    for (let j = 0; j < 3; j++) {
+      const cxc = labelW + cw * j + cw / 2;
+      const cyc = ry + rowH / 2;
+      if (j === r.col) {
+        squareMarker(svg, cxc, cyc - 5, 15, colColor[j]);
+        svg.append('text').attr('x', cxc).attr('y', cyc + 18).attr('text-anchor', 'middle')
+          .attr('class', 'mono').style('font-size', '9px').attr('fill', C.muted).text(r.basis);
+      } else {
+        svg.append('line').attr('x1', cxc - 5).attr('x2', cxc + 5).attr('y1', cyc - 5).attr('y2', cyc - 5).attr('stroke', C.line2).attr('stroke-width', 1);
+      }
+    }
+  });
+  svg.append('line').attr('x1', 0).attr('x2', w).attr('y1', headH + rows.length * rowH).attr('y2', headH + rows.length * rowH).attr('stroke', C.line).attr('stroke-width', 1);
+}
+
+/* ===================================================================
+   03 — Расходящиеся столбцы: польза против тревоги
+   =================================================================== */
+function drawDiverging() {
+  const data = [
+    { k: 'Выявление рака', ben: 86, con: 30 },
+    { k: 'Распознавание лиц, полиция', ben: 91, con: 39 },
+    { k: 'LLM / ChatGPT', ben: 63, con: 47 },
+    { k: 'Риск невозврата кредита', ben: 57, con: 50 },
+    { k: 'Роботы в уходе', ben: 55, con: 58 },
+    { k: 'Право на соцвыплаты', ben: 47, con: 59 },
+    { k: 'Чат-боты, ментальное здоровье', ben: 36, con: 63 },
+    { k: 'Беспилотные авто', ben: 45, con: 75 }
+  ].sort((a, b) => (b.ben - b.con) - (a.ben - a.con));
+
+  const rowH = 36, headH = 36;
+  const H = headH + data.length * rowH + 14;
+  const { svg, w } = mount('c_diverging', H);
+  const labelW = Math.min(208, w * 0.32);
+  const plotW = w - labelW - 8;
+  const half = plotW / 2;
+  const center = labelW + half;
+  const sc = d3.scaleLinear().domain([0, 100]).range([0, half - 26]);
+
+  svg.append('text').attr('x', center - 8).attr('y', 18).attr('text-anchor', 'end').attr('class', 'mono').style('font-size', '10.5px').attr('fill', C.alert).text('ТРЕВОГА %');
+  svg.append('text').attr('x', center + 8).attr('y', 18).attr('text-anchor', 'start').attr('class', 'mono').style('font-size', '10.5px').attr('fill', C.primary).text('ПОЛЬЗА %');
+  svg.append('line').attr('x1', center).attr('x2', center).attr('y1', headH - 6).attr('y2', headH + data.length * rowH - 4).attr('stroke', C.line2).attr('stroke-width', 1);
+
+  data.forEach((d, i) => {
+    const cy = headH + i * rowH + rowH / 2;
+    svg.append('text').attr('x', 0).attr('y', cy + 4).attr('text-anchor', 'start')
+      .style('font-size', '12px').attr('fill', C.paper).style('font-family', 'var(--f-body)').style('font-weight', 500).text(d.k);
+    // тревога влево
+    svg.append('rect').attr('x', center - sc(d.con)).attr('y', cy - 9).attr('width', sc(d.con)).attr('height', 18).attr('fill', C.alert).attr('opacity', 0.9);
+    svg.append('text').attr('x', center - sc(d.con) - 6).attr('y', cy + 4).attr('text-anchor', 'end').attr('class', 'mono').style('font-size', '11px').attr('fill', C.alert).text(d.con);
+    // польза вправо
+    svg.append('rect').attr('x', center).attr('y', cy - 9).attr('width', sc(d.ben)).attr('height', 18).attr('fill', C.primary);
+    svg.append('text').attr('x', center + sc(d.ben) + 6).attr('y', cy + 4).attr('text-anchor', 'start').attr('class', 'mono').style('font-size', '11px').attr('fill', C.primary).text(d.ben);
+  });
+}
+
+/* ===================================================================
+   03 — Наклон: "законы сделали бы меня спокойнее" (2023 -> 2024/25)
+   =================================================================== */
+function drawSlope() {
+  const { svg, w } = mount('c_slope', 260);
+  const m = { t: 36, b: 36, l: 56, r: 56 };
+  const ih = 260 - m.t - m.b;
+  const xL = m.l, xR = w - m.r;
+  const y = d3.scaleLinear().domain([45, 80]).range([m.t + ih, m.t]);
+  const pts = [{ x: xL, v: 62, lab: '2023' }, { x: xR, v: 72, lab: '2024/25' }];
+
+  svg.append('line').attr('x1', xL).attr('x2', xR).attr('y1', y(pts[0].v)).attr('y2', y(pts[1].v)).attr('stroke', C.primary).attr('stroke-width', 2.6);
+  pts.forEach(p => {
+    squareMarker(svg, p.x, y(p.v), 12, C.primary);
+    svg.append('text').attr('x', p.x).attr('y', y(p.v) - 16).attr('text-anchor', 'middle').attr('class', 'val-label').style('font-size', '20px').attr('fill', C.paper).text(p.v + '%');
+    svg.append('text').attr('x', p.x).attr('y', m.t + ih + 22).attr('text-anchor', 'middle').attr('class', 'axis-label').text(p.lab);
+  });
+  svg.append('text').attr('x', (xL + xR) / 2).attr('y', y(67) - 4).attr('text-anchor', 'middle').attr('class', 'val-label').style('font-size', '14px').attr('fill', C.primary).text('+10 п.п.');
+}
+
+/* ===================================================================
+   03 — Горизонтальные столбцы: ИИ и авторское право
+   =================================================================== */
+function drawCopyright() {
+  const data = [
+    { k: 'Лицензии во всех случаях', v: 88, gov: false },
+    { k: 'Статус-кво', v: 7, gov: false },
+    { k: 'TDM + резервирование прав', v: 3, gov: true },
+    { k: 'Нет предпочтения', v: 1.5, gov: false },
+    { k: 'TDM без резервирования', v: 0.5, gov: false }
+  ];
+  const rowH = 48, headH = 12;
+  const H = headH + data.length * rowH + 8;
+  const { svg, w } = mount('c_copyright', H);
+  const labelW = Math.min(196, w * 0.46);
+  const plotW = w - labelW - 56;
+  const x = d3.scaleLinear().domain([0, 100]).range([0, plotW]);
+
+  data.forEach((d, i) => {
+    const cy = headH + i * rowH + rowH / 2;
+    const col = d.gov ? C.alert : C.secondary;
+    // подпись справа по краю — ровно перед началом столбца
+    svg.append('text').attr('x', labelW - 14).attr('y', d.gov ? cy - 3 : cy + 4).attr('text-anchor', 'end')
+      .style('font-size', '12.5px').attr('fill', C.paper).style('font-family', 'var(--f-body)').style('font-weight', d.gov ? 600 : 500).text(d.k);
+    if (d.gov) {
+      svg.append('text').attr('x', labelW - 14).attr('y', cy + 13).attr('text-anchor', 'end')
+        .attr('class', 'mono').style('font-size', '10px').attr('fill', C.alert).text('вариант правительства →');
+    }
+    // столбец от единого левого края
+    svg.append('rect').attr('x', labelW).attr('y', cy - 9).attr('width', Math.max(x(d.v), 2)).attr('height', 18).attr('fill', col).attr('opacity', d.gov ? 1 : 0.85);
+    svg.append('text').attr('x', labelW + Math.max(x(d.v), 2) + 10).attr('y', cy + 4).attr('text-anchor', 'start')
+      .attr('class', 'val-label').style('font-size', '13px').attr('fill', d.gov ? C.alert : C.paper).text(d.v + '%');
+  });
+}
+
+/* ===================================================================
+   Инициализация и адаптивная перерисовка
+   =================================================================== */
+function drawAll() {
+  drawArea();
+  drawArrow();
+  drawVC();
+  drawMap();
+  drawRadar();
+  drawDot();
+  drawTimeline();
+  drawMatrix();
+  drawDiverging();
+  drawSlope();
+  drawCopyright();
+}
+
+drawAll();
+
+let _t;
+window.addEventListener('resize', function () {
+  clearTimeout(_t);
+  _t = setTimeout(drawAll, 180);
+});
+</script>
+</body>
+</html>

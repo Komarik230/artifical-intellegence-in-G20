@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ИИ в Бразилии: стратегия, этика, медиа · G20</title>
+<meta name="description" content="Дата-журналистский разбор политики искусственного интеллекта в Бразилии: план PBIA на R$23 млрд, риск-ориентированный закон PL 2338, регулирование ИИ на выборах через TSE и место страны в индексе ILIA." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap&subset=cyrillic,latin" rel="stylesheet" />
+<style>
+/* ===================================================================
+   Единый чёрный шаблон для всех стран G20.
+   Под каждую страну меняется только блок --flag-* (цвета флага).
+   Бразилия: зелёный + жёлтый (Ordem e Progresso) + синий.
+   =================================================================== */
+:root {
+  /* --- Акцент страны: Бразилия (флаг). Зелёный осветлён для контраста на чёрном --- */
+  --flag-primary:   #11B05E;   /* verde bandeira, осветлён */
+  --flag-primary-2: #4FD68C;   /* светлее, для ховера/выделения */
+  --flag-secondary: #FFD400;   /* amarelo ouro флага */
+  --flag-tertiary:  #4B7BEC;   /* azul флага, осветлён для контраста */
+
+  /* --- Общая монохромная база (для всех стран одинаковая) --- */
+  --ink:        #070708;
+  --ink-panel:  #0C0D0F;
+  --paper:      #FFFFFF;
+  --muted:      rgba(255,255,255,.56);
+  --muted-2:    rgba(255,255,255,.40);
+  --line:       rgba(255,255,255,.16);
+  --line-2:     rgba(255,255,255,.30);
+  --grid:       rgba(255,255,255,.09);
+  --alert:      #E5484D;       /* функциональный красный: запреты, отставание, дипфейки */
+
+  --maxw: 1320px;
+  --pad: clamp(16px, 4vw, 56px);
+
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --f-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--ink); -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+svg { display: block; }
+a { color: inherit; }
+::selection { background: var(--flag-primary); color: #00130A; }
+
+.wrap { width: min(var(--maxw), 100%); margin: 0 auto; padding-inline: var(--pad); }
+
+/* ---------- Утилитарные текстовые элементы ---------- */
+.eyebrow {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--flag-primary);
+  margin: 0;
+}
+.mono { font-family: var(--f-mono); }
+.muted { color: var(--muted); }
+.amber { color: var(--flag-secondary); }
+.alert { color: var(--alert); }
+
+h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 900; letter-spacing: -.01em; }
+
+/* ====================== ШАПКА / БРЕНД-БАР ====================== */
+.topbar { border-bottom: 1px solid var(--line); position: sticky; top: 0; background: rgba(7,7,8,.86); backdrop-filter: blur(8px); z-index: 50; }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 56px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+/* флаг-марка Бразилии: зелёное поле, жёлтый ромб (углами), синий квадрат вместо круга (без скруглений) */
+.flagmark { position: relative; width: 34px; height: 24px; background: var(--flag-primary); overflow: hidden; flex: none; }
+.flagmark::before { content:""; position:absolute; inset:0; margin:auto; width:17px; height:17px; background: var(--flag-secondary); transform: rotate(45deg); }
+.flagmark::after { content:""; position:absolute; inset:0; margin:auto; width:8px; height:8px; background: var(--flag-tertiary); }
+.brand b { font-family: var(--f-mono); font-weight: 500; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.topbar .country { font-family: var(--f-mono); font-size: 12px; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
+.topbar .country span { color: var(--flag-secondary); }
+
+/* ====================== HERO ====================== */
+.hero { border-bottom: 1px solid var(--line); padding: clamp(40px, 8vw, 96px) 0 0; position: relative; }
+.hero .wrap { position: relative; }
+.hero h1 { font-size: clamp(40px, 8.4vw, 104px); line-height: .96; margin: 18px 0 0; max-width: 18ch; }
+.hero h1 .em { color: var(--flag-primary); }
+.hero .dek { max-width: 60ch; color: var(--muted); font-size: clamp(16px, 1.6vw, 20px); margin: 26px 0 0; }
+.hero .dek b { color: var(--paper); font-weight: 600; }
+.rule-thick { height: 4px; background: var(--flag-primary); width: 64px; margin: 36px 0 0; }
+
+/* KPI-полоса */
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); margin-top: clamp(40px, 6vw, 72px); }
+.kpi { padding: 22px 0 26px; border-left: 1px solid var(--line); padding-left: 20px; }
+.kpi:first-child { border-left: 0; padding-left: 0; }
+.kpi .v { font-family: var(--f-display); font-weight: 900; font-size: clamp(24px, 3vw, 38px); line-height: 1; letter-spacing: -.02em; }
+.kpi .v.g { color: var(--flag-primary); }
+.kpi .v.y { color: var(--flag-secondary); }
+.kpi .v.r { color: var(--alert); }
+.kpi .l { margin-top: 12px; font-size: 13px; color: var(--muted); line-height: 1.4; }
+.kpi .l b { color: var(--paper); font-weight: 600; }
+@media (max-width: 760px){ .kpis { grid-template-columns: repeat(2, 1fr); } .kpi:nth-child(3){ border-left:0; padding-left:0; } .kpi { border-top:1px solid var(--line); } .kpi:nth-child(1),.kpi:nth-child(2){ border-top:0; } }
+
+/* ====================== СЕКЦИИ ====================== */
+section { border-bottom: 1px solid var(--line); padding: clamp(48px, 8vw, 104px) 0; }
+.sechead { display: grid; grid-template-columns: 1fr; gap: 14px; max-width: 64ch; }
+.sechead h2 { font-size: clamp(28px, 4.4vw, 56px); line-height: 1.02; }
+.sechead .dek { color: var(--muted); font-size: clamp(15px, 1.5vw, 18px); max-width: 64ch; }
+.sechead .dek b { color: var(--paper); font-weight: 600; }
+.sechead .dek .y { color: var(--flag-secondary); font-weight: 600; }
+.sechead .dek .r { color: var(--alert); font-weight: 600; }
+
+.lede { color: var(--muted); font-size: clamp(15px, 1.5vw, 18px); max-width: 64ch; margin: 26px 0 0; }
+.lede b { color: var(--paper); font-weight: 600; }
+.lede .y { color: var(--flag-secondary); font-weight: 600; }
+.lede .r { color: var(--alert); font-weight: 600; }
+
+/* фигура с графиком */
+.fig { margin: 40px 0 0; }
+.fig .head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+.fig .head .t { font-family: var(--f-display); font-weight: 700; font-size: clamp(15px, 1.5vw, 19px); letter-spacing: -.01em; }
+.fig .head .tag { font-family: var(--f-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-2); }
+.fig figcaption { margin-top: 18px; font-size: 12.5px; color: var(--muted-2); font-family: var(--f-mono); line-height: 1.5; }
+.fig figcaption b { color: var(--muted); font-weight: 500; }
+.chart { width: 100%; }
+.chart svg { width: 100%; height: auto; overflow: visible; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 4vw, 56px); align-items: start; }
+@media (max-width: 900px){ .grid2 { grid-template-columns: 1fr; } }
+
+/* текст графиков (D3 пишет классы) */
+.ax { font-family: var(--f-mono); font-size: 11px; fill: var(--muted-2); }
+.axlab { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); letter-spacing: .04em; }
+.gridline { stroke: var(--grid); stroke-width: 1; }
+.baseline { stroke: var(--line-2); stroke-width: 1; }
+.refline { stroke: var(--muted-2); stroke-width: 1; stroke-dasharray: 3 3; }
+.val { font-family: var(--f-mono); font-size: 12px; fill: var(--paper); }
+.valg { fill: var(--flag-primary); }
+.valy { fill: var(--flag-secondary); }
+.valr { fill: var(--alert); }
+.lbl { font-family: var(--f-body); font-size: 13px; fill: var(--paper); }
+.lblm { font-family: var(--f-body); font-size: 12.5px; fill: var(--muted); }
+.serieslab { font-family: var(--f-mono); font-size: 11px; letter-spacing: .04em; }
+
+/* легенда */
+.legend { display: flex; flex-wrap: wrap; gap: 18px; margin: 0 0 18px; font-family: var(--f-mono); font-size: 12px; color: var(--muted); letter-spacing: .03em; }
+.legend .it { display: inline-flex; align-items: center; gap: 8px; }
+.legend .sw { width: 13px; height: 13px; flex: none; }
+
+/* таблица */
+.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tbl th, .tbl td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl thead th { font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.tbl td .c { display: block; font-family: var(--f-mono); font-size: 12px; color: var(--muted); margin-top: 4px; }
+.tbl tr.me { background: rgba(17,176,94,.10); }
+.tbl tr.me td:first-child { box-shadow: inset 3px 0 0 var(--flag-primary); }
+.tbl td .nm { font-weight: 600; }
+.tbl .bind { color: var(--flag-primary); }
+.tbl .soft { color: var(--flag-secondary); }
+.tbl .none { color: var(--muted-2); }
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+@media (max-width: 700px){ .tbl { font-size: 13px; } .tbl th, .tbl td { padding: 11px 12px; } }
+
+/* матрица (heatmap / статус) — без скруглений */
+.matrix { width: 100%; border-collapse: collapse; font-size: 13px; }
+.matrix th, .matrix td { border: 1px solid var(--line); padding: 12px 12px; }
+.matrix thead th { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; text-align: center; }
+.matrix tbody th { text-align: left; font-weight: 500; color: var(--paper); font-size: 13px; max-width: 320px; }
+.matrix td { text-align: center; }
+.cell { display: inline-flex; align-items: center; justify-content: center; min-width: 86px; height: 30px; padding: 0 10px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+.cell.yes { background: rgba(17,176,94,.18); color: var(--flag-primary-2); }
+.cell.ban { background: rgba(229,72,77,.18); color: #FF9A9D; }
+.cell.new { background: rgba(255,212,0,.16); color: var(--flag-secondary); }
+.cell.soft { background: rgba(255,255,255,.06); color: var(--muted); }
+.cell.no { color: var(--muted-2); }
+@media (max-width: 700px){ .matrix th, .matrix td { padding: 8px 6px; } .cell { min-width: 0; width: 100%; } .matrix tbody th { font-size: 12px; } }
+
+/* контраст-карты */
+.contrast { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 40px; }
+@media (max-width: 760px){ .contrast { grid-template-columns: 1fr; } }
+.ccard { border: 1px solid var(--line); padding: 26px 24px; }
+.ccard.b { box-shadow: inset 4px 0 0 var(--flag-primary); }
+.ccard.a { box-shadow: inset 4px 0 0 var(--alert); }
+.ccard .k { font-family: var(--f-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.ccard .h { font-family: var(--f-display); font-weight: 900; font-size: 22px; margin: 10px 0 4px; }
+.ccard.b .h { color: var(--flag-primary); }
+.ccard.a .h { color: var(--alert); }
+.ccard p { color: var(--muted); font-size: 14px; margin: 12px 0 0; line-height: 1.55; }
+
+/* примечание */
+.note { border-left: 2px solid var(--line-2); padding: 4px 0 4px 20px; margin: 36px 0 0; color: var(--muted); font-size: 14px; max-width: 64ch; }
+.note b { color: var(--paper); font-weight: 600; }
+.note .r { color: var(--alert); }
+
+/* ====================== ПОДВАЛ ====================== */
+.foot { padding: clamp(40px, 6vw, 72px) 0 80px; }
+.foot .top { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: baseline; }
+.foot h3 { font-family: var(--f-mono); font-weight: 500; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.foot .sources { margin: 22px 0 0; column-count: 2; column-gap: 40px; }
+@media (max-width: 760px){ .foot .sources { column-count: 1; } }
+.foot .src { break-inside: avoid; font-size: 12.5px; color: var(--muted-2); font-family: var(--f-mono); line-height: 1.5; margin: 0 0 12px; padding-left: 26px; text-indent: -26px; }
+.foot .src b { color: var(--muted); font-weight: 500; }
+.foot .meta { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line); font-family: var(--f-mono); font-size: 11.5px; color: var(--muted-2); letter-spacing: .04em; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="flagmark" aria-hidden="true"></span>
+      <b>G20 · ИИ-политика</b>
+    </div>
+    <div class="country">Бразилия <span>/ Brasil</span></div>
+  </div>
+</header>
+
+<main>
+  <!-- ================= HERO ================= -->
+  <section class="hero" style="border-bottom:1px solid var(--line);">
+    <div class="wrap">
+      <p class="eyebrow">G20 · Бразилия</p>
+      <h1>Страна, которая <span class="em">строит правила</span></h1>
+      <p class="dek">Аргентина дерегулирует, Австралия отступает от собственных норм. Бразилия идёт против течения: <b>строит обязательные правила для ИИ в духе ЕС</b> и подкрепляет их крупнейшими в регионе госинвестициями. Но за позицией лидера скрывается одна структурная слабость.</p>
+      <div class="rule-thick"></div>
+      <div class="kpis">
+        <div class="kpi"><div class="v g">R$23,03 млрд</div><div class="l"><b>PBIA</b> — план развития ИИ на 2024-2028</div></div>
+        <div class="kpi"><div class="v y">#2</div><div class="l">в Латинской Америке по индексу <b>ILIA 2025</b> (67,39)</div></div>
+        <div class="kpi"><div class="v r">R$50 млн</div><div class="l">максимальный штраф по закону <b>PL 2338</b></div></div>
+        <div class="kpi"><div class="v">Запрет</div><div class="l">дипфейков на выборах — решение <b>TSE</b></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 01 СТРАТЕГИЯ ================= -->
+  <section id="strategy">
+    <div class="wrap">
+      <div class="sechead">
+        <p class="eyebrow">01 — Стратегия</p>
+        <h2>Деньги есть. Вопрос — на что</h2>
+        <p class="dek">Plano Brasileiro de Inteligência Artificial (PBIA, 2024-2028) обещает <b>R$23,03 млрд</b> — заявка на роль технологической державы. Но структура расходов выдаёт приоритеты: <span class="y">60% идёт на промышленность и бизнес</span>, и лишь <span class="r">0,4% — на ось регулирования и управления ИИ</span>.</p>
+      </div>
+
+      <figure class="fig">
+        <div class="head"><span class="t">Куда идут R$22,59 млрд структурных расходов PBIA</span><span class="tag">Стэк-бар · 5 осей</span></div>
+        <div class="chart" id="c_pbia"></div>
+        <figcaption><b>Источник:</b> MCTI, Plano Brasileiro de Inteligência Artificial 2024-2028; разбор Próximo Nível (Claro), 11.09.2025. Ось 3 — оценка как остаток структурных расходов (98,1% плана).</figcaption>
+      </figure>
+
+      <div class="grid2" style="margin-top: clamp(40px,6vw,72px);">
+        <figure class="fig" style="margin-top:0;">
+          <div class="head"><span class="t">Вычислительная мощь региона</span><span class="tag">Вафля · доля</span></div>
+          <div class="chart" id="c_waffle"></div>
+          <figcaption><b>Источник:</b> ILIA 2025 (CENIA/CEPAL). Суперкомпьютер Santos Dumont обновлён до 18,85 петафлопс (+575%).</figcaption>
+        </figure>
+        <figure class="fig" style="margin-top:0;">
+          <div class="head"><span class="t">Исполнение PBIA</span><span class="tag">Буллет · прогресс</span></div>
+          <div class="chart" id="c_bullet"></div>
+          <figcaption><b>Источник:</b> Secom / Governo Federal, январь 2026. Из 54 действий 25 выполнено, 16 в работе.</figcaption>
+        </figure>
+      </div>
+      <p class="lede">Сильная сторона очевидна: <b>инфраструктура</b>. Бразилия держит <span class="y">более 90% высокопроизводительных вычислительных мощностей</span> всей Латинской Америки и лидирует в регионе по скорости мобильного интернета (205,92 Мбит/с).</p>
+    </div>
+  </section>
+
+  <!-- ================= РЕГИОН ================= -->
+  <section id="region">
+    <div class="wrap">
+      <div class="sechead">
+        <p class="eyebrow">Регион</p>
+        <h2>Лидер с одной слабостью</h2>
+        <p class="dek">По индексу ILIA 2025 Бразилия — <b>вторая в Латинской Америке</b> (67,39), уступая только Чили. Но за общим местом скрывается резкий профиль: страна доминирует почти по всем измерениям и проваливается лишь в одном.</p>
+      </div>
+
+      <div class="grid2">
+        <figure class="fig" style="margin-top:40px;">
+          <div class="head"><span class="t">Рейтинг готовности к ИИ</span><span class="tag">Бар-чарт · 19 стран</span></div>
+          <div class="chart" id="c_rank"></div>
+          <figcaption><b>Источник:</b> CENIA/CEPAL, ILIA 2025, общий балл. Пунктир — среднее по региону (42,98).</figcaption>
+        </figure>
+        <figure class="fig" style="margin-top:40px;">
+          <div class="head"><span class="t">Карта готовности к ИИ</span><span class="tag">Картограмма</span></div>
+          <div class="chart" id="c_map"></div>
+          <figcaption><b>Источник:</b> CENIA/CEPAL, ILIA 2025. Цвет — общий балл (0-100).</figcaption>
+        </figure>
+      </div>
+
+      <figure class="fig" style="margin-top: clamp(40px,6vw,72px);">
+        <div class="head"><span class="t">Готовность не равна использованию</span><span class="tag">Скаттер · 18 стран</span></div>
+        <div class="chart" id="c_scatter"></div>
+        <figcaption><b>Источник:</b> CENIA/CEPAL, ILIA 2025 (данные RankmyAI, Similarweb). Горизонталь и вертикаль — средние по региону.</figcaption>
+      </figure>
+      <p class="lede">Бразилия — вторая по готовности, но по реальной интенсивности использования ИИ лишь <b>чуть выше среднего</b>: 3,2 визита на пользователя против 3,1 по региону. Лидирует здесь Перу (6,0) — готовность и использование не одно и то же.</p>
+
+      <div class="grid2" style="margin-top: clamp(40px,6vw,72px);">
+        <figure class="fig" style="margin-top:0;">
+          <div class="head"><span class="t">Три измерения: Бразилия и регион</span><span class="tag">Групп. столбцы</span></div>
+          <div class="chart" id="c_groups"></div>
+          <figcaption><b>Источник:</b> CENIA/CEPAL, ILIA 2025, баллы по измерениям.</figcaption>
+        </figure>
+        <figure class="fig" style="margin-top:0;">
+          <div class="head"><span class="t">Профиль против региона</span><span class="tag">Радар · 9 осей</span></div>
+          <div class="chart" id="c_radar"></div>
+          <figcaption><b>Источник:</b> CENIA/CEPAL, ILIA 2025, субизмерения (шкала 0-100).</figcaption>
+        </figure>
+      </div>
+      <p class="lede">По <b>восьми из девяти</b> субизмерений Бразилия выше регионального среднего — резко в управлении (96 против 38) и инфраструктуре (71 против 46). Единственная ось, где страна <span class="r">ниже среднего</span>, — человеческий капитал (34 против 37).</p>
+
+      <figure class="fig">
+        <div class="head"><span class="t">Разрыв с регионом по субизмерениям</span><span class="tag">Дамбелл · отсортировано</span></div>
+        <div class="chart" id="c_dumbbell"></div>
+        <figcaption><b>Источник:</b> CENIA/CEPAL, ILIA 2025. Красным — единственное отставание от среднего.</figcaption>
+      </figure>
+      <p class="note"><b>Где тонко.</b> По продуктивности исследователей ИИ Бразилия на <span class="r">последнем, 19-м месте</span> региона (0,43). Инфраструктура и регулирование сильны, но без рывка в подготовке специалистов лидерство рискует остаться витриной. <span class="muted">ILIA предупреждает: баллы 2024 и 2025 годов не полностью сопоставимы из-за изменения методики, поэтому здесь сравниваются страны внутри одного года, а не годы между собой.</span></p>
+    </div>
+  </section>
+
+  <!-- ================= 02 ЭТИЧЕСКОЕ РЕГУЛИРОВАНИЕ ================= -->
+  <section id="ethics">
+    <div class="wrap">
+      <div class="sechead">
+        <p class="eyebrow">02 — Этическое регулирование</p>
+        <h2>Правила, которые почти приняты</h2>
+        <p class="dek">PL 2338/2023 (Marco Legal da IA) копирует логику AI Act ЕС: <b>классификация по уровню риска</b>, обязательная оценка воздействия для систем высокого риска, надзорный орган SIA при ANPD и штрафы до <span class="y">R$50 млн</span>. Сенат одобрил закон единогласно 10 декабря 2024 года; с марта 2025-го он в Палате депутатов, принятие ожидается в 2026-м.</p>
+      </div>
+
+      <figure class="fig">
+        <div class="head"><span class="t">Политика Бразилии в области ИИ, 2020-2026</span><span class="tag">Таймлайн</span></div>
+        <div class="chart" id="c_timeline"></div>
+        <figcaption><b>Источники:</b> MCTI; Senado Federal; Câmara dos Deputados; TSE.</figcaption>
+      </figure>
+
+      <div class="grid2" style="margin-top: clamp(40px,6vw,72px);">
+        <figure class="fig" style="margin-top:0;">
+          <div class="head"><span class="t">Уровни риска и обязательства</span><span class="tag">Матрица</span></div>
+          <div id="m_risk"></div>
+          <figcaption><b>Источник:</b> текст PL 2338/2023 (одобрен Сенатом). AIA — обязательная оценка алгоритмического воздействия.</figcaption>
+        </figure>
+        <figure class="fig" style="margin-top:0;">
+          <div class="head"><span class="t">Кто как регулирует ИИ</span><span class="tag">Сравнит. таблица</span></div>
+          <div class="tbl-wrap" id="t_reg"></div>
+          <figcaption><b>Источники:</b> EU AI Act (Регл. 2024/1689); CAC; NIST AI RMF; PL 2338/2023.</figcaption>
+        </figure>
+      </div>
+      <p class="note"><b>Не все довольны.</b> Idec предупреждает: текст недостаточно защищает детей, обходит распознавание лиц и кредитный скоринг и отражает интересы крупных техкомпаний. Финальное слово — за Палатой депутатов.</p>
+    </div>
+  </section>
+
+  <!-- ================= 03 МЕДИАПРАКТИКИ ================= -->
+  <section id="media">
+    <div class="wrap">
+      <div class="sechead">
+        <p class="eyebrow">03 — Медиапрактики</p>
+        <h2>ИИ на выборах: под контролем</h2>
+        <p class="dek">Если Аргентина провела «первые ИИ-выборы» практически без ограничений, Бразилия пошла обратным путём. На муниципальных выборах 2024 года <b>TSE впервые в стране запретил дипфейки</b>, обязал маркировать ИИ-контент и ограничил чат-ботов. К всеобщим выборам октября 2026-го правила ужесточились.</p>
+      </div>
+
+      <figure class="fig">
+        <div class="head"><span class="t">Правила TSE по ИИ: 2024 против 2026</span><span class="tag">Статус-матрица</span></div>
+        <div id="m_tse"></div>
+        <figcaption><b>Источник:</b> TSE — Резолюция 23.732/2024 (муниципальные выборы) и Резолюция 23.748/2026 (всеобщие выборы).</figcaption>
+      </figure>
+
+      <div class="contrast">
+        <div class="ccard a">
+          <div class="k">Аргентина · 2023</div>
+          <div class="h">ИИ без правил</div>
+          <p>«Первые в мире ИИ-выборы»: синтетические образы кандидатов и дипфейки циркулировали свободно, специальных норм почти не было.</p>
+        </div>
+        <div class="ccard b">
+          <div class="k">Бразилия · 2024-2026</div>
+          <div class="h">ИИ под контролем</div>
+          <p>Дипфейки запрещены под угрозой снятия с выборов, ИИ-контент маркируется, ИИ-рекомендации голосования запрещены, платформы несут солидарную ответственность.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ВЫВОД ================= -->
+  <section id="takeaway">
+    <div class="wrap">
+      <div class="sechead">
+        <p class="eyebrow">Вывод</p>
+        <h2>Институты есть. Нужны люди</h2>
+        <p class="dek">Бразилия — самая «государственническая» модель ИИ в регионе: правила, орган надзора и деньги одновременно. Но без рывка в подготовке специалистов сильные инфраструктура и регулирование рискуют остаться витриной. Главный экзамен страны — конвертировать институты в человеческий капитал.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ================= ПОДВАЛ ================= -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="top">
+      <h3>Источники и данные</h3>
+      <span class="mono" style="font-size:11.5px;color:var(--muted-2);letter-spacing:.04em;">Данные сверены с первоисточниками · 2024-2026</span>
+    </div>
+    <div class="sources">
+      <p class="src"><b>1.</b> MCTI — Plano Brasileiro de Inteligência Artificial (PBIA) 2024-2028, gov.br/mcti.</p>
+      <p class="src"><b>2.</b> Próximo Nível (Claro) — распределение осей PBIA, 11.09.2025.</p>
+      <p class="src"><b>3.</b> Secretaria de Comunicação Social (Secom) — исполнение PBIA, январь 2026.</p>
+      <p class="src"><b>4.</b> CENIA &amp; CEPAL — Índice Latinoamericano de IA (ILIA) 2025, indicelatam.cl.</p>
+      <p class="src"><b>5.</b> CENIA &amp; CEPAL — ILIA 2025, Fichas de país: Brasil (LC/TS.2026/16).</p>
+      <p class="src"><b>6.</b> Senado Federal — PL 2338/2023, tramitação (одобрен 10.12.2024).</p>
+      <p class="src"><b>7.</b> Câmara dos Deputados — PL 2338/2023, Comissão Especial.</p>
+      <p class="src"><b>8.</b> Европейский союз — Artificial Intelligence Act (Регламент 2024/1689).</p>
+      <p class="src"><b>9.</b> TSE — Resolução 23.732/2024 (ИИ на муниципальных выборах).</p>
+      <p class="src"><b>10.</b> TSE — Resolução 23.748/2026 (ИИ на всеобщих выборах).</p>
+      <p class="src"><b>11.</b> Idec — критика текста PL 2338/2023.</p>
+      <p class="src"><b>12.</b> Bloomberg Línea — региональный обзор ILIA, 2025.</p>
+      <p class="src"><b>13.</b> NIST — AI Risk Management Framework (контекст США).</p>
+      <p class="src"><b>14.</b> CAC — нормы КНР по алгоритмам, дипсинтезу и генеративному ИИ (контекст Китая).</p>
+    </div>
+    <p class="meta">Спецпроект G20 · «Репрезентация искусственного интеллекта в странах G20: стратегии, этическое регулирование и медиапрактики». Все числовые данные взяты из открытых официальных источников и сверены с первоисточниками. Графика: D3.js. Палитра — цвета флага Бразилии.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script>
+const LATAM = {"type":"FeatureCollection","features":[{"type":"Feature","id":"ARG","properties":{"name":"Аргентина","ilia":52.98},"geometry":{"type":"MultiPolygon","coordinates":[[[[-65.5,-55.2],[-66.45,-55.25],[-66.96,-54.9],[-67.56,-54.87],[-68.63,-54.87],[-68.63,-52.64],[-68.25,-53.1],[-67.75,-53.85],[-66.45,-54.45],[-65.05,-54.7],[-65.5,-55.2]]],[[[-64.96,-22.08],[-64.38,-22.8],[-63.99,-21.99],[-62.85,-22.03],[-62.69,-22.25],[-60.85,-23.88],[-60.03,-24.03],[-58.81,-24.77],[-57.78,-25.16],[-57.63,-25.6],[-58.62,-27.12],[-57.61,-27.4],[-56.49,-27.55],[-55.7,-27.39],[-54.79,-26.62],[-54.63,-25.74],[-54.13,-25.55],[-53.63,-26.12],[-53.65,-26.92],[-54.49,-27.47],[-55.16,-27.88],[-56.29,-28.85],[-57.63,-30.22],[-57.87,-31.02],[-58.14,-32.04],[-58.13,-33.04],[-58.35,-33.26],[-58.43,-33.91],[-58.5,-34.43],[-57.23,-35.29],[-57.36,-35.98],[-56.74,-36.41],[-56.79,-36.9],[-57.75,-38.18],[-59.23,-38.72],[-61.24,-38.93],[-62.34,-38.83],[-62.13,-39.42],[-62.33,-40.17],[-62.15,-40.68],[-62.75,-41.03],[-63.77,-41.17],[-64.73,-40.8],[-65.12,-41.06],[-64.98,-42.06],[-64.3,-42.36],[-63.76,-42.04],[-63.46,-42.56],[-64.38,-42.87],[-65.18,-43.5],[-65.33,-44.5],[-65.57,-45.04],[-66.51,-45.04],[-67.29,-45.55],[-67.58,-46.3],[-66.6,-47.03],[-65.64,-47.24],[-65.99,-48.13],[-67.17,-48.7],[-67.82,-49.87],[-68.73,-50.26],[-69.14,-50.73],[-68.82,-51.77],[-68.15,-52.35],[-68.57,-52.3],[-69.5,-52.14],[-71.91,-52.01],[-72.33,-51.43],[-72.31,-50.68],[-72.98,-50.74],[-73.33,-50.38],[-73.42,-49.32],[-72.65,-48.88],[-72.33,-48.24],[-72.45,-47.74],[-71.92,-46.88],[-71.55,-45.56],[-71.66,-44.97],[-71.22,-44.78],[-71.33,-44.41],[-71.79,-44.21],[-71.46,-43.79],[-71.92,-43.41],[-72.15,-42.25],[-71.75,-42.05],[-71.92,-40.83],[-71.68,-39.81],[-71.41,-38.92],[-70.81,-38.55],[-71.12,-37.58],[-71.12,-36.66],[-70.36,-36.01],[-70.39,-35.17],[-69.82,-34.19],[-69.81,-33.27],[-70.07,-33.09],[-70.54,-31.37],[-69.92,-30.34],[-70.01,-29.37],[-69.66,-28.46],[-69,-27.52],[-68.3,-26.9],[-68.59,-26.51],[-68.39,-26.19],[-68.42,-24.52],[-67.33,-24.03],[-66.99,-22.99],[-67.11,-22.74],[-66.27,-21.83],[-64.96,-22.08]]]]}},{"type":"Feature","id":"BOL","properties":{"name":"Боливия","ilia":26.06},"geometry":{"type":"Polygon","coordinates":[[[-62.85,-22.03],[-63.99,-21.99],[-64.38,-22.8],[-64.96,-22.08],[-66.27,-21.83],[-67.11,-22.74],[-67.83,-22.87],[-68.22,-21.49],[-68.76,-20.37],[-68.44,-19.41],[-68.97,-18.98],[-69.1,-18.26],[-69.59,-17.58],[-68.96,-16.5],[-69.39,-15.66],[-69.16,-15.32],[-69.34,-14.95],[-68.95,-14.45],[-68.93,-13.6],[-68.88,-12.9],[-68.67,-12.56],[-69.53,-10.95],[-68.79,-11.04],[-68.27,-11.01],[-68.05,-10.71],[-67.17,-10.31],[-66.65,-9.93],[-65.34,-9.76],[-65.44,-10.51],[-65.32,-10.9],[-65.4,-11.57],[-64.32,-12.46],[-63.2,-12.63],[-62.8,-13],[-62.13,-13.2],[-61.71,-13.49],[-61.08,-13.48],[-60.5,-13.78],[-60.46,-14.35],[-60.26,-14.65],[-60.25,-15.08],[-60.54,-15.09],[-60.16,-16.26],[-58.24,-16.3],[-58.39,-16.88],[-58.28,-17.27],[-57.73,-17.55],[-57.5,-18.17],[-57.68,-18.96],[-57.95,-19.4],[-57.85,-19.97],[-58.17,-20.18],[-58.18,-19.87],[-59.12,-19.36],[-60.04,-19.34],[-61.79,-19.63],[-62.27,-20.51],[-62.29,-21.05],[-62.69,-22.25],[-62.85,-22.03]]]}},{"type":"Feature","id":"BRA","properties":{"name":"Бразилия","ilia":67.39},"geometry":{"type":"Polygon","coordinates":[[[-57.63,-30.22],[-56.29,-28.85],[-55.16,-27.88],[-54.49,-27.47],[-53.65,-26.92],[-53.63,-26.12],[-54.13,-25.55],[-54.63,-25.74],[-54.43,-25.16],[-54.29,-24.57],[-54.29,-24.02],[-54.65,-23.84],[-55.03,-24],[-55.4,-23.96],[-55.52,-23.57],[-55.61,-22.66],[-55.8,-22.36],[-56.47,-22.09],[-56.88,-22.28],[-57.94,-22.09],[-57.87,-20.73],[-58.17,-20.18],[-57.85,-19.97],[-57.95,-19.4],[-57.68,-18.96],[-57.5,-18.17],[-57.73,-17.55],[-58.28,-17.27],[-58.39,-16.88],[-58.24,-16.3],[-60.16,-16.26],[-60.54,-15.09],[-60.25,-15.08],[-60.26,-14.65],[-60.46,-14.35],[-60.5,-13.78],[-61.08,-13.48],[-61.71,-13.49],[-62.13,-13.2],[-62.8,-13],[-63.2,-12.63],[-64.32,-12.46],[-65.4,-11.57],[-65.32,-10.9],[-65.44,-10.51],[-65.34,-9.76],[-66.65,-9.93],[-67.17,-10.31],[-68.05,-10.71],[-68.27,-11.01],[-68.79,-11.04],[-69.53,-10.95],[-70.09,-11.12],[-70.55,-11.01],[-70.48,-9.49],[-71.3,-10.08],[-72.18,-10.05],[-72.56,-9.52],[-73.23,-9.46],[-73.02,-9.03],[-73.57,-8.42],[-73.99,-7.52],[-73.72,-7.34],[-73.72,-6.92],[-73.12,-6.63],[-73.22,-6.09],[-72.96,-5.74],[-72.89,-5.27],[-71.75,-4.59],[-70.93,-4.4],[-70.79,-4.25],[-69.89,-4.3],[-69.44,-1.56],[-69.42,-1.12],[-69.58,-0.55],[-70.02,-0.19],[-70.02,0.54],[-69.45,0.71],[-69.25,0.6],[-69.22,0.99],[-69.8,1.09],[-69.82,1.71],[-67.87,1.69],[-67.54,2.04],[-67.26,1.72],[-67.07,1.13],[-66.88,1.25],[-66.33,0.72],[-65.55,0.79],[-65.35,1.1],[-64.61,1.33],[-64.2,1.49],[-64.08,1.92],[-63.37,2.2],[-63.42,2.41],[-64.27,2.5],[-64.41,3.13],[-64.37,3.8],[-64.82,4.06],[-64.63,4.15],[-63.89,4.02],[-63.09,3.77],[-62.8,4.01],[-62.09,4.16],[-60.97,4.54],[-60.6,4.92],[-60.73,5.2],[-60.21,5.24],[-59.98,5.01],[-60.11,4.57],[-59.77,4.42],[-59.54,3.96],[-59.82,3.61],[-59.97,2.76],[-59.72,2.25],[-59.65,1.79],[-59.03,1.32],[-58.54,1.27],[-58.43,1.46],[-58.11,1.51],[-57.66,1.68],[-57.34,1.95],[-56.78,1.86],[-56.54,1.9],[-56,1.82],[-55.91,2.02],[-56.07,2.22],[-55.97,2.51],[-55.57,2.42],[-55.1,2.52],[-54.52,2.31],[-54.09,2.11],[-53.78,2.38],[-53.55,2.33],[-53.42,2.05],[-52.94,2.12],[-52.56,2.5],[-52.25,3.24],[-51.66,4.16],[-51.32,4.2],[-51.07,3.65],[-50.51,1.9],[-49.97,1.74],[-49.95,1.05],[-50.7,0.22],[-50.39,-0.08],[-48.62,-0.24],[-48.58,-1.24],[-47.82,-0.58],[-46.57,-0.94],[-44.91,-1.55],[-44.42,-2.14],[-44.58,-2.69],[-43.42,-2.38],[-41.47,-2.91],[-39.98,-2.87],[-38.5,-3.7],[-37.22,-4.82],[-36.45,-5.11],[-35.6,-5.15],[-35.24,-5.46],[-34.9,-6.74],[-34.73,-7.34],[-35.13,-9],[-35.64,-9.65],[-37.05,-11.04],[-37.68,-12.17],[-38.42,-13.04],[-38.67,-13.06],[-38.95,-13.79],[-38.88,-15.67],[-39.16,-17.21],[-39.27,-17.87],[-39.58,-18.26],[-39.76,-19.6],[-40.77,-20.9],[-40.94,-21.94],[-41.75,-22.37],[-41.99,-22.97],[-43.07,-22.97],[-44.65,-23.35],[-45.35,-23.8],[-46.47,-24.09],[-47.65,-24.89],[-48.5,-25.88],[-48.64,-26.62],[-48.47,-27.18],[-48.66,-28.19],[-48.89,-28.67],[-49.59,-29.22],[-50.7,-30.98],[-51.58,-31.78],[-52.26,-32.25],[-52.71,-33.2],[-53.37,-33.77],[-53.65,-33.2],[-53.21,-32.73],[-53.79,-32.05],[-54.57,-31.49],[-55.6,-30.85],[-55.97,-30.88],[-56.98,-30.11],[-57.63,-30.22]]]}},{"type":"Feature","id":"CHL","properties":{"name":"\u0427\u0438\u043b\u0438","ilia":70.56},"geometry":{"type":"MultiPolygon","coordinates":[[[[-68.63,-52.64],[-68.63,-54.87],[-67.56,-54.87],[-66.96,-54.9],[-67.29,-55.3],[-68.15,-55.61],[-68.64,-55.58],[-69.23,-55.5],[-69.96,-55.2],[-71.01,-55.05],[-72.26,-54.5],[-73.29,-53.96],[-74.66,-52.84],[-73.84,-53.05],[-72.43,-53.72],[-71.11,-54.07],[-70.59,-53.62],[-70.27,-52.93],[-69.35,-52.52],[-68.63,-52.64]]],[[[-68.22,-21.49],[-67.83,-22.87],[-67.11,-22.74],[-66.99,-22.99],[-67.33,-24.03],[-68.42,-24.52],[-68.39,-26.19],[-68.59,-26.51],[-68.3,-26.9],[-69,-27.52],[-69.66,-28.46],[-70.01,-29.37],[-69.92,-30.34],[-70.54,-31.37],[-70.07,-33.09],[-69.81,-33.27],[-69.82,-34.19],[-70.39,-35.17],[-70.36,-36.01],[-71.12,-36.66],[-71.12,-37.58],[-70.81,-38.55],[-71.41,-38.92],[-71.68,-39.81],[-71.92,-40.83],[-71.75,-42.05],[-72.15,-42.25],[-71.92,-43.41],[-71.46,-43.79],[-71.79,-44.21],[-71.33,-44.41],[-71.22,-44.78],[-71.66,-44.97],[-71.55,-45.56],[-71.92,-46.88],[-72.45,-47.74],[-72.33,-48.24],[-72.65,-48.88],[-73.42,-49.32],[-73.33,-50.38],[-72.98,-50.74],[-72.31,-50.68],[-72.33,-51.43],[-71.91,-52.01],[-69.5,-52.14],[-68.57,-52.3],[-69.46,-52.29],[-69.94,-52.54],[-70.85,-52.9],[-71.01,-53.83],[-71.43,-53.86],[-72.56,-53.53],[-73.7,-52.84],[-73.7,-52.84],[-74.95,-52.26],[-75.26,-51.63],[-74.98,-51.04],[-75.48,-50.38],[-75.61,-48.67],[-75.18,-47.71],[-74.13,-46.94],[-75.64,-46.65],[-74.69,-45.76],[-74.35,-44.1],[-73.24,-44.45],[-72.72,-42.38],[-73.39,-42.12],[-73.7,-43.37],[-74.33,-43.22],[-74.02,-41.79],[-73.68,-39.94],[-73.22,-39.26],[-73.51,-38.28],[-73.59,-37.16],[-73.17,-37.12],[-72.55,-35.51],[-71.86,-33.91],[-71.44,-32.42],[-71.67,-30.92],[-71.37,-30.1],[-71.49,-28.86],[-70.91,-27.64],[-70.72,-25.71],[-70.4,-23.63],[-70.09,-21.39],[-70.16,-19.76],[-70.37,-18.35],[-69.86,-18.09],[-69.59,-17.58],[-69.1,-18.26],[-68.97,-18.98],[-68.44,-19.41],[-68.76,-20.37],[-68.22,-21.49]]]]}},{"type":"Feature","id":"COL","properties":{"name":"Колумбия","ilia":55.84},"geometry":{"type":"Polygon","coordinates":[[[-75.37,-0.15],[-75.8,0.08],[-76.29,0.42],[-76.58,0.26],[-77.42,0.4],[-77.67,0.83],[-77.86,0.81],[-78.86,1.38],[-78.99,1.69],[-78.62,1.77],[-78.66,2.27],[-78.43,2.63],[-77.93,2.7],[-77.51,3.33],[-77.13,3.85],[-77.5,4.09],[-77.31,4.67],[-77.53,5.58],[-77.32,5.85],[-77.48,6.69],[-77.88,7.22],[-77.75,7.71],[-77.43,7.64],[-77.24,7.94],[-77.47,8.52],[-77.35,8.67],[-76.84,8.64],[-76.09,9.34],[-75.67,9.44],[-75.66,9.77],[-75.48,10.62],[-74.91,11.08],[-74.28,11.1],[-74.2,11.31],[-73.41,11.23],[-72.63,11.73],[-72.24,11.96],[-71.75,12.44],[-71.4,12.38],[-71.14,12.11],[-71.33,11.78],[-71.97,11.61],[-72.23,11.11],[-72.61,10.82],[-72.91,10.45],[-73.03,9.74],[-73.3,9.15],[-72.79,9.09],[-72.66,8.63],[-72.44,8.41],[-72.36,8],[-72.48,7.63],[-72.44,7.42],[-72.2,7.34],[-71.96,6.99],[-70.67,7.09],[-70.09,6.96],[-69.39,6.1],[-68.99,6.21],[-68.27,6.15],[-67.7,6.27],[-67.34,6.1],[-67.52,5.56],[-67.74,5.22],[-67.82,4.5],[-67.62,3.84],[-67.34,3.54],[-67.3,3.32],[-67.81,2.82],[-67.45,2.6],[-67.18,2.25],[-66.88,1.25],[-67.07,1.13],[-67.26,1.72],[-67.54,2.04],[-67.87,1.69],[-69.82,1.71],[-69.8,1.09],[-69.22,0.99],[-69.25,0.6],[-69.45,0.71],[-70.02,0.54],[-70.02,-0.19],[-69.58,-0.55],[-69.42,-1.12],[-69.44,-1.56],[-69.89,-4.3],[-70.39,-3.77],[-70.69,-3.74],[-70.05,-2.73],[-70.81,-2.26],[-71.41,-2.34],[-71.77,-2.17],[-72.33,-2.43],[-73.07,-2.31],[-73.66,-1.26],[-74.12,-1],[-74.44,-0.53],[-75.11,-0.06],[-75.37,-0.15]]]}},{"type":"Feature","id":"CRI","properties":{"name":"Коста-Рика","ilia":53.83},"geometry":{"type":"Polygon","coordinates":[[[-82.97,8.23],[-83.51,8.45],[-83.71,8.66],[-83.6,8.83],[-83.63,9.05],[-83.91,9.29],[-84.3,9.49],[-84.65,9.62],[-84.71,9.91],[-84.98,10.09],[-84.91,9.8],[-85.11,9.56],[-85.34,9.83],[-85.66,9.93],[-85.8,10.13],[-85.79,10.44],[-85.66,10.75],[-85.94,10.9],[-85.71,11.09],[-85.56,11.22],[-84.9,10.95],[-84.67,11.08],[-84.36,11],[-84.19,10.79],[-83.9,10.73],[-83.66,10.94],[-83.4,10.4],[-83.02,9.99],[-82.55,9.57],[-82.93,9.48],[-82.93,9.07],[-82.72,8.93],[-82.87,8.81],[-82.83,8.63],[-82.91,8.42],[-82.97,8.23]]]}},{"type":"Feature","id":"CUB","properties":{"name":"Куба","ilia":28.69},"geometry":{"type":"Polygon","coordinates":[[[-82.27,23.19],[-81.4,23.12],[-80.62,23.11],[-79.68,22.77],[-79.28,22.4],[-78.35,22.51],[-77.99,22.28],[-77.15,21.66],[-76.52,21.21],[-76.19,21.22],[-75.6,21.02],[-75.67,20.74],[-74.93,20.69],[-74.18,20.28],[-74.3,20.05],[-74.96,19.92],[-75.63,19.87],[-76.32,19.95],[-77.76,19.86],[-77.09,20.41],[-77.49,20.67],[-78.14,20.74],[-78.48,21.03],[-78.72,21.6],[-79.28,21.56],[-80.22,21.83],[-80.52,22.04],[-81.82,22.19],[-82.17,22.39],[-81.8,22.64],[-82.78,22.69],[-83.49,22.17],[-83.91,22.15],[-84.05,21.91],[-84.55,21.8],[-84.97,21.9],[-84.45,22.2],[-84.23,22.57],[-83.78,22.79],[-83.27,22.98],[-82.51,23.08],[-82.27,23.19]]]}},{"type":"Feature","id":"DOM","properties":{"name":"Доминикана","ilia":44.96},"geometry":{"type":"Polygon","coordinates":[[[-71.71,19.71],[-71.59,19.88],[-70.81,19.88],[-70.21,19.62],[-69.95,19.65],[-69.77,19.29],[-69.22,19.31],[-69.25,19.02],[-68.81,18.98],[-68.32,18.61],[-68.69,18.21],[-69.16,18.42],[-69.62,18.38],[-69.95,18.43],[-70.13,18.25],[-70.52,18.18],[-70.67,18.43],[-71,18.28],[-71.4,17.6],[-71.66,17.76],[-71.71,18.04],[-71.69,18.32],[-71.95,18.62],[-71.7,18.79],[-71.62,19.17],[-71.71,19.71]]]}},{"type":"Feature","id":"ECU","properties":{"name":"Эквадор","ilia":40.68},"geometry":{"type":"Polygon","coordinates":[[[-80.3,-3.4],[-79.77,-2.66],[-79.99,-2.22],[-80.37,-2.69],[-80.97,-2.25],[-80.76,-1.97],[-80.93,-1.06],[-80.58,-0.91],[-80.4,-0.28],[-80.02,0.36],[-80.09,0.77],[-79.54,0.98],[-78.86,1.38],[-77.86,0.81],[-77.67,0.83],[-77.42,0.4],[-76.58,0.26],[-76.29,0.42],[-75.8,0.08],[-75.37,-0.15],[-75.23,-0.91],[-75.54,-1.56],[-76.64,-2.61],[-77.84,-3],[-78.45,-3.87],[-78.64,-4.55],[-79.21,-4.96],[-79.62,-4.45],[-80.03,-4.35],[-80.44,-4.43],[-80.47,-4.06],[-80.18,-3.82],[-80.3,-3.4]]]}},{"type":"Feature","id":"GTM","properties":{"name":"Гватемала","ilia":28.44},"geometry":{"type":"Polygon","coordinates":[[[-90.1,13.74],[-90.61,13.91],[-91.23,13.93],[-91.69,14.13],[-92.23,14.54],[-92.2,14.83],[-92.09,15.06],[-92.23,15.25],[-91.75,16.07],[-90.46,16.07],[-90.44,16.41],[-90.6,16.47],[-90.71,16.69],[-91.08,16.92],[-91.45,17.25],[-91,17.25],[-91,17.82],[-90.07,17.82],[-89.14,17.81],[-89.15,17.02],[-89.23,15.89],[-88.93,15.89],[-88.6,15.71],[-88.52,15.86],[-88.23,15.73],[-88.68,15.35],[-89.15,15.07],[-89.23,14.87],[-89.15,14.68],[-89.35,14.42],[-89.59,14.36],[-89.53,14.24],[-89.72,14.13],[-90.06,13.88],[-90.1,13.74]]]}},{"type":"Feature","id":"HND","properties":{"name":"Гондурас","ilia":27.39},"geometry":{"type":"Polygon","coordinates":[[[-87.32,12.98],[-87.49,13.3],[-87.79,13.38],[-87.72,13.79],[-87.86,13.89],[-88.07,13.96],[-88.5,13.85],[-88.54,13.98],[-88.84,14.14],[-89.06,14.34],[-89.35,14.42],[-89.15,14.68],[-89.23,14.87],[-89.15,15.07],[-88.68,15.35],[-88.23,15.73],[-88.12,15.69],[-87.9,15.86],[-87.62,15.88],[-87.52,15.8],[-87.37,15.85],[-86.9,15.76],[-86.44,15.78],[-86.12,15.89],[-86,16.01],[-85.68,15.95],[-85.44,15.89],[-85.18,15.91],[-84.98,16],[-84.53,15.86],[-84.37,15.84],[-84.06,15.65],[-83.77,15.42],[-83.41,15.27],[-83.15,15],[-83.49,15.02],[-83.63,14.88],[-83.98,14.75],[-84.23,14.75],[-84.45,14.62],[-84.65,14.67],[-84.82,14.82],[-84.92,14.79],[-85.05,14.55],[-85.15,14.56],[-85.17,14.35],[-85.51,14.08],[-85.7,13.96],[-85.8,13.84],[-86.1,14.04],[-86.31,13.77],[-86.52,13.78],[-86.76,13.75],[-86.73,13.26],[-86.88,13.25],[-87.01,13.03],[-87.32,12.98]]]}},{"type":"Feature","id":"JAM","properties":{"name":"Ямайка","ilia":31.61},"geometry":{"type":"Polygon","coordinates":[[[-77.57,18.49],[-76.9,18.4],[-76.37,18.16],[-76.2,17.89],[-76.9,17.87],[-77.21,17.7],[-77.77,17.86],[-78.34,18.23],[-78.22,18.45],[-77.8,18.52],[-77.57,18.49]]]}},{"type":"Feature","id":"MEX","properties":{"name":"Мексика","ilia":47.03},"geometry":{"type":"Polygon","coordinates":[[[-97.14,25.87],[-97.53,24.99],[-97.7,24.27],[-97.78,22.93],[-97.87,22.44],[-97.7,21.9],[-97.39,21.41],[-97.19,20.64],[-96.53,19.89],[-96.29,19.32],[-95.9,18.83],[-94.84,18.56],[-94.43,18.14],[-93.55,18.42],[-92.79,18.52],[-92.04,18.7],[-91.41,18.88],[-90.77,19.28],[-90.53,19.87],[-90.45,20.71],[-90.28,21],[-89.6,21.26],[-88.54,21.49],[-87.66,21.46],[-87.05,21.54],[-86.81,21.33],[-86.85,20.85],[-87.38,20.26],[-87.62,19.65],[-87.44,19.47],[-87.59,19.04],[-87.84,18.26],[-88.09,18.52],[-88.3,18.5],[-88.49,18.49],[-88.85,17.88],[-89.03,18],[-89.15,17.96],[-89.14,17.81],[-90.07,17.82],[-91,17.82],[-91,17.25],[-91.45,17.25],[-91.08,16.92],[-90.71,16.69],[-90.6,16.47],[-90.44,16.41],[-90.46,16.07],[-91.75,16.07],[-92.23,15.25],[-92.09,15.06],[-92.2,14.83],[-92.23,14.54],[-93.36,15.62],[-93.88,15.94],[-94.69,16.2],[-95.25,16.13],[-96.05,15.75],[-96.56,15.65],[-97.26,15.92],[-98.01,16.11],[-98.95,16.57],[-99.7,16.71],[-100.83,17.17],[-101.67,17.65],[-101.92,17.92],[-102.48,17.98],[-103.5,18.29],[-103.92,18.75],[-104.99,19.32],[-105.49,19.95],[-105.73,20.43],[-105.4,20.53],[-105.5,20.82],[-105.27,21.08],[-105.27,21.42],[-105.6,21.87],[-105.69,22.27],[-106.03,22.77],[-106.91,23.77],[-107.92,24.55],[-108.4,25.17],[-109.26,25.58],[-109.44,25.82],[-109.29,26.44],[-109.8,26.68],[-110.39,27.16],[-110.64,27.86],[-111.18,27.94],[-111.76,28.47],[-112.23,28.95],[-112.27,29.27],[-112.81,30.02],[-113.16,30.79],[-113.15,31.17],[-113.87,31.57],[-114.21,31.52],[-114.78,31.8],[-114.94,31.39],[-114.77,30.91],[-114.67,30.16],[-114.33,29.75],[-113.59,29.06],[-113.42,28.83],[-113.27,28.75],[-113.14,28.41],[-112.96,28.43],[-112.76,27.78],[-112.46,27.53],[-112.24,27.17],[-111.62,26.66],[-111.28,25.73],[-110.99,25.29],[-110.71,24.83],[-110.66,24.3],[-110.17,24.27],[-109.77,23.81],[-109.41,23.36],[-109.43,23.19],[-109.85,22.82],[-110.03,22.82],[-110.3,23.43],[-110.95,24],[-111.67,24.48],[-112.18,24.74],[-112.15,25.47],[-112.3,26.01],[-112.78,26.32],[-113.46,26.77],[-113.6,26.64],[-113.85,26.9],[-114.47,27.14],[-115.06,27.72],[-114.98,27.8],[-114.57,27.74],[-114.2,28.12],[-114.16,28.57],[-114.93,29.28],[-115.52,29.56],[-115.89,30.18],[-116.26,30.84],[-116.72,31.64],[-117.13,32.54],[-115.99,32.61],[-114.72,32.72],[-114.81,32.53],[-113.3,32.04],[-111.02,31.33],[-109.03,31.34],[-108.24,31.34],[-108.24,31.75],[-106.51,31.75],[-106.14,31.4],[-105.63,31.08],[-105.04,30.64],[-104.71,30.12],[-104.46,29.57],[-103.94,29.27],[-103.11,28.97],[-102.48,29.76],[-101.66,29.78],[-100.96,29.38],[-100.46,28.7],[-100.11,28.11],[-99.52,27.54],[-99.3,26.84],[-99.02,26.37],[-98.24,26.06],[-97.53,25.84],[-97.14,25.87]]]}},{"type":"Feature","id":"PAN","properties":{"name":"Панама","ilia":38.95},"geometry":{"type":"Polygon","coordinates":[[[-77.88,7.22],[-78.21,7.51],[-78.43,8.05],[-78.18,8.32],[-78.44,8.39],[-78.62,8.72],[-79.12,9],[-79.56,8.93],[-79.76,8.58],[-80.16,8.33],[-80.38,8.3],[-80.48,8.09],[-80,7.55],[-80.28,7.42],[-80.42,7.27],[-80.89,7.22],[-81.06,7.82],[-81.19,7.65],[-81.52,7.71],[-81.72,8.11],[-82.13,8.18],[-82.39,8.29],[-82.82,8.29],[-82.85,8.07],[-82.97,8.23],[-82.91,8.42],[-82.83,8.63],[-82.87,8.81],[-82.72,8.93],[-82.93,9.07],[-82.93,9.48],[-82.55,9.57],[-82.19,9.21],[-82.21,9],[-81.81,8.95],[-81.71,9.03],[-81.44,8.79],[-80.95,8.86],[-80.52,9.11],[-79.91,9.31],[-79.57,9.61],[-79.02,9.55],[-79.06,9.45],[-78.5,9.42],[-78.06,9.25],[-77.73,8.95],[-77.35,8.67],[-77.47,8.52],[-77.24,7.94],[-77.43,7.64],[-77.75,7.71],[-77.88,7.22]]]}},{"type":"Feature","id":"PER","properties":{"name":"Перу","ilia":51.93},"geometry":{"type":"Polygon","coordinates":[[[-69.59,-17.58],[-69.86,-18.09],[-70.37,-18.35],[-71.38,-17.77],[-71.46,-17.36],[-73.44,-16.36],[-75.24,-15.27],[-76.01,-14.65],[-76.42,-13.82],[-76.26,-13.54],[-77.11,-12.22],[-78.09,-10.38],[-79.04,-8.39],[-79.45,-7.93],[-79.76,-7.19],[-80.54,-6.54],[-81.25,-6.14],[-80.93,-5.69],[-81.41,-4.74],[-81.1,-4.04],[-80.3,-3.4],[-80.18,-3.82],[-80.47,-4.06],[-80.44,-4.43],[-80.03,-4.35],[-79.62,-4.45],[-79.21,-4.96],[-78.64,-4.55],[-78.45,-3.87],[-77.84,-3],[-76.64,-2.61],[-75.54,-1.56],[-75.23,-0.91],[-75.37,-0.15],[-75.11,-0.06],[-74.44,-0.53],[-74.12,-1],[-73.66,-1.26],[-73.07,-2.31],[-72.33,-2.43],[-71.77,-2.17],[-71.41,-2.34],[-70.81,-2.26],[-70.05,-2.73],[-70.69,-3.74],[-70.39,-3.77],[-69.89,-4.3],[-70.79,-4.25],[-70.93,-4.4],[-71.75,-4.59],[-72.89,-5.27],[-72.96,-5.74],[-73.22,-6.09],[-73.12,-6.63],[-73.72,-6.92],[-73.72,-7.34],[-73.99,-7.52],[-73.57,-8.42],[-73.02,-9.03],[-73.23,-9.46],[-72.56,-9.52],[-72.18,-10.05],[-71.3,-10.08],[-70.48,-9.49],[-70.55,-11.01],[-70.09,-11.12],[-69.53,-10.95],[-68.67,-12.56],[-68.88,-12.9],[-68.93,-13.6],[-68.95,-14.45],[-69.34,-14.95],[-69.16,-15.32],[-69.39,-15.66],[-68.96,-16.5],[-69.59,-17.58]]]}},{"type":"Feature","id":"PRY","properties":{"name":"Парагвай","ilia":31.2},"geometry":{"type":"Polygon","coordinates":[[[-62.69,-22.25],[-62.29,-21.05],[-62.27,-20.51],[-61.79,-19.63],[-60.04,-19.34],[-59.12,-19.36],[-58.18,-19.87],[-58.17,-20.18],[-57.87,-20.73],[-57.94,-22.09],[-56.88,-22.28],[-56.47,-22.09],[-55.8,-22.36],[-55.61,-22.66],[-55.52,-23.57],[-55.4,-23.96],[-55.03,-24],[-54.65,-23.84],[-54.29,-24.02],[-54.29,-24.57],[-54.43,-25.16],[-54.63,-25.74],[-54.79,-26.62],[-55.7,-27.39],[-56.49,-27.55],[-57.61,-27.4],[-58.62,-27.12],[-57.63,-25.6],[-57.78,-25.16],[-58.81,-24.77],[-60.03,-24.03],[-60.85,-23.88],[-62.69,-22.25]]]}},{"type":"Feature","id":"SLV","properties":{"name":"Сальвадор","ilia":32.04},"geometry":{"type":"Polygon","coordinates":[[[-87.79,13.38],[-87.9,13.15],[-88.48,13.16],[-88.84,13.26],[-89.26,13.46],[-89.81,13.52],[-90.1,13.74],[-90.06,13.88],[-89.72,14.13],[-89.53,14.24],[-89.59,14.36],[-89.35,14.42],[-89.06,14.34],[-88.84,14.14],[-88.54,13.98],[-88.5,13.85],[-88.07,13.96],[-87.86,13.89],[-87.72,13.79],[-87.79,13.38]]]}},{"type":"Feature","id":"URY","properties":{"name":"Уругвай","ilia":62.32},"geometry":{"type":"Polygon","coordinates":[[[-57.63,-30.22],[-56.98,-30.11],[-55.97,-30.88],[-55.6,-30.85],[-54.57,-31.49],[-53.79,-32.05],[-53.21,-32.73],[-53.65,-33.2],[-53.37,-33.77],[-53.81,-34.4],[-54.94,-34.95],[-55.67,-34.75],[-56.22,-34.86],[-57.14,-34.43],[-57.82,-34.46],[-58.43,-33.91],[-58.35,-33.26],[-58.13,-33.04],[-58.14,-32.04],[-57.87,-31.02],[-57.63,-30.22]]]}},{"type":"Feature","id":"VEN","properties":{"name":"Венесуэла","ilia":24.65},"geometry":{"type":"Polygon","coordinates":[[[-71.33,11.78],[-71.36,11.54],[-71.95,11.42],[-71.62,10.97],[-71.63,10.45],[-72.07,9.87],[-71.7,9.07],[-71.26,9.14],[-71.04,9.86],[-71.35,10.21],[-71.4,10.97],[-70.16,11.38],[-70.29,11.85],[-69.94,12.16],[-69.58,11.46],[-68.88,11.44],[-68.23,10.89],[-68.19,10.55],[-67.3,10.55],[-66.23,10.65],[-65.66,10.2],[-64.89,10.08],[-64.33,10.39],[-64.32,10.64],[-63.08,10.7],[-61.88,10.72],[-62.73,10.42],[-62.39,9.95],[-61.59,9.87],[-60.83,9.38],[-60.67,8.58],[-60.15,8.6],[-59.76,8.37],[-60.55,7.78],[-60.64,7.42],[-60.3,7.04],[-60.54,6.86],[-61.16,6.7],[-61.14,6.23],[-61.41,5.96],[-60.73,5.2],[-60.6,4.92],[-60.97,4.54],[-62.09,4.16],[-62.8,4.01],[-63.09,3.77],[-63.89,4.02],[-64.63,4.15],[-64.82,4.06],[-64.37,3.8],[-64.41,3.13],[-64.27,2.5],[-63.42,2.41],[-63.37,2.2],[-64.08,1.92],[-64.2,1.49],[-64.61,1.33],[-65.35,1.1],[-65.55,0.79],[-66.33,0.72],[-66.88,1.25],[-67.18,2.25],[-67.45,2.6],[-67.81,2.82],[-67.3,3.32],[-67.34,3.54],[-67.62,3.84],[-67.82,4.5],[-67.74,5.22],[-67.52,5.56],[-67.34,6.1],[-67.7,6.27],[-68.27,6.15],[-68.99,6.21],[-69.39,6.1],[-70.09,6.96],[-70.67,7.09],[-71.96,6.99],[-72.2,7.34],[-72.44,7.42],[-72.48,7.63],[-72.36,8],[-72.44,8.41],[-72.66,8.63],[-72.79,9.09],[-73.3,9.15],[-73.03,9.74],[-72.91,10.45],[-72.61,10.82],[-72.23,11.11],[-71.97,11.61],[-71.33,11.78]]]}}]};
+
+const C = {
+  paper:'#FFFFFF', muted:'rgba(255,255,255,.56)', muted2:'rgba(255,255,255,.40)',
+  line:'rgba(255,255,255,.16)', line2:'rgba(255,255,255,.30)', grid:'rgba(255,255,255,.09)',
+  green:'#11B05E', greenLt:'#4FD68C', greenDk:'#0E6E3E', yellow:'#FFD400', blue:'#4B7BEC', alert:'#E5484D'
+};
+
+function svgIn(id, W, H){
+  const el = document.getElementById(id);
+  if(!el) return null;
+  return d3.select(el).append('svg')
+    .attr('viewBox', '0 0 ' + W + ' ' + H)
+    .attr('preserveAspectRatio','xMidYMid meet')
+    .attr('width','100%');
+}
+const fmt = (n) => String(n).replace('.', ',');
+
+/* ============ 01 · PBIA — стэк-бар (100%) ============ */
+function drawPBIA(){
+  const W = 920, H = 300;
+  const svg = svgIn('c_pbia', W, H); if(!svg) return;
+  const eixos = [
+    { k:'Ось 4', name:'Бизнес и промышленность', v:13.79, c:C.green },
+    { k:'Ось 1', name:'Инфраструктура и разработка', v:5.79, c:C.blue },
+    { k:'Ось 3', name:'Госуслуги (оценка)', v:1.76, c:C.greenLt },
+    { k:'Ось 2', name:'Кадры и обучение', v:1.15, c:C.yellow },
+    { k:'Ось 5', name:'Регулирование и управление', v:0.10325, c:C.alert }
+  ];
+  const total = d3.sum(eixos, d=>d.v);
+  const x0 = 60, x1 = W-60, barW = x1-x0, barY = 34, barH = 60;
+  let acc = 0;
+  const segs = eixos.map(d=>{ const s={...d, x:x0+barW*acc/total, w:barW*d.v/total, pct:d.v/total*100}; acc+=d.v; return s; });
+
+  svg.selectAll('rect.seg').data(segs).join('rect').attr('class','seg')
+    .attr('x',d=>d.x).attr('y',barY).attr('width',d=>Math.max(d.w,1.5)).attr('height',barH).attr('fill',d=>d.c);
+  svg.selectAll('line.div').data(segs.slice(1)).join('line')
+    .attr('x1',d=>d.x).attr('x2',d=>d.x).attr('y1',barY).attr('y2',barY+barH).attr('stroke',C.paper).attr('stroke-width',1.5);
+
+  // подписи % внутри двух крупных сегментов
+  segs.filter(d=>d.pct>10).forEach(d=>{
+    svg.append('text').attr('x',d.x+d.w/2).attr('y',barY+26).attr('text-anchor','middle')
+      .attr('class','lbl').attr('fill',d.c===C.yellow?'#1c1c10':'#04130b').attr('font-weight','700').attr('font-size','22px').text(Math.round(d.pct)+'%');
+    svg.append('text').attr('x',d.x+d.w/2).attr('y',barY+46).attr('text-anchor','middle')
+      .attr('class','serieslab').attr('fill',d.c===C.yellow?'#1c1c10':'#04130b').text(d.k);
+  });
+
+  // выноска на крошечную ось 5
+  const e5 = segs[4];
+  svg.append('line').attr('x1',e5.x+e5.w/2).attr('y1',barY+barH).attr('x2',e5.x+e5.w/2).attr('y2',barY+barH+22).attr('stroke',C.alert).attr('stroke-width',1);
+  svg.append('line').attr('x1',e5.x+e5.w/2).attr('y1',barY+barH+22).attr('x2',x1).attr('y2',barY+barH+22).attr('stroke',C.alert).attr('stroke-width',1);
+  svg.append('text').attr('x',x1).attr('y',barY+barH+38).attr('text-anchor','end').attr('class','val').attr('fill',C.alert)
+    .text('Ось 5 — управление: R$103 млн, всего 0,4%');
+
+  // легенда снизу
+  const ly = 150;
+  const leg = svg.selectAll('g.lg').data(segs).join('g').attr('class','lg')
+    .attr('transform',(d,i)=>'translate('+(x0)+','+(ly+i*26)+')');
+  leg.append('rect').attr('width',13).attr('height',13).attr('y',-11).attr('fill',d=>d.c);
+  leg.append('text').attr('x',22).attr('class','lbl').attr('font-size','13px').text(d=>d.k+' · '+d.name);
+  leg.append('text').attr('x',x1-x0).attr('text-anchor','end').attr('class','val')
+    .text(d=>'R$'+fmt(d.v.toFixed(2))+' млрд'+(d.v<1?'*':'')+'  ·  '+fmt(+d.pct.toFixed(1))+'%');
+}
+
+/* ============ 01 · Вафля — доля вычислений ============ */
+function drawWaffle(){
+  const W = 460, H = 300;
+  const svg = svgIn('c_waffle', W, H); if(!svg) return;
+  svg.append('text').attr('x',8).attr('y',46).attr('class','lbl').attr('fill',C.green).attr('font-family','Archivo, sans-serif').attr('font-weight','900').attr('font-size','52px').text('>90%');
+  svg.append('text').attr('x',10).attr('y',70).attr('class','lblm').attr('font-size','13px').text('мощностей HPC региона — Бразилия');
+  const n=10, sq=16, gap=4, pitch=sq+gap, gw=n*sq+(n-1)*gap, gx=(W-gw)/2, gy=92;
+  const filled=90;
+  const cells=d3.range(100).map(i=>({ r:Math.floor(i/n), c:i%n, on:i<filled }));
+  svg.selectAll('rect.wf').data(cells).join('rect').attr('class','wf')
+    .attr('x',d=>gx+d.c*pitch).attr('y',d=>gy+d.r*pitch).attr('width',sq).attr('height',sq)
+    .attr('fill',d=>d.on?C.green:'rgba(255,255,255,.07)');
+  svg.append('text').attr('x',W/2).attr('y',gy+n*pitch+2).attr('text-anchor','middle').attr('class','ax')
+    .text('каждый квадрат = 1% мощностей региона');
+}
+
+/* ============ 01 · Буллет — исполнение PBIA ============ */
+function drawBullet(){
+  const W=460, H=180;
+  const svg=svgIn('c_bullet',W,H); if(!svg) return;
+  const x0=8, x1=W-8, w=x1-x0;
+  // легенда
+  const lg=[['выполнено',C.green],['в работе',C.greenLt]];
+  const leg=svg.selectAll('g.l').data(lg).join('g').attr('class','l').attr('transform',(d,i)=>'translate('+(x0+i*120)+',12)');
+  leg.append('rect').attr('width',12).attr('height',12).attr('y',-10).attr('fill',d=>d[1]);
+  leg.append('text').attr('x',18).attr('class','ax').text(d=>d[0]);
+  // бар 1: действия (54)
+  let y=44;
+  svg.append('text').attr('x',x0).attr('y',y-8).attr('class','lbl').attr('font-size','13px').text('Действия PBIA');
+  svg.append('text').attr('x',x1).attr('y',y-8).attr('text-anchor','end').attr('class','val').text('25 из 54');
+  svg.append('rect').attr('x',x0).attr('y',y).attr('width',w).attr('height',22).attr('fill','rgba(255,255,255,.07)');
+  svg.append('rect').attr('x',x0).attr('y',y).attr('width',w*25/54).attr('height',22).attr('fill',C.green);
+  svg.append('rect').attr('x',x0+w*25/54).attr('y',y).attr('width',w*16/54).attr('height',22).attr('fill',C.greenLt);
+  // бар 2: госслужащие (цель 20%)
+  y=110;
+  svg.append('text').attr('x',x0).attr('y',y-8).attr('class','lbl').attr('font-size','13px').text('Обучение госслужащих');
+  svg.append('text').attr('x',x1).attr('y',y-8).attr('text-anchor','end').attr('class','val').text('115 000 · цель 20%');
+  svg.append('rect').attr('x',x0).attr('y',y).attr('width',w).attr('height',22).attr('fill','rgba(255,255,255,.07)');
+  svg.append('rect').attr('x',x0).attr('y',y).attr('width',w*0.20).attr('height',22).attr('fill',C.green);
+  svg.append('line').attr('x1',x0+w*0.20).attr('x2',x0+w*0.20).attr('y1',y-4).attr('y2',y+26).attr('stroke',C.yellow).attr('stroke-width',2);
+}
+
+/* ============ РЕГИОН · Рейтинг (бар-чарт, 19) ============ */
+const ILIA = [
+  {n:'Чили',c:'CHL',v:70.56},{n:'Бразилия',c:'BRA',v:67.39},{n:'Уругвай',c:'URY',v:62.32},
+  {n:'Колумбия',c:'COL',v:55.84},{n:'Коста-Рика',c:'CRI',v:53.83},{n:'Аргентина',c:'ARG',v:52.98},
+  {n:'Перу',c:'PER',v:51.93},{n:'Мексика',c:'MEX',v:47.03},{n:'Доминикана',c:'DOM',v:44.96},
+  {n:'Эквадор',c:'ECU',v:40.68},{n:'Панама',c:'PAN',v:38.95},{n:'Сальвадор',c:'SLV',v:32.04},
+  {n:'Ямайка',c:'JAM',v:31.61},{n:'Парагвай',c:'PRY',v:31.20},{n:'Куба',c:'CUB',v:28.69},
+  {n:'Гватемала',c:'GTM',v:28.44},{n:'Гондурас',c:'HND',v:27.39},{n:'Боливия',c:'BOL',v:26.06},
+  {n:'Венесуэла',c:'VEN',v:24.65}
+];
+const REG_AVG = 42.98;
+function drawRank(){
+  const W=460, H=378;
+  const svg=svgIn('c_rank',W,H); if(!svg) return;
+  const x0=104, x1=W-30, plotW=x1-x0, top=22, rowH=15, gap=2.7, pitch=rowH+gap;
+  const xS=d3.scaleLinear().domain([0,75]).range([x0,x1]);
+  // средняя
+  svg.append('line').attr('class','refline').attr('x1',xS(REG_AVG)).attr('x2',xS(REG_AVG)).attr('y1',top-8).attr('y2',top+ILIA.length*pitch);
+  svg.append('text').attr('x',xS(REG_AVG)).attr('y',top-12).attr('text-anchor','middle').attr('class','ax').text('сред. 42,98');
+  const g=svg.selectAll('g.r').data(ILIA).join('g').attr('class','r').attr('transform',(d,i)=>'translate(0,'+(top+i*pitch)+')');
+  g.append('text').attr('x',x0-8).attr('y',rowH-3).attr('text-anchor','end').attr('class','lbl').attr('font-size','11px')
+    .attr('fill',d=>d.c==='BRA'?C.green:C.muted).text(d=>d.n);
+  g.append('rect').attr('x',x0).attr('y',0).attr('width',d=>xS(d.v)-x0).attr('height',rowH)
+    .attr('fill',d=>d.c==='BRA'?C.green:(d.c==='CHL'?C.greenDk:'rgba(255,255,255,.20)'));
+  g.append('text').attr('x',d=>xS(d.v)+5).attr('y',rowH-3).attr('class','val').attr('font-size','10.5px')
+    .attr('fill',d=>d.c==='BRA'?C.green:C.muted).text(d=>fmt(d.v.toFixed(2)));
+}
+
+/* ============ РЕГИОН · Картограмма ============ */
+function drawMap(){
+  const W=460, H=520;
+  const svg=svgIn('c_map',W,H); if(!svg) return;
+  const proj=d3.geoMercator().fitExtent([[10,10],[W-10,H-30]], LATAM);
+  const path=d3.geoPath(proj);
+  const color=d3.scaleLinear().domain([24,48,72]).range(['#0f3a22',C.green,C.yellow]).interpolate(d3.interpolateRgb);
+  svg.selectAll('path').data(LATAM.features).join('path')
+    .attr('d',path)
+    .attr('fill',d=>color(d.properties.ilia))
+    .attr('stroke',d=>d.id==='BRA'?C.paper:C.line)
+    .attr('stroke-width',d=>d.id==='BRA'?1.6:0.5)
+    .append('title').text(d=>d.properties.name+': '+fmt(d.properties.ilia));
+  // подпись Бразилии
+  const br=LATAM.features.find(f=>f.id==='BRA'); const cb=path.centroid(br);
+  svg.append('text').attr('x',cb[0]).attr('y',cb[1]).attr('text-anchor','middle').attr('class','lbl').attr('font-weight','600').attr('font-size','13px').attr('fill','#04130b').text('Бразилия');
+  svg.append('text').attr('x',cb[0]).attr('y',cb[1]+15).attr('text-anchor','middle').attr('class','val').attr('fill','#04130b').text('67,39 · #2');
+  // легенда-градиент
+  const lw=150, lx=W-lw-12, ly=H-18;
+  const defs=svg.append('defs'); const grd=defs.append('linearGradient').attr('id','mg').attr('x1','0').attr('x2','1');
+  [[0,'#0f3a22'],[0.5,C.green],[1,C.yellow]].forEach(s=>grd.append('stop').attr('offset',s[0]).attr('stop-color',s[1]));
+  svg.append('rect').attr('x',lx).attr('y',ly).attr('width',lw).attr('height',8).attr('fill','url(#mg)');
+  svg.append('text').attr('x',lx).attr('y',ly-6).attr('class','ax').text('ILIA 2025');
+  svg.append('text').attr('x',lx).attr('y',ly+20).attr('class','ax').text('24');
+  svg.append('text').attr('x',lx+lw).attr('y',ly+20).attr('text-anchor','end').attr('class','ax').text('72');
+}
+
+/* ============ РЕГИОН · Скаттер (готовность vs использование) ============ */
+const USE = {CHL:4.3,BRA:3.2,URY:3.9,COL:4.4,CRI:4.7,ARG:2.7,PER:6.0,MEX:2.1,DOM:2.0,ECU:4.2,PAN:4.3,SLV:2.6,JAM:2.9,PRY:2.1,GTM:1.7,HND:1.3,BOL:2.1,VEN:1.1};
+function drawScatter(){
+  const W=920, H=440;
+  const svg=svgIn('c_scatter',W,H); if(!svg) return;
+  const m={t:24,r:30,b:54,l:60};
+  const xS=d3.scaleLinear().domain([20,75]).range([m.l,W-m.r]);
+  const yS=d3.scaleLinear().domain([0,6.5]).range([H-m.b,m.t]);
+  // сетка
+  xS.ticks(6).forEach(t=>{ svg.append('line').attr('class','gridline').attr('x1',xS(t)).attr('x2',xS(t)).attr('y1',m.t).attr('y2',H-m.b);
+    svg.append('text').attr('x',xS(t)).attr('y',H-m.b+18).attr('text-anchor','middle').attr('class','ax').text(t); });
+  yS.ticks(6).forEach(t=>{ svg.append('line').attr('class','gridline').attr('x1',m.l).attr('x2',W-m.r).attr('y1',yS(t)).attr('y2',yS(t));
+    svg.append('text').attr('x',m.l-8).attr('y',yS(t)+3).attr('text-anchor','end').attr('class','ax').text(fmt(t)); });
+  // средние
+  svg.append('line').attr('class','refline').attr('x1',xS(REG_AVG)).attr('x2',xS(REG_AVG)).attr('y1',m.t).attr('y2',H-m.b);
+  svg.append('line').attr('class','refline').attr('x1',m.l).attr('x2',W-m.r).attr('y1',yS(3.1)).attr('y2',yS(3.1));
+  svg.append('text').attr('x',xS(REG_AVG)+5).attr('y',m.t+12).attr('class','ax').text('средняя готовность');
+  svg.append('text').attr('x',W-m.r).attr('y',yS(3.1)-6).attr('text-anchor','end').attr('class','ax').text('среднее использование 3,1');
+  // оси-подписи
+  svg.append('text').attr('x',(m.l+W-m.r)/2).attr('y',H-12).attr('text-anchor','middle').attr('class','axlab').text('Готовность к ИИ (индекс ILIA 2025)');
+  svg.append('text').attr('transform','translate(16,'+((m.t+H-m.b)/2)+') rotate(-90)').attr('text-anchor','middle').attr('class','axlab').text('Визиты к ИИ на пользователя');
+  // точки (квадраты)
+  const data=ILIA.filter(d=>USE[d.c]!==undefined);
+  const label={BRA:1,PER:1,CHL:1};
+  data.forEach(d=>{
+    const x=xS(d.v), y=yS(USE[d.c]), big=d.c==='BRA';
+    const s=big?12:8;
+    svg.append('rect').attr('x',x-s/2).attr('y',y-s/2).attr('width',s).attr('height',s)
+      .attr('fill',big?C.green:(d.c==='PER'?C.yellow:'rgba(255,255,255,.35)'))
+      .attr('stroke',big?C.paper:'none').attr('stroke-width',big?1.4:0);
+    if(label[d.c]) svg.append('text').attr('x',x+s/2+6).attr('y',y+4).attr('class','val').attr('font-size','12px')
+      .attr('fill',big?C.green:(d.c==='PER'?C.yellow:C.muted)).text(d.n);
+  });
+}
+
+/* ============ РЕГИОН · Групп. столбцы (3 измерения) ============ */
+function drawGroups(){
+  const W=460, H=320;
+  const svg=svgIn('c_groups',W,H); if(!svg) return;
+  const dims=[
+    {k:'Факторы\nготовности', br:58.58, reg:43.81},
+    {k:'Иссл. и\nвнедрение', br:59.26, reg:38.75},
+    {k:'Управление', br:92.88, reg:47.57}
+  ];
+  const m={t:24,r:14,b:46,l:40};
+  const yS=d3.scaleLinear().domain([0,100]).range([H-m.b,m.t]);
+  yS.ticks(5).forEach(t=>{ svg.append('line').attr('class','gridline').attr('x1',m.l).attr('x2',W-m.r).attr('y1',yS(t)).attr('y2',yS(t));
+    svg.append('text').attr('x',m.l-8).attr('y',yS(t)+3).attr('text-anchor','end').attr('class','ax').text(t); });
+  svg.append('line').attr('class','baseline').attr('x1',m.l).attr('x2',W-m.r).attr('y1',yS(0)).attr('y2',yS(0));
+  const gw=(W-m.l-m.r)/dims.length, bw=42;
+  dims.forEach((d,i)=>{
+    const cx=m.l+gw*i+gw/2;
+    // регион
+    svg.append('rect').attr('x',cx-bw-3).attr('y',yS(d.reg)).attr('width',bw).attr('height',yS(0)-yS(d.reg)).attr('fill','rgba(255,255,255,.20)');
+    svg.append('text').attr('x',cx-bw-3+bw/2).attr('y',yS(d.reg)-6).attr('text-anchor','middle').attr('class','val').attr('font-size','11px').attr('fill',C.muted).text(fmt(d.reg.toFixed(1)));
+    // бразилия
+    svg.append('rect').attr('x',cx+3).attr('y',yS(d.br)).attr('width',bw).attr('height',yS(0)-yS(d.br)).attr('fill',C.green);
+    svg.append('text').attr('x',cx+3+bw/2).attr('y',yS(d.br)-6).attr('text-anchor','middle').attr('class','val').attr('font-size','11px').attr('fill',C.green).text(fmt(d.br.toFixed(1)));
+    // подпись (2 строки)
+    d.k.split('\n').forEach((ln,j)=> svg.append('text').attr('x',cx).attr('y',H-m.b+18+j*13).attr('text-anchor','middle').attr('class','ax').text(ln));
+  });
+  // легенда
+  const lg=[['Бразилия',C.green],['Регион','rgba(255,255,255,.20)']];
+  const leg=svg.selectAll('g.gl').data(lg).join('g').attr('class','gl').attr('transform',(d,i)=>'translate('+(m.l+i*110)+',12)');
+  leg.append('rect').attr('width',12).attr('height',12).attr('y',-10).attr('fill',d=>d[1]);
+  leg.append('text').attr('x',18).attr('class','ax').text(d=>d[0]);
+}
+
+/* ============ РЕГИОН · Радар (9 осей, угловой) ============ */
+const SUB = [
+  {k:'Инфраструктура', br:71.43, reg:45.95},
+  {k:'Данные', br:64.98, reg:47.73},
+  {k:'Таланты', br:33.98, reg:37.32},
+  {k:'Исследования', br:56.39, reg:35.80},
+  {k:'Инновации', br:51.19, reg:31.13},
+  {k:'Внедрение', br:71.15, reg:50.29},
+  {k:'Институты', br:96.30, reg:37.51},
+  {k:'Связи', br:100.00, reg:64.47},
+  {k:'Регулирование', br:82.45, reg:53.06}
+];
+function drawRadar(){
+  const W=480, H=470;
+  const svg=svgIn('c_radar',W,H); if(!svg) return;
+  const cx=240, cy=232, R=140, labelR=158, N=SUB.length;
+  const ang=i=>-Math.PI/2 + i*2*Math.PI/N;
+  const rr=v=>R*v/100;
+  const pt=(i,v)=>[cx+Math.cos(ang(i))*rr(v), cy+Math.sin(ang(i))*rr(v)];
+  // сетка-многоугольники
+  [25,50,75,100].forEach(g=>{
+    const pts=d3.range(N).map(i=>pt(i,g).join(',')).join(' ');
+    svg.append('polygon').attr('points',pts).attr('fill','none').attr('stroke',C.grid).attr('stroke-width',1);
+  });
+  // спицы
+  d3.range(N).forEach(i=>{ const p=pt(i,100); svg.append('line').attr('x1',cx).attr('y1',cy).attr('x2',p[0]).attr('y2',p[1]).attr('stroke',C.grid).attr('stroke-width',1); });
+  // деления
+  [50,100].forEach(g=>svg.append('text').attr('x',cx+3).attr('y',cy-rr(g)-2).attr('class','ax').text(g));
+  // регион
+  svg.append('polygon').attr('points',d3.range(N).map(i=>pt(i,SUB[i].reg).join(',')).join(' '))
+    .attr('fill','rgba(255,255,255,.06)').attr('stroke',C.muted2).attr('stroke-width',1).attr('stroke-dasharray','4 3');
+  // бразилия
+  svg.append('polygon').attr('points',d3.range(N).map(i=>pt(i,SUB[i].br).join(',')).join(' '))
+    .attr('fill','rgba(17,176,94,.16)').attr('stroke',C.green).attr('stroke-width',1.8);
+  // вершины (квадраты), таланты — красным
+  SUB.forEach((d,i)=>{ const p=pt(i,d.br); const below=d.br<d.reg; const s=below?7:5;
+    svg.append('rect').attr('x',p[0]-s/2).attr('y',p[1]-s/2).attr('width',s).attr('height',s).attr('fill',below?C.alert:C.green); });
+  // подписи осей
+  SUB.forEach((d,i)=>{ const a=ang(i), lx=cx+Math.cos(a)*labelR, ly=cy+Math.sin(a)*labelR;
+    const co=Math.cos(a); const anc=co>0.3?'start':(co<-0.3?'end':'middle');
+    const below=d.br<d.reg;
+    svg.append('text').attr('x',lx).attr('y',ly+3).attr('text-anchor',anc).attr('class','serieslab')
+      .attr('fill',below?C.alert:C.muted).text(d.k);
+  });
+  // легенда
+  const lg=[['Бразилия',C.green],['Регион',C.muted2]];
+  const leg=svg.selectAll('g.rl').data(lg).join('g').attr('class','rl').attr('transform',(d,i)=>'translate('+(40+i*110)+','+(H-14)+')');
+  leg.append('rect').attr('width',12).attr('height',12).attr('y',-10).attr('fill',d=>d[1]);
+  leg.append('text').attr('x',18).attr('class','ax').text(d=>d[0]);
+}
+
+/* ============ РЕГИОН · Дамбелл (9 субизмерений) ============ */
+function drawDumbbell(){
+  const W=920, H=420;
+  const svg=svgIn('c_dumbbell',W,H); if(!svg) return;
+  const rows=[...SUB].sort((a,b)=>(b.br-b.reg)-(a.br-a.reg));
+  const m={t:30,r:40,b:36,l:150};
+  const xS=d3.scaleLinear().domain([0,100]).range([m.l,W-m.r]);
+  const pitch=(H-m.t-m.b)/rows.length;
+  xS.ticks(5).forEach(t=>{ svg.append('line').attr('class','gridline').attr('x1',xS(t)).attr('x2',xS(t)).attr('y1',m.t-6).attr('y2',H-m.b);
+    svg.append('text').attr('x',xS(t)).attr('y',H-m.b+18).attr('text-anchor','middle').attr('class','ax').text(t); });
+  rows.forEach((d,i)=>{
+    const y=m.t+pitch*i+pitch/2, below=d.br<d.reg;
+    svg.append('text').attr('x',m.l-12).attr('y',y+4).attr('text-anchor','end').attr('class','lbl').attr('font-size','12.5px').attr('fill',below?C.alert:C.paper).text(d.k);
+    svg.append('line').attr('x1',xS(d.reg)).attr('x2',xS(d.br)).attr('y1',y).attr('y2',y).attr('stroke',below?C.alert:C.line2).attr('stroke-width',2);
+    // регион — открытый квадрат
+    svg.append('rect').attr('x',xS(d.reg)-5).attr('y',y-5).attr('width',10).attr('height',10).attr('fill',C.paper).attr('fill-opacity',0.0).attr('stroke',C.muted).attr('stroke-width',1.4);
+    // бразилия — заполненный
+    svg.append('rect').attr('x',xS(d.br)-6).attr('y',y-6).attr('width',12).attr('height',12).attr('fill',below?C.alert:C.green);
+    svg.append('text').attr('x',xS(d.br)+(d.br>=d.reg?12:-12)).attr('y',y+4).attr('text-anchor',d.br>=d.reg?'start':'end').attr('class','val').attr('fill',below?C.alert:C.green).text(fmt(d.br.toFixed(1)));
+    svg.append('text').attr('x',xS(d.reg)+(d.br>=d.reg?-10:10)).attr('y',y+4).attr('text-anchor',d.br>=d.reg?'end':'start').attr('class','val').attr('fill',C.muted).text(fmt(d.reg.toFixed(1)));
+  });
+  const lg=[['Бразилия',C.green],['Регион',C.muted]];
+  const leg=svg.selectAll('g.dl').data(lg).join('g').attr('class','dl').attr('transform',(d,i)=>'translate('+(m.l+i*120)+',14)');
+  leg.append('rect').attr('width',12).attr('height',12).attr('y',-10).attr('fill',d=>d[1]);
+  leg.append('text').attr('x',18).attr('class','ax').text(d=>d[0]);
+}
+
+/* ============ 02 · Таймлайн (сигнатура) ============ */
+function drawTimeline(){
+  const W=920, H=300;
+  const svg=svgIn('c_timeline',W,H); if(!svg) return;
+  const items=[
+    {d:'2020', t:'PL 21/2020', s:'первый законопроект', cat:'law'},
+    {d:'2021', t:'EBIA', s:'нац. стратегия ИИ', cat:'strat'},
+    {d:'фев 2024', t:'TSE 23.732', s:'ИИ на выборах', cat:'vote'},
+    {d:'июл 2024', t:'PBIA', s:'план R$23 млрд', cat:'strat'},
+    {d:'дек 2024', t:'Сенат', s:'PL 2338 одобрен', cat:'law'},
+    {d:'мар 2025', t:'Палата', s:'PL 2338 на рассмотрении', cat:'law'},
+    {d:'мар 2026', t:'TSE 23.748', s:'выборы 2026', cat:'vote'},
+    {d:'2026', t:'PL 2338', s:'ожидается принятие', cat:'law', future:true}
+  ];
+  const col={strat:C.green, law:C.blue, vote:C.yellow};
+  const x0=58, x1=W-58, midY=152;
+  const xS=d3.scalePoint().domain(items.map(d=>d.t)).range([x0,x1]).padding(0.1);
+  svg.append('line').attr('x1',x0).attr('x2',x1).attr('y1',midY).attr('y2',midY).attr('stroke',C.line2).attr('stroke-width',1);
+  items.forEach((d,i)=>{
+    const x=xS(d.t), up=i%2===0, ly=up?midY-18:midY+18, c=col[d.cat];
+    svg.append('line').attr('x1',x).attr('x2',x).attr('y1',midY).attr('y2',up?midY-14:midY+14).attr('stroke',c).attr('stroke-width',1);
+    const sq=10; svg.append('rect').attr('x',x-sq/2).attr('y',midY-sq/2).attr('width',sq).attr('height',sq)
+      .attr('fill',d.future?'none':c).attr('stroke',c).attr('stroke-width',1.5).attr('stroke-dasharray',d.future?'2 2':null);
+    const ta=up?'auto':'auto';
+    const baseY=up?ly-30:ly+12;
+    svg.append('text').attr('x',x).attr('y',baseY).attr('text-anchor','middle').attr('class','val').attr('font-size','11px').attr('fill',c).text(d.d);
+    svg.append('text').attr('x',x).attr('y',baseY+15).attr('text-anchor','middle').attr('class','lbl').attr('font-size','12px').attr('font-weight','600').text(d.t);
+    svg.append('text').attr('x',x).attr('y',baseY+30).attr('text-anchor','middle').attr('class','ax').text(d.s);
+  });
+  // легенда
+  const lg=[['стратегия',C.green],['закон',C.blue],['выборы',C.yellow]];
+  const leg=svg.selectAll('g.tl').data(lg).join('g').attr('class','tl').attr('transform',(d,i)=>'translate('+(x0+i*130)+','+(H-16)+')');
+  leg.append('rect').attr('width',12).attr('height',12).attr('y',-10).attr('fill',d=>d[1]);
+  leg.append('text').attr('x',18).attr('class','ax').text(d=>d[0]);
+}
+
+/* ============ 02 · Матрица рисков (HTML) ============ */
+function buildRiskMatrix(){
+  const el=document.getElementById('m_risk'); if(!el) return;
+  const cols=['Режим','Оценка AIA','Прозрачность','Надзор и управление'];
+  const rows=[
+    {tier:'Чрезмерный риск', cells:[['ban','Запрещён'],['no','—'],['no','—'],['no','—']]},
+    {tier:'Высокий риск', cells:[['yes','Регулируется'],['yes','Обязательна'],['yes','Да'],['yes','Да']]},
+    {tier:'Низкий / умеренный', cells:[['soft','Лёгкий'],['no','Нет'],['soft','Базовая'],['no','Нет']]}
+  ];
+  let h='<table class="matrix"><thead><tr><th style="text-align:left">Уровень риска</th>';
+  cols.forEach(c=>h+='<th>'+c+'</th>'); h+='</tr></thead><tbody>';
+  rows.forEach(r=>{ h+='<tr><th>'+r.tier+'</th>'; r.cells.forEach(c=>h+='<td><span class="cell '+c[0]+'">'+c[1]+'</span></td>'); h+='</tr>'; });
+  h+='</tbody></table>';
+  el.innerHTML=h;
+}
+
+/* ============ 02 · Таблица регулирования (HTML) ============ */
+function buildRegTable(){
+  const el=document.getElementById('t_reg'); if(!el) return;
+  const rows=[
+    {me:false, j:'Европейский союз', sub:'AI Act', app:'Риск-ориентированный, 4 уровня', bind:['bind','Обязателен'], fine:'€35 млн / 7% оборота', st:'В силе с 02.08.2026'},
+    {me:false, j:'Китай', sub:'нормы CAC', app:'Секторальный: алгоритмы, дипсинтез, ген-ИИ', bind:['bind','Обязателен'], fine:'Адм. санкции', st:'Действует (2022-2023)'},
+    {me:false, j:'США', sub:'NIST AI RMF', app:'Добровольные рамки + указы', bind:['soft','Добровольный'], fine:'Нет единого', st:'Без фед. закона'},
+    {me:true, j:'Бразилия', sub:'PL 2338/2023', app:'Риск-ориентированный, 3 уровня', bind:['bind','Обязателен*'], fine:'R$50 млн / 2% оборота', st:'Одобрен Сенатом; в Палате'}
+  ];
+  let h='<table class="tbl"><thead><tr><th>Юрисдикция</th><th>Подход</th><th>Обязательность</th><th>Макс. штраф</th><th>Статус</th></tr></thead><tbody>';
+  rows.forEach(r=>{
+    h+='<tr'+(r.me?' class="me"':'')+'>';
+    h+='<td><span class="nm">'+r.j+'</span><span class="c">'+r.sub+'</span></td>';
+    h+='<td>'+r.app+'</td>';
+    h+='<td class="'+(r.bind[0]==='bind'?'bind':'soft')+'">'+r.bind[1]+'</td>';
+    h+='<td>'+r.fine+'</td>';
+    h+='<td>'+r.st+'</td></tr>';
+  });
+  h+='</tbody></table>';
+  el.innerHTML=h;
+}
+
+/* ============ 03 · Статус-матрица TSE (HTML) ============ */
+function buildTSEMatrix(){
+  const el=document.getElementById('m_tse'); if(!el) return;
+  const rows=[
+    {m:'Запрет дипфейков', a:['yes','Есть'], b:['yes','Усилен']},
+    {m:'Маркировка ИИ-контента', a:['yes','Есть'], b:['yes','Есть']},
+    {m:'Ограничение чат-ботов и аватаров', a:['yes','Есть'], b:['yes','Есть']},
+    {m:'Запрет ИИ-рекомендаций голосования', a:['no','—'], b:['new','Ново']},
+    {m:'Временной запрет ИИ у дня выборов', a:['no','—'], b:['new','Ново']},
+    {m:'Солидарная ответственность платформ', a:['yes','Есть'], b:['yes','Есть']},
+    {m:'Защита кандидаток от дипфейков', a:['soft','Общая'], b:['new','Акцент']}
+  ];
+  let h='<table class="matrix"><thead><tr><th style="text-align:left">Мера TSE</th><th>2024 · муниципальные<br><span style="font-weight:400;text-transform:none">Рез. 23.732</span></th><th>2026 · всеобщие<br><span style="font-weight:400;text-transform:none">Рез. 23.748</span></th></tr></thead><tbody>';
+  rows.forEach(r=>{ h+='<tr><th>'+r.m+'</th><td><span class="cell '+r.a[0]+'">'+r.a[1]+'</span></td><td><span class="cell '+r.b[0]+'">'+r.b[1]+'</span></td></tr>'; });
+  h+='</tbody></table>';
+  el.innerHTML=h;
+}
+
+/* ============ init ============ */
+function init(){
+  drawPBIA(); drawWaffle(); drawBullet();
+  drawRank(); drawMap(); drawScatter(); drawGroups(); drawRadar(); drawDumbbell();
+  drawTimeline();
+  buildRiskMatrix(); buildRegTable(); buildTSEMatrix();
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+
+</script>
+</body>
+</html>

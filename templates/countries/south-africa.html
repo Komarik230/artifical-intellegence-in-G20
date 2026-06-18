@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ЮАР — Искусственный интеллект в странах G20</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+:root{
+  --ink:#060607;
+  --paper:#FFFFFF;
+  --muted:#8A8A8E;
+  --muted-2:#5B5B60;
+  --line:rgba(255,255,255,0.14);
+  --line-2:rgba(255,255,255,0.30);
+  --panel:#0C0C0E;
+  --f-display:'Archivo',sans-serif;
+  --f-mono:'IBM Plex Mono',monospace;
+  --f-sans:'Inter',sans-serif;
+  --maxw:1320px;
+  /* South African flag retheme */
+  --flag-a:#0E8C56;   /* green */
+  --flag-b:#FFB81C;   /* gold */
+  --flag-c:#E0413A;   /* red */
+  --flag-d:#2B7FD6;   /* blue */
+  --flag-ink:#0E8C56;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:var(--f-sans);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size:calc(100%/12) 100%, 100% 96px;
+  background-position:0 0;
+  overflow-x:hidden;
+}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+a{color:inherit}
+
+/* ---- TOPBAR ---- */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(6,6,7,0.86);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{display:flex;align-items:center;gap:14px;font-family:var(--f-mono);font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+.flagmark{width:30px;height:20px;display:grid;border:1px solid var(--line);overflow:hidden;position:relative;background:var(--flag-d)}
+.flagmark i{position:absolute;display:block}
+.flagmark .r1{top:0;left:0;right:0;height:50%;background:var(--flag-c)}
+.flagmark .r2{bottom:0;left:0;right:0;height:50%;background:var(--flag-d)}
+.flagmark .band{top:33%;left:0;right:0;height:34%;background:var(--flag-a);border-top:2px solid #fff;border-bottom:2px solid #fff}
+.flagmark .vee{top:0;left:0;width:11px;height:100%;background:linear-gradient(135deg,#000 0 46%,var(--flag-b) 46% 64%,transparent 64%)}
+.nav{display:flex;gap:26px;font-family:var(--f-mono);font-size:12px;letter-spacing:0.08em;text-transform:uppercase}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s}
+.nav a:hover{color:var(--paper)}
+@media(max-width:720px){.nav{display:none}}
+
+/* ---- HERO ---- */
+.hero{padding:96px 0 64px;border-bottom:1px solid var(--line)}
+.kicker{font-family:var(--f-mono);font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:var(--flag-b);margin-bottom:28px}
+.kicker .sep{color:var(--muted-2);margin:0 10px}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(48px,9vw,124px);line-height:0.92;letter-spacing:-0.02em;text-transform:uppercase}
+h1 .accent{color:var(--flag-a)}
+.hero-sub{margin-top:30px;max-width:680px;font-size:18px;line-height:1.65;color:#CFCFD2}
+.hero-meta{margin-top:40px;display:flex;flex-wrap:wrap;gap:14px 36px;font-family:var(--f-mono);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)}
+.hero-meta b{color:var(--paper);font-weight:500}
+
+/* ---- KPI STRIP ---- */
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}
+.kpi{padding:36px 28px;border-right:1px solid var(--line)}
+.kpi:last-child{border-right:none}
+.kpi .num{font-family:var(--f-display);font-weight:900;font-size:clamp(34px,4.6vw,56px);line-height:1;letter-spacing:-0.02em;color:var(--flag-b)}
+.kpi .num.alt{color:var(--flag-a)}
+.kpi .lab{margin-top:14px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);line-height:1.5}
+@media(max-width:860px){.kpi-strip{grid-template-columns:repeat(2,1fr)}.kpi:nth-child(2){border-right:none}.kpi:nth-child(1),.kpi:nth-child(2){border-bottom:1px solid var(--line)}}
+
+/* ---- SECTION ---- */
+section{padding:84px 0;border-bottom:1px solid var(--line)}
+.sec-head{display:flex;align-items:baseline;gap:24px;margin-bottom:14px}
+.sec-no{font-family:var(--f-mono);font-size:13px;letter-spacing:0.1em;color:var(--flag-a)}
+.sec-head h2{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,4.2vw,46px);letter-spacing:-0.01em;text-transform:uppercase;line-height:1}
+.sec-intro{max-width:760px;color:#C2C2C6;font-size:16.5px;margin-bottom:54px}
+
+/* ---- FIGURE ---- */
+.grid{display:grid;gap:28px}
+.g-2{grid-template-columns:1fr 1fr}
+@media(max-width:880px){.g-2{grid-template-columns:1fr}}
+.fig{border:1px solid var(--line);background:var(--panel)}
+.fig .head{padding:22px 24px 18px;border-bottom:1px solid var(--line)}
+.fig .tag{font-family:var(--f-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--flag-b);display:block;margin-bottom:10px}
+.fig .t{font-family:var(--f-display);font-weight:700;font-size:21px;line-height:1.18;letter-spacing:-0.01em}
+.fig .s{margin-top:8px;font-size:13.5px;color:var(--muted);line-height:1.5}
+.fig .chart{padding:24px}
+figcaption{padding:0 24px 22px;font-family:var(--f-mono);font-size:11px;letter-spacing:0.03em;color:var(--muted-2);line-height:1.55}
+figcaption b{color:var(--muted);font-weight:500}
+
+/* svg text defaults */
+svg{display:block;width:100%;height:auto;overflow:visible}
+.ax-line{stroke:var(--line);stroke-width:1}
+.ax-base{stroke:var(--line-2);stroke-width:1}
+.tick-txt{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.val-txt{font-family:var(--f-mono);font-size:12px;fill:var(--paper)}
+.lab-txt{font-family:var(--f-sans);font-size:13px;fill:#D6D6D9;font-weight:500}
+.gridline{stroke:var(--line);stroke-width:1;stroke-dasharray:2 4}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td .pill{font-family:var(--f-mono);font-size:10.5px;letter-spacing:0.04em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line-2);white-space:nowrap}
+td .pill.on{color:var(--flag-a);border-color:rgba(14,140,86,0.5)}
+td .pill.draft{color:var(--flag-b);border-color:rgba(255,184,28,0.5)}
+td b{font-weight:600}
+tr:last-child td{border-bottom:none}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;padding:0 24px 20px;font-family:var(--f-mono);font-size:11px;letter-spacing:0.04em;color:var(--muted);text-transform:uppercase}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:11px;height:11px;display:inline-block}
+
+/* footnote / sources */
+footer{padding:72px 0 90px}
+.foot-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:48px}
+@media(max-width:760px){.foot-grid{grid-template-columns:1fr;gap:36px}}
+footer h3{font-family:var(--f-mono);font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:22px}
+.about{font-size:14.5px;color:#B7B7BB;line-height:1.7;max-width:560px}
+.sources{list-style:none;counter-reset:s}
+.sources li{counter-increment:s;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);padding:9px 0 9px 30px;border-top:1px solid var(--line);position:relative;line-height:1.5}
+.sources li:before{content:"["counter(s)"]";position:absolute;left:0;color:var(--flag-a)}
+.sources li b{color:#C8C8CC;font-weight:500}
+.colophon{margin-top:54px;padding-top:22px;border-top:1px solid var(--line-2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:var(--f-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-2)}
+
+:focus-visible{outline:2px solid var(--flag-b);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="flagmark"><i class="r1"></i><i class="r2"></i><i class="band"></i><i class="vee"></i></span>
+      G20 · ИИ · ЮАР
+    </div>
+    <nav class="nav">
+      <a href="#strategy">01 Стратегия</a>
+      <a href="#ethics">02 Регулирование</a>
+      <a href="#media">03 Медиа</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Большая двадцатка <span class="sep">/</span> Искусственный интеллект <span class="sep">/</span> Профиль страны</div>
+    <h1>Южно-<br>Африканская<br><span class="accent">Республика</span></h1>
+    <p class="hero-sub">Хозяйка саммита G20 2025 года и единственный член «двадцатки» из Африки к югу от Сахары. ЮАР строит ИИ-политику снизу вверх — от Президентской комиссии по 4-й промышленной революции к Национальной рамочной политике по ИИ — на фоне самого высокого на континенте проникновения интернета и острого кризиса доверия к информации.</p>
+    <div class="hero-meta">
+      <span>Население <b>64,4 млн</b></span>
+      <span>Языков офиц. <b>12</b></span>
+      <span>Рамочная политика по ИИ <b>авг. 2024</b></span>
+      <span>Председательство в G20 <b>2025</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="kpi-strip">
+    <div class="kpi"><div class="num">52,91</div><div class="lab">Индекс готовности правительств к ИИ (Oxford Insights, 2024) — 2-е место в Африке южнее Сахары</div></div>
+    <div class="kpi"><div class="num alt">78,9%</div><div class="lab">Проникновение интернета — 50,8 млн пользователей (DataReportal, янв. 2025)</div></div>
+    <div class="kpi"><div class="num">73%</div><div class="lab">Обеспокоены отличием правды от фейка онлайн — против 58% в среднем по миру (Reuters Institute, 2025)</div></div>
+    <div class="kpi"><div class="num alt">55%</div><div class="lab">Доверие к новостям — 5-е место из 48 стран, но падение с пика 61% в 2022 г.</div></div>
+  </div>
+</div>
+
+<!-- ================= 01 STRATEGY ================= -->
+<section id="strategy">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">01</span><h2>Стратегия и готовность</h2></div>
+    <p class="sec-intro">ИИ-политика ЮАР развивается поэтапно и консультативно. Страна пока не приняла отдельный закон об ИИ, но за пять лет выстроила фундамент — от доклада президентской комиссии до рамочной политики из девяти стратегических столпов — и лидирует в регионе по технологическому сектору и инфраструктуре данных.</p>
+
+    <div class="grid g-2">
+      <figure class="fig" style="grid-column:1 / -1">
+        <div class="head">
+          <span class="tag">Рис. 01 · Range plot / Таймлайн</span>
+          <div class="t">Путь к национальной политике по ИИ, 2020–2026</div>
+          <div class="s">Ключевые институциональные вехи. Тип графика: временная шкала с диапазонами этапов.</div>
+        </div>
+        <div class="chart"><svg id="c1" viewBox="0 0 1180 290"></svg></div>
+        <figcaption>Источник: <b>DCDT</b> (Department of Communications and Digital Technologies); <b>Fasken</b>, «AI Regulation Progress in South Africa», март 2026; <b>De Rebus</b>, янв. 2025. Проект Политики вынесен на публичное обсуждение в марте 2026 г.</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <span class="tag">Рис. 02 · Bar chart</span>
+          <div class="t">Готовность к ИИ по регионам мира, 2024</div>
+          <div class="s">Средний балл Government AI Readiness Index. Балл ЮАР показан отдельной отметкой.</div>
+        </div>
+        <div class="chart"><svg id="c2" viewBox="0 0 560 320"></svg></div>
+        <figcaption>Источник: <b>Oxford Insights</b>, Government AI Readiness Index 2024 (188 стран). Средний балл по миру — 47,59; по Африке южнее Сахары — 32,70. ЮАР (52,91) — единственная страна региона выше мирового среднего в столпе «Технологический сектор».</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <span class="tag">Рис. 03 · Dot plot</span>
+          <div class="t">Лидеры Африки южнее Сахары</div>
+          <div class="s">Общий балл готовности к ИИ, 2024. Пунктир — мировое и региональное средние.</div>
+        </div>
+        <div class="chart"><svg id="c3" viewBox="0 0 560 320"></svg></div>
+        <figcaption>Источник: <b>Oxford Insights</b> 2024; сводка <b>index.dev</b>. Маврикий лидирует в столпе «Правительство», ЮАР — в столпах «Данные и инфраструктура» и «Технологический сектор».</figcaption>
+      </figure>
+
+      <figure class="fig" style="grid-column:1 / -1">
+        <div class="head">
+          <span class="tag">Рис. 04 · Radar / Профиль</span>
+          <div class="t">Цифровой профиль общества ЮАР</div>
+          <div class="s">Шесть показателей цифровой среды, % (нормировано к 100). Тип графика: полигональный радар.</div>
+        </div>
+        <div class="chart"><svg id="c4" viewBox="0 0 1180 380"></svg></div>
+        <figcaption>Источник: <b>DataReportal</b> «Digital 2025: South Africa»; <b>Reuters Institute</b> Digital News Report 2025. Смартфон есть у 99,3% интернет-пользователей; интерес к местным новостям (60%) — самый высокий среди 48 опрошенных стран.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 ETHICS ================= -->
+<section id="ethics">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">02</span><h2>Этическое регулирование</h2></div>
+    <p class="sec-intro">Рамочная политика опирается на действующий закон о защите персональных данных POPIA (2013) и ориентируется на риск-ориентированный подход в духе AI Act ЕС и рекомендаций ЮНЕСКО. Параллельно создаётся научно-кадровая база: четыре университетских ИИ-хаба распределены по стране.</p>
+
+    <div class="grid g-2">
+      <figure class="fig">
+        <div class="head">
+          <span class="tag">Рис. 05 · Locator map</span>
+          <div class="t">Национальные ИИ-хабы при университетах</div>
+          <div class="s">Запущены в 2023–2024 гг. для развития навыков и прикладных исследований.</div>
+        </div>
+        <div class="chart"><svg id="c5" viewBox="0 0 560 420"></svg></div>
+        <figcaption>Источник: <b>Fasken</b>, март 2026. Схематическая карта; точки размещены по относительным координатам городов. Военная академия аффилирована с Стелленбосским университетом (Западный Кейп).</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <span class="tag">Рис. 06 · Arrow plot</span>
+          <div class="t">Тревога об отличии правды от фейка</div>
+          <div class="s">Доля обеспокоенных, % — изменение 2024 → 2025. Тип графика: arrow plot.</div>
+        </div>
+        <div class="chart"><svg id="c6" viewBox="0 0 560 420"></svg></div>
+        <figcaption>Источник: <b>Reuters Institute</b> Digital News Report 2024 и 2025; <b>bizcommunity</b>. Платформы TikTok и Facebook воспринимаются как главные источники дезинформации в стране.</figcaption>
+      </figure>
+
+      <figure class="fig" style="grid-column:1 / -1">
+        <div class="head">
+          <span class="tag">Рис. 07 · Table</span>
+          <div class="t">Национальная рамочная политика по ИИ: структура и статус</div>
+          <div class="s">Девять стратегических столпов и сфера охвата, по состоянию на 2026 г.</div>
+        </div>
+        <div class="chart" style="padding:0">
+          <table>
+            <thead><tr><th style="width:34%">Элемент политики</th><th style="width:46%">Содержание</th><th style="width:20%">Статус</th></tr></thead>
+            <tbody>
+              <tr><td><b>Правовая основа</b></td><td>POPIA (Закон о защите персональных данных, 2013) — действующее связывающее регулирование данных</td><td><span class="pill on">Действует</span></td></tr>
+              <tr><td><b>Рамочная политика</b></td><td>Девять столпов: таланты и кадры, цифровая инфраструктура, НИОКР и инновации, справедливость и снижение предвзятости, госсектор, этика и др.</td><td><span class="pill on">Опубл. 2024</span></td></tr>
+              <tr><td><b>Сфера охвата</b></td><td>Этические нормы · приватность и защита данных · безопасность · прозрачность и объяснимость · справедливость</td><td><span class="pill on">Определена</span></td></tr>
+              <tr><td><b>Типология рисков</b></td><td>Шесть категорий: робототехнические, социальные, криминальные, экзистенциальные, монополизация, военные</td><td><span class="pill on">Определена</span></td></tr>
+              <tr><td><b>Проект Политики</b></td><td>Передан в Кабинет; вынос на публичное обсуждение и газетирование</td><td><span class="pill draft">Март 2026</span></td></tr>
+              <tr><td><b>Международная привязка</b></td><td>Континентальная стратегия Афросоюза (2024), рекомендация ЮНЕСКО по этике ИИ, ISO/IEC 42001 и 23894</td><td><span class="pill draft">Согласование</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption>Источник: <b>De Rebus</b>, янв. 2025; <b>Deloitte Africa</b>; <b>Nemko Digital</b>; <b>DCDT</b>. Рамочная политика — первый шаг к будущему Национальному закону об ИИ.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 MEDIA ================= -->
+<section id="media">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">03</span><h2>Медиапрактики</h2></div>
+    <p class="sec-intro">ЮАР — мобильное, видеоориентированное медиапространство: новости всё чаще читают в соцсетях, а доверие к традиционным брендам остаётся высоким, но снижается. На этом фоне фактчекинг стал штатной функцией редакций — у News24 есть отдел по дезинформации, Daily Maverick запустил FactCheck Hub совместно с Africa Check.</p>
+
+    <div class="grid g-2">
+      <figure class="fig">
+        <div class="head">
+          <span class="tag">Рис. 08 · Column chart</span>
+          <div class="t">Источники новостей в соцсетях и видео</div>
+          <div class="s">Доля пользующихся для новостей, %. Тип графика: вертикальные столбцы.</div>
+        </div>
+        <div class="chart"><svg id="c8" viewBox="0 0 560 340"></svg></div>
+        <figcaption>Источник: <b>Reuters Institute</b> Digital News Report 2025 (ЮАР). Видеоновости онлайн используют более 80% — один из самых высоких показателей в мире.</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <span class="tag">Рис. 09 · Bullet bars</span>
+          <div class="t">Обеспокоенность дезинформацией</div>
+          <div class="s">Доля обеспокоенных, %. Вертикальная отметка — мировое среднее (58%).</div>
+        </div>
+        <div class="chart"><svg id="c9" viewBox="0 0 560 340"></svg></div>
+        <figcaption>Источник: <b>Reuters Institute</b> Digital News Report 2025. Концепция bullet-графика: значение страны на фоне общего ориентира. Африка и США — самые тревожные регионы (по 73%).</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <span class="tag">Рис. 10 · Slope chart</span>
+          <div class="t">Доверие к новостям: ЮАР против мира</div>
+          <div class="s">% доверяющих новостям, 2022 → 2025. Тип графика: slope.</div>
+        </div>
+        <div class="chart"><svg id="c10" viewBox="0 0 560 340"></svg></div>
+        <figcaption>Источник: <b>Reuters Institute</b> Digital News Report (2022, 2025); <b>journalism.co.za</b>. Несмотря на спад, ЮАР — на 5-м месте из 48 стран по уровню доверия.</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <span class="tag">Рис. 11 · Bar chart</span>
+          <div class="t">Самые доверяемые новостные бренды</div>
+          <div class="s">Доля доверяющих бренду, %. Тип графика: горизонтальные полосы.</div>
+        </div>
+        <div class="chart"><svg id="c11" viewBox="0 0 560 340"></svg></div>
+        <figcaption>Источник: <b>Reuters Institute</b> Digital News Report 2025 (ЮАР), через <b>bizcommunity</b>. News24 ведёт штатный отдел по дезинформации; Daily Maverick и Africa Check — совместный FactCheck Hub.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h3>О странице</h3>
+        <p class="about">Профиль ЮАР — часть курсового проекта об искусственном интеллекте в странах «Большой двадцатки». Каждая страница покрывает три аспекта: анализ стратегий, этическое регулирование и медиапрактики. Все показатели взяты из открытых источников и профактчеканы; визуализации построены вручную на D3 по реальным данным. Дизайн-система единая для всех стран, тематика задаётся цветами национального флага.</p>
+      </div>
+      <div>
+        <h3>Источники</h3>
+        <ol class="sources">
+          <li><b>Oxford Insights</b> — Government AI Readiness Index 2024 / 2025.</li>
+          <li><b>DCDT</b> — South Africa National AI Policy Framework, авг. 2024.</li>
+          <li><b>Fasken</b> — AI Regulation Progress in South Africa, март 2026.</li>
+          <li><b>De Rebus</b> — A step towards advancing AI governance in SA, 2025.</li>
+          <li><b>DataReportal</b> — Digital 2025: South Africa (Meltwater, We Are Social).</li>
+          <li><b>Reuters Institute</b> — Digital News Report 2025; bizcommunity; journalism.co.za.</li>
+          <li><b>index.dev</b> — AI Readiness Index statistics (сводка Oxford Insights).</li>
+        </ol>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>G20 · Искусственный интеллект</span>
+      <span>ЮАР · ZA</span>
+      <span>D3.js v7 · данные 2020–2026</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const GREEN="#0E8C56", GOLD="#FFB81C", RED="#E0413A", BLUE="#2B7FD6",
+      INK="#060607", PAPER="#FFFFFF", MUTED="#8A8A8E", LINE="rgba(255,255,255,0.14)", LINE2="rgba(255,255,255,0.30)";
+
+function svg(id){return d3.select("#"+id);}
+function txt(sel){return sel.attr("font-family","'IBM Plex Mono',monospace");}
+
+/* ---------- C1 : RANGE PLOT / TIMELINE ---------- */
+(function(){
+  const W=1180,H=290;
+  const x0=40, x1=W-40, y=160;
+  const s=svg("c1");
+  const data=[
+    {yr:2020,lab:"Президентская комиссия по 4-й промреволюции",pos:2020},
+    {yr:2023,lab:"Дискуссионный документ\nоб ИИ (нац. саммит)",pos:2023},
+    {yr:2024,lab:"Национальная рамочная\nполитика по ИИ",pos:2024},
+    {yr:2025,lab:"Председательство в G20:\nрабочая группа по ИИ",pos:2025},
+    {yr:2026,lab:"Проект Политики:\nгазетирование",pos:2026}
+  ];
+  const X=d3.scaleLinear().domain([2019.6,2026.4]).range([x0,x1]);
+  // baseline
+  s.append("line").attr("x1",x0).attr("x2",x1).attr("y1",y).attr("y2",y).attr("stroke",LINE2);
+  // progress fill up to 2024 (published) styled
+  s.append("line").attr("x1",X(2020)).attr("x2",X(2024)).attr("y1",y).attr("y2",y).attr("stroke",GREEN).attr("stroke-width",3);
+  s.append("line").attr("x1",X(2024)).attr("x2",X(2026)).attr("y1",y).attr("y2",y).attr("stroke",GOLD).attr("stroke-width",3).attr("stroke-dasharray","2 5");
+  data.forEach((d,i)=>{
+    const px=X(d.pos);
+    const above = i%2===0;
+    const c = d.pos>=2025 ? GOLD : GREEN;
+    // connector + marker
+    s.append("line").attr("x1",px).attr("x2",px).attr("y1",y).attr("y2",above?y-22:y+22).attr("stroke",LINE2);
+    s.append("rect").attr("x",px-6).attr("y",y-6).attr("width",12).attr("height",12).attr("fill",c);
+    // year (Archivo)
+    const yearY = above ? y-58 : y+44;
+    s.append("text").attr("x",px).attr("y",yearY).attr("text-anchor","middle")
+      .attr("font-family","'Archivo',sans-serif").attr("font-weight",900).attr("font-size",26).attr("fill",PAPER).text(d.yr);
+    // label lines (Inter)
+    const lines=d.lab.split("\n");
+    lines.forEach((ln,k)=>{
+      const ly = above ? (yearY+18+k*15) : (yearY+22+k*15);
+      s.append("text").attr("x",px).attr("y",ly).attr("text-anchor","middle")
+        .attr("font-family","'Inter',sans-serif").attr("font-size",12).attr("fill","#C2C2C6").text(ln);
+    });
+  });
+  // status legend
+  s.append("rect").attr("x",x0).attr("y",y+92).attr("width",11).attr("height",11).attr("fill",GREEN);
+  s.append("text").attr("x",x0+18).attr("y",y+101).attr("font-family","'IBM Plex Mono',monospace").attr("font-size",11).attr("fill",MUTED).text("ПРИНЯТО");
+  s.append("rect").attr("x",x0+120).attr("y",y+92).attr("width",11).attr("height",11).attr("fill",GOLD);
+  s.append("text").attr("x",x0+138).attr("y",y+101).attr("font-family","'IBM Plex Mono',monospace").attr("font-size",11).attr("fill",MUTED).text("В ПРОЦЕССЕ");
+})();
+
+/* ---------- C2 : HORIZONTAL BAR (regional averages) ---------- */
+(function(){
+  const W=560,H=320;
+  const left=190, right=W-30, top=20;
+  const s=svg("c2");
+  const data=[
+    {k:"Северная Америка",v:82.60},
+    {k:"Западная Европа",v:69.56},
+    {k:"Восточная Азия",v:57.95},
+    {k:"Мир (среднее)",v:47.59,ref:true},
+    {k:"Африка южнее Сахары",v:32.70}
+  ];
+  const X=d3.scaleLinear().domain([0,90]).range([left,right]);
+  const band=44, gap=10;
+  data.forEach((d,i)=>{
+    const y=top+i*(band+gap);
+    s.append("text").attr("x",left-14).attr("y",y+band/2+4).attr("text-anchor","end")
+      .attr("font-family","'Inter',sans-serif").attr("font-size",12.5).attr("fill","#D6D6D9").text(d.k);
+    s.append("rect").attr("x",left).attr("y",y).attr("width",X(d.v)-left).attr("height",band)
+      .attr("fill",d.ref?"#3A3A3E":GREEN);
+    s.append("text").attr("x",X(d.v)+8).attr("y",y+band/2+4)
+      .attr("font-family","'IBM Plex Mono',monospace").attr("font-size",12).attr("fill",PAPER).text(d.v.toFixed(2));
+  });
+  // SA reference marker
+  const yza=top+data.length*(band+gap)+8;
+  s.append("line").attr("x1",X(52.91)).attr("x2",X(52.91)).attr("y1",top-6).attr("y2",yza+2).attr("stroke",GOLD).attr("stroke-width",1.5).attr("stroke-dasharray","3 3");
+  s.append("rect").attr("x",X(52.91)-5).attr("y",yza-4).attr("width",10).attr("height",10).attr("fill",GOLD);
+  s.append("text").attr("x",X(52.91)+12).attr("y",yza+5).attr("font-family","'IBM Plex Mono',monospace").attr("font-size",11.5).attr("fill",GOLD).text("ЮАР 52,91");
+})();
+
+/* ---------- C3 : DOT PLOT ---------- */
+(function(){
+  const W=560,H=320;
+  const left=130, right=W-40, top=40;
+  const s=svg("c3");
+  const X=d3.scaleLinear().domain([28,58]).range([left,right]);
+  // gridlines + axis
+  [30,40,50].forEach(t=>{
+    s.append("line").attr("x1",X(t)).attr("x2",X(t)).attr("y1",top-12).attr("y2",240).attr("class","gridline");
+    s.append("text").attr("x",X(t)).attr("y",262).attr("text-anchor","middle").attr("class","tick-txt").text(t);
+  });
+  // reference lines
+  s.append("line").attr("x1",X(47.59)).attr("x2",X(47.59)).attr("y1",top-12).attr("y2",240).attr("stroke",BLUE).attr("stroke-width",1).attr("stroke-dasharray","4 4");
+  s.append("text").attr("x",X(47.59)).attr("y",top-18).attr("text-anchor","middle").attr("font-family","'IBM Plex Mono',monospace").attr("font-size",10).attr("fill",BLUE).text("Мир 47,6");
+  s.append("line").attr("x1",X(32.70)).attr("x2",X(32.70)).attr("y1",top-12).attr("y2",240).attr("stroke",MUTED).attr("stroke-width",1).attr("stroke-dasharray","4 4");
+  s.append("text").attr("x",X(32.70)).attr("y",top-18).attr("text-anchor","middle").attr("font-family","'IBM Plex Mono',monospace").attr("font-size",10).attr("fill",MUTED).text("Регион 32,7");
+
+  const data=[
+    {k:"Маврикий",v:53.94,za:false},
+    {k:"ЮАР",v:52.91,za:true},
+    {k:"Руанда",v:51.25,za:false}
+  ];
+  const step=58;
+  data.forEach((d,i)=>{
+    const y=top+30+i*step;
+    s.append("text").attr("x",left-16).attr("y",y+4).attr("text-anchor","end")
+      .attr("font-family","'Inter',sans-serif").attr("font-size",13).attr("font-weight",d.za?600:400).attr("fill",d.za?GOLD:"#D6D6D9").text(d.k);
+    s.append("line").attr("x1",left).attr("x2",X(d.v)).attr("y1",y).attr("y2",y).attr("stroke",LINE).attr("stroke-width",1);
+    s.append("rect").attr("x",X(d.v)-7).attr("y",y-7).attr("width",14).attr("height",14).attr("fill",d.za?GOLD:GREEN);
+    s.append("text").attr("x",X(d.v)).attr("y",y-16).attr("text-anchor","middle")
+      .attr("font-family","'IBM Plex Mono',monospace").attr("font-size",12).attr("fill",PAPER).text(d.v.toFixed(2));
+  });
+})();
+
+/* ---------- C4 : RADAR ---------- */
+(function(){
+  const W=1180,H=380, cx=W/2, cy=200, R=140;
+  const s=svg("c4");
+  const axes=[
+    {k:"Интернет-проникновение",v:78.9},
+    {k:"Смартфон у польз.",v:99.3},
+    {k:"Видеоновости онлайн",v:80},
+    {k:"Соцсети (от населения)",v:41.5},
+    {k:"ПК у пользователей",v:79.1},
+    {k:"Интерес к местным новостям",v:60}
+  ];
+  const n=axes.length, ang=i=>(-Math.PI/2)+i*2*Math.PI/n;
+  // rings
+  [25,50,75,100].forEach(r=>{
+    const pts=d3.range(n).map(i=>[cx+R*r/100*Math.cos(ang(i)), cy+R*r/100*Math.sin(ang(i))]);
+    s.append("polygon").attr("points",pts.map(p=>p.join(",")).join(" ")).attr("fill","none").attr("stroke",LINE);
+    s.append("text").attr("x",cx+4).attr("y",cy-R*r/100-2).attr("class","tick-txt").attr("font-size",9).text(r);
+  });
+  // spokes + labels
+  axes.forEach((a,i)=>{
+    const ex=cx+R*Math.cos(ang(i)), ey=cy+R*Math.sin(ang(i));
+    s.append("line").attr("x1",cx).attr("y1",cy).attr("x2",ex).attr("y2",ey).attr("stroke",LINE);
+    const lx=cx+(R+26)*Math.cos(ang(i)), ly=cy+(R+26)*Math.sin(ang(i));
+    s.append("text").attr("x",lx).attr("y",ly+4)
+      .attr("text-anchor", Math.abs(Math.cos(ang(i)))<0.3?"middle":(Math.cos(ang(i))>0?"start":"end"))
+      .attr("font-family","'Inter',sans-serif").attr("font-size",12).attr("fill","#D6D6D9").text(a.k);
+  });
+  // polygon (data)
+  const pts=axes.map((a,i)=>[cx+R*a.v/100*Math.cos(ang(i)), cy+R*a.v/100*Math.sin(ang(i))]);
+  s.append("polygon").attr("points",pts.map(p=>p.join(",")).join(" "))
+    .attr("fill","rgba(14,140,86,0.22)").attr("stroke",GREEN).attr("stroke-width",2);
+  pts.forEach((p,i)=>{
+    s.append("rect").attr("x",p[0]-5).attr("y",p[1]-5).attr("width",10).attr("height",10).attr("fill",GOLD);
+    s.append("text").attr("x",p[0]).attr("y",p[1]-12).attr("text-anchor","middle")
+      .attr("font-family","'IBM Plex Mono',monospace").attr("font-size",11).attr("fill",PAPER).text(axes[i].v);
+  });
+})();
+
+/* ---------- C5 : LOCATOR MAP ---------- */
+(function(){
+  const W=560,H=420;
+  const s=svg("c5");
+  // local linear projection of lon/lat into box
+  const box={x0:60,x1:W-40,y0:30,y1:H-70};
+  const lon0=16.0, lon1=33.3, lat0=-22.0, lat1=-35.0;
+  function P(lon,lat){
+    const x=box.x0+(lon-lon0)/(lon1-lon0)*(box.x1-box.x0);
+    const y=box.y0+(lat-lat0)/(lat1-lat0)*(box.y1-box.y0);
+    return [x,y];
+  }
+  // simplified SA border (lon,lat) clockwise
+  const border=[
+    [20.0,-28.4],[19.9,-28.9],[17.4,-28.7],[16.8,-29.6],[17.9,-31.6],[18.4,-34.0],
+    [20.0,-34.8],[22.6,-34.1],[25.6,-34.0],[27.9,-33.0],[30.0,-31.1],[31.1,-29.9],
+    [32.9,-28.5],[32.0,-26.5],[31.3,-25.7],[31.0,-24.0],[29.4,-22.4],[27.5,-22.1],
+    [25.0,-22.0],[20.6,-25.0],[20.0,-26.8]
+  ];
+  const path=border.map((d,i)=>(i?"L":"M")+P(d[0],d[1]).join(",")).join("")+"Z";
+  s.append("path").attr("d",path).attr("fill","#101013").attr("stroke",LINE2).attr("stroke-width",1.2);
+  // graticule-ish faint frame
+  s.append("rect").attr("x",box.x0-30).attr("y",box.y0-14).attr("width",box.x1-box.x0+60).attr("height",box.y1-box.y0+34).attr("fill","none").attr("stroke",LINE).attr("stroke-dasharray","2 5");
+
+  const cities=[
+    {n:"Йоханнесбург",u:"Университет Йоханнесбурга",lon:28.0,lat:-26.2,dx:10,dy:-4},
+    {n:"Претория",u:"Технол. ун-т Тшване",lon:28.3,lat:-25.7,dx:10,dy:-16},
+    {n:"Блумфонтейн",u:"Центр. технол. ун-т",lon:26.2,lat:-29.1,dx:10,dy:4},
+    {n:"Стелленбос",u:"Воен. академия / ун-т",lon:18.9,lat:-33.9,dx:-10,dy:14}
+  ];
+  cities.forEach(c=>{
+    const [x,y]=P(c.lon,c.lat);
+    s.append("line").attr("x1",x).attr("x2",x+(c.dx>0?22:-22)).attr("y1",y).attr("y2",y).attr("stroke",LINE2);
+    s.append("rect").attr("x",x-6).attr("y",y-6).attr("width",12).attr("height",12).attr("fill",GOLD).attr("stroke",INK).attr("stroke-width",1);
+    const tx=x+(c.dx>0?28:-28), anch=c.dx>0?"start":"end";
+    s.append("text").attr("x",tx).attr("y",y+c.dy).attr("text-anchor",anch)
+      .attr("font-family","'Archivo',sans-serif").attr("font-weight",700).attr("font-size",13).attr("fill",PAPER).text(c.n);
+    s.append("text").attr("x",tx).attr("y",y+c.dy+15).attr("text-anchor",anch)
+      .attr("font-family","'Inter',sans-serif").attr("font-size",11).attr("fill",MUTED).text(c.u);
+  });
+})();
+
+/* ---------- C6 : ARROW PLOT ---------- */
+(function(){
+  const W=560,H=420;
+  const s=svg("c6");
+  const left=150,right=W-90,top=80;
+  const X=d3.scaleLinear().domain([55,75]).range([left,right]);
+  [55,60,65,70,75].forEach(t=>{
+    s.append("line").attr("x1",X(t)).attr("x2",X(t)).attr("y1",top-20).attr("y2",H-90).attr("class","gridline");
+    s.append("text").attr("x",X(t)).attr("y",H-68).attr("text-anchor","middle").attr("class","tick-txt").text(t+"%");
+  });
+  const rows=[
+    {k:"ЮАР: правда / фейк",a:64,b:67,note:"+3 п.п."},
+    {k:"Доверие к новостям",a:61,b:55,note:"−6 п.п. (с 2022)"}
+  ];
+  const step=120;
+  rows.forEach((r,i)=>{
+    const y=top+i*step;
+    s.append("text").attr("x",left-16).attr("y",y-22).attr("text-anchor","start")
+      .attr("font-family","'Inter',sans-serif").attr("font-size",13).attr("font-weight",600).attr("fill","#D6D6D9").text(r.k);
+    const up=r.b>r.a, col=up?RED:GOLD;
+    // base track
+    s.append("line").attr("x1",X(r.a)).attr("x2",X(r.b)).attr("y1",y).attr("y2",y).attr("stroke",col).attr("stroke-width",3);
+    // start marker
+    s.append("rect").attr("x",X(r.a)-5).attr("y",y-5).attr("width",10).attr("height",10).attr("fill","#3A3A3E");
+    // arrow head
+    const dir=up?1:-1, ax=X(r.b);
+    s.append("path").attr("d",`M ${ax} ${y-7} L ${ax+dir*12} ${y} L ${ax} ${y+7} Z`).attr("fill",col);
+    s.append("text").attr("x",X(r.a)).attr("y",y+22).attr("text-anchor","middle").attr("class","val-txt").attr("fill",MUTED).text(r.a+"%");
+    s.append("text").attr("x",ax+dir*18).attr("y",y+5).attr("text-anchor",up?"start":"end").attr("class","val-txt").attr("fill",col).text(r.b+"% ");
+    s.append("text").attr("x",ax+dir*18).attr("y",y+22).attr("text-anchor",up?"start":"end")
+      .attr("font-family","'IBM Plex Mono',monospace").attr("font-size",10.5).attr("fill",MUTED).text(r.note);
+  });
+})();
+
+/* ---------- C8 : COLUMN (news sources) ---------- */
+(function(){
+  const W=560,H=340;
+  const s=svg("c8");
+  const left=46,right=W-20,bottom=H-58,top=30;
+  const data=[
+    {k:"Facebook",v:50,c:BLUE},
+    {k:"YouTube",v:42,c:RED},
+    {k:"TikTok",v:33,c:GREEN},
+    {k:"Opera News",v:14,c:GOLD}
+  ];
+  const Y=d3.scaleLinear().domain([0,55]).range([bottom,top]);
+  [0,10,20,30,40,50].forEach(t=>{
+    s.append("line").attr("x1",left).attr("x2",right).attr("y1",Y(t)).attr("y2",Y(t)).attr("class","gridline");
+    s.append("text").attr("x",left-10).attr("y",Y(t)+4).attr("text-anchor","end").attr("class","tick-txt").text(t);
+  });
+  const n=data.length, bw=58, span=(right-left), step=span/n;
+  data.forEach((d,i)=>{
+    const x=left+step*i+step/2-bw/2;
+    s.append("rect").attr("x",x).attr("y",Y(d.v)).attr("width",bw).attr("height",bottom-Y(d.v)).attr("fill",d.c);
+    s.append("text").attr("x",x+bw/2).attr("y",Y(d.v)-8).attr("text-anchor","middle").attr("class","val-txt").text(d.v+"%");
+    s.append("text").attr("x",x+bw/2).attr("y",bottom+20).attr("text-anchor","middle").attr("class","lab-txt").attr("font-size",12).text(d.k);
+  });
+})();
+
+/* ---------- C9 : BULLET BARS ---------- */
+(function(){
+  const W=560,H=340;
+  const s=svg("c9");
+  const left=160,right=W-40,top=24;
+  const X=d3.scaleLinear().domain([0,90]).range([left,right]);
+  const benchmark=58;
+  const data=[
+    {k:"Нигерия",v:84},
+    {k:"ЮАР / Африка",v:73,za:true},
+    {k:"США",v:73},
+    {k:"Западная Европа",v:46}
+  ];
+  const band=40, gap=22;
+  // benchmark line
+  data.forEach((d,i)=>{
+    const y=top+i*(band+gap);
+    // track
+    s.append("rect").attr("x",left).attr("y",y).attr("width",X(90)-left).attr("height",band).attr("fill","#141416");
+    s.append("rect").attr("x",left).attr("y",y+band/2-6).attr("width",X(d.v)-left).attr("height",12).attr("fill",d.za?GOLD:GREEN);
+    s.append("text").attr("x",left-14).attr("y",y+band/2+4).attr("text-anchor","end")
+      .attr("font-family","'Inter',sans-serif").attr("font-size",12.5).attr("font-weight",d.za?600:400).attr("fill",d.za?GOLD:"#D6D6D9").text(d.k);
+    s.append("text").attr("x",X(d.v)+8).attr("y",y+band/2+4).attr("class","val-txt").text(d.v+"%");
+  });
+  const yb0=top, yb1=top+data.length*(band+gap)-gap;
+  s.append("line").attr("x1",X(benchmark)).attr("x2",X(benchmark)).attr("y1",yb0-6).attr("y2",yb1+6).attr("stroke",PAPER).attr("stroke-width",2);
+  s.append("text").attr("x",X(benchmark)).attr("y",yb1+24).attr("text-anchor","middle")
+    .attr("font-family","'IBM Plex Mono',monospace").attr("font-size",10.5).attr("fill",PAPER).text("Мир 58%");
+})();
+
+/* ---------- C10 : SLOPE ---------- */
+(function(){
+  const W=560,H=340;
+  const s=svg("c10");
+  const xL=180,xR=W-150,top=44,bot=H-54;
+  const Y=d3.scaleLinear().domain([35,65]).range([bot,top]);
+  // axis labels
+  s.append("text").attr("x",xL).attr("y",top-18).attr("text-anchor","middle").attr("class","tick-txt").attr("fill","#D6D6D9").text("2022");
+  s.append("text").attr("x",xR).attr("y",top-18).attr("text-anchor","middle").attr("class","tick-txt").attr("fill","#D6D6D9").text("2025");
+  s.append("line").attr("x1",xL).attr("x2",xL).attr("y1",top-6).attr("y2",bot+6).attr("class","ax-line");
+  s.append("line").attr("x1",xR).attr("x2",xR).attr("y1",top-6).attr("y2",bot+6).attr("class","ax-line");
+  const series=[
+    {k:"ЮАР",a:61,b:55,c:GOLD},
+    {k:"Мир (среднее)",a:42,b:40,c:MUTED}
+  ];
+  series.forEach(d=>{
+    s.append("line").attr("x1",xL).attr("x2",xR).attr("y1",Y(d.a)).attr("y2",Y(d.b)).attr("stroke",d.c).attr("stroke-width",2.5);
+    s.append("rect").attr("x",xL-5).attr("y",Y(d.a)-5).attr("width",10).attr("height",10).attr("fill",d.c);
+    s.append("rect").attr("x",xR-5).attr("y",Y(d.b)-5).attr("width",10).attr("height",10).attr("fill",d.c);
+    s.append("text").attr("x",xL-12).attr("y",Y(d.a)+4).attr("text-anchor","end").attr("class","val-txt").attr("fill",d.c).text(d.a+"%");
+    s.append("text").attr("x",xR+12).attr("y",Y(d.b)+4).attr("text-anchor","start").attr("class","val-txt").attr("fill",d.c).text(d.b+"%");
+    s.append("text").attr("x",xR+44).attr("y",Y(d.b)+4).attr("text-anchor","start")
+      .attr("font-family","'Inter',sans-serif").attr("font-size",12.5).attr("font-weight",d.k==="ЮАР"?600:400).attr("fill",d.c).text(d.k);
+  });
+})();
+
+/* ---------- C11 : HORIZONTAL BAR (trusted brands) ---------- */
+(function(){
+  const W=560,H=340;
+  const s=svg("c11");
+  const left=120,right=W-50,top=40;
+  const X=d3.scaleLinear().domain([0,100]).range([left,right]);
+  [0,25,50,75,100].forEach(t=>{
+    s.append("line").attr("x1",X(t)).attr("x2",X(t)).attr("y1",top-16).attr("y2",H-60).attr("class","gridline");
+    s.append("text").attr("x",X(t)).attr("y",H-40).attr("text-anchor","middle").attr("class","tick-txt").text(t);
+  });
+  const data=[
+    {k:"News24",v:81},
+    {k:"eNCA",v:80},
+    {k:"SABC News",v:75}
+  ];
+  const band=46, gap=22;
+  data.forEach((d,i)=>{
+    const y=top+i*(band+gap);
+    s.append("text").attr("x",left-14).attr("y",y+band/2+4).attr("text-anchor","end")
+      .attr("font-family","'Inter',sans-serif").attr("font-size",13).attr("fill","#D6D6D9").text(d.k);
+    s.append("rect").attr("x",left).attr("y",y).attr("width",X(d.v)-left).attr("height",band).attr("fill",GREEN);
+    s.append("text").attr("x",X(d.v)+8).attr("y",y+band/2+4).attr("class","val-txt").text(d.v+"%");
+  });
+})();
+</script>
+</body>
+</html>

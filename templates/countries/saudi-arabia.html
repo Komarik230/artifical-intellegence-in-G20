@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Саудовская Аравия — ИИ-стратегия, регулирование, медиа | G20</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+/* ===================================================================
+   ЕДИНЫЙ ЧЁРНЫЙ ШАБЛОН G20. Под страну меняется только блок --flag-*.
+   Саудовская Аравия: зелёный + белый флага КСА (зелёный осветлён для
+   контраста на чёрном).
+   =================================================================== */
+:root {
+  /* --- Акцент страны: Саудовская Аравия (флаг) --- */
+  --flag-primary:   #16A35A;   /* зелёный флага КСА, осветлён */
+  --flag-primary-2: #3FC27E;   /* светлее, для ховера/выделения */
+  --flag-secondary: #ECEFEA;   /* белый шахады и меча */
+  --flag-tertiary:  #C9A96A;   /* песок/нефть, вторичный акцент */
+
+  /* --- Общая монохромная база (для всех стран одинаковая) --- */
+  --ink:        #060607;
+  --ink-panel:  #0B0C0E;
+  --paper:      #FFFFFF;
+  --muted:      rgba(255,255,255,.56);
+  --muted-2:    rgba(255,255,255,.40);
+  --line:       rgba(255,255,255,.16);
+  --line-2:     rgba(255,255,255,.30);
+  --grid:       rgba(255,255,255,.08);
+  --alert:      #E5484D;       /* функциональный красный: пробелы, отставание */
+
+  --maxw: 1320px;
+  --pad: clamp(16px, 4vw, 56px);
+
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --f-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--ink); -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--ink); color: var(--paper);
+  font-family: var(--f-body); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+svg { display: block; }
+a { color: inherit; }
+::selection { background: var(--flag-primary); color: #042113; }
+
+.wrap { width: min(var(--maxw), 100%); margin: 0 auto; padding-inline: var(--pad); }
+
+.eyebrow { font-family: var(--f-mono); font-size: 11.5px; font-weight: 500; letter-spacing: .26em; text-transform: uppercase; color: var(--flag-primary); margin: 0; }
+.mono { font-family: var(--f-mono); }
+.muted { color: var(--muted); }
+.green { color: var(--flag-primary); }
+.sand { color: var(--flag-tertiary); }
+.alert { color: var(--alert); }
+h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 900; }
+
+/* ====================== ШАПКА / БРЕНД-БАР ====================== */
+.topbar { border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 50; background: rgba(6,6,7,.86); backdrop-filter: blur(10px); }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand .idx { font-family: var(--f-mono); font-size: 12px; letter-spacing: .22em; color: var(--muted); }
+.brand .nm { font-family: var(--f-display); font-weight: 800; font-size: 15px; letter-spacing: .02em; }
+.flagbar { display: inline-flex; width: 30px; height: 14px; border: 1px solid var(--line-2); position: relative; }
+.flagbar i { flex: 1; background: var(--flag-primary); }
+.flagbar i::after { content: ""; position: absolute; left: 5px; right: 5px; top: 6px; height: 1.5px; background: var(--flag-secondary); }
+.topnav { display: flex; gap: 22px; }
+.topnav a { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+.topnav a:hover { color: var(--paper); }
+@media (max-width: 720px){ .topnav { display: none; } }
+
+/* ====================== HERO ====================== */
+.hero { border-bottom: 1px solid var(--line); padding: clamp(48px,9vw,116px) 0 clamp(34px,5vw,60px); position: relative; }
+.hero .wrap { position: relative; z-index: 2; }
+.hero h1 { font-size: clamp(44px,9vw,118px); line-height: .94; margin: 18px 0 0; max-width: 15ch; }
+.hero h1 em { font-style: normal; color: var(--flag-primary); }
+.hero .dek { margin: 26px 0 0; max-width: 64ch; font-size: clamp(16px,2vw,20px); color: var(--muted); }
+.hero .meta { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 10px 26px; font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-2); }
+.hero .meta b { color: var(--paper); font-weight: 500; }
+.heromark { position: absolute; inset: 0; z-index: 1; overflow: hidden; opacity: .5; }
+.heromark::before {
+  content: ""; position: absolute; right: calc(-1*var(--pad)); top: 50%; transform: translateY(-50%);
+  width: min(46vw,620px); aspect-ratio: 1/1;
+  background:
+    repeating-linear-gradient(0deg, var(--grid) 0 1px, transparent 1px 56px),
+    repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 56px);
+  -webkit-mask: radial-gradient(closest-side, #000 60%, transparent 100%);
+          mask: radial-gradient(closest-side, #000 60%, transparent 100%);
+}
+
+/* ====================== KPI-ПОЛОСА ====================== */
+.kpi { border-bottom: 1px solid var(--line); }
+.kpi .grid { display: grid; grid-template-columns: repeat(6,1fr); }
+.kpi .cell { padding: 22px clamp(12px,1.6vw,22px); border-left: 1px solid var(--line); }
+.kpi .cell:first-child { border-left: 0; }
+.kpi .num { font-family: var(--f-mono); font-weight: 500; font-size: clamp(22px,2.6vw,32px); letter-spacing: -.01em; }
+.kpi .lab { display: block; margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.kpi .sub { display: block; margin-top: 4px; font-family: var(--f-mono); font-size: 10.5px; color: var(--muted-2); letter-spacing: .02em; }
+@media (max-width: 1080px){ .kpi .grid { grid-template-columns: repeat(3,1fr); } .kpi .cell:nth-child(4) { border-left: 0; } .kpi .cell:nth-child(-n+3){ border-bottom: 1px solid var(--line); } }
+@media (max-width: 560px){ .kpi .grid { grid-template-columns: repeat(2,1fr); } .kpi .cell:nth-child(odd){ border-left: 0; } .kpi .cell:nth-child(-n+4){ border-bottom: 1px solid var(--line); } }
+
+/* ====================== СЕКЦИИ ====================== */
+section { padding: clamp(54px,8vw,104px) 0; border-bottom: 1px solid var(--line); }
+.sec-head { display: flex; gap: 22px; align-items: baseline; margin-bottom: clamp(30px,4vw,52px); }
+.sec-num { font-family: var(--f-mono); font-size: 13px; color: var(--flag-primary); letter-spacing: .1em; flex: none; padding-top: 6px; }
+.sec-head h2 { font-size: clamp(28px,4.6vw,58px); line-height: 1.02; letter-spacing: -.015em; }
+.sec-head .sd { margin-top: 16px; max-width: 72ch; color: var(--muted); font-size: clamp(15px,1.5vw,18px); }
+
+.subhead { font-family: var(--f-mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); margin: clamp(40px,5vw,64px) 0 24px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.subhead b { color: var(--flag-primary); font-weight: 600; }
+
+/* ====================== ФИГУРЫ ====================== */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px,3vw,40px); }
+@media (max-width: 900px){ .grid-2 { grid-template-columns: 1fr; } }
+
+figure.fig { margin: 0 0 clamp(30px,4vw,46px); border: 1px solid var(--line); background: var(--ink-panel); }
+figure.fig.bare { background: transparent; }
+.fig .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 18px 20px 16px; border-bottom: 1px solid var(--line); }
+.fig .t { font-family: var(--f-display); font-weight: 800; font-size: clamp(16px,1.7vw,20px); line-height: 1.2; letter-spacing: -.01em; }
+.fig .st { display: block; margin-top: 6px; font-size: 13px; color: var(--muted); font-family: var(--f-body); font-weight: 400; }
+.fig .tag { font-family: var(--f-mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--flag-tertiary); border: 1px solid var(--line); padding: 5px 8px; white-space: nowrap; flex: none; }
+.fig .chart { padding: 20px; }
+.fig figcaption { padding: 0 20px 18px; font-size: 12.5px; color: var(--muted-2); line-height: 1.5; }
+.fig figcaption b { color: var(--muted); font-weight: 500; }
+
+/* ---- общие SVG-стили ---- */
+.axis-label { font-family: var(--f-mono); font-size: 10.5px; fill: var(--muted-2); letter-spacing: .04em; }
+.tick-label { font-family: var(--f-mono); font-size: 10.5px; fill: var(--muted-2); }
+.val-label { font-family: var(--f-mono); font-size: 11px; fill: var(--paper); }
+.cat-label { font-family: var(--f-body); font-size: 12.5px; fill: var(--paper); }
+.grid-line { stroke: var(--grid); stroke-width: 1; }
+.base-line { stroke: var(--line-2); stroke-width: 1; }
+
+/* ---- легенда ---- */
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 0 20px 18px; }
+.legend .it { display: flex; align-items: center; gap: 8px; font-family: var(--f-mono); font-size: 11px; color: var(--muted); }
+.legend .sw { width: 12px; height: 12px; flex: none; }
+
+/* ---- таблица ---- */
+.dtable { width: 100%; border-collapse: collapse; font-size: 13px; }
+.dtable th, .dtable td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.dtable thead th { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-2); font-weight: 500; }
+.dtable td.mono { font-family: var(--f-mono); }
+.dtable tr:last-child td { border-bottom: 0; }
+.dtable .pill { font-family: var(--f-mono); font-size: 10px; letter-spacing: .06em; padding: 3px 7px; border: 1px solid var(--line-2); color: var(--muted); }
+
+/* ====================== ФУТЕР ====================== */
+footer { padding: clamp(48px,7vw,88px) 0 64px; }
+footer .grid-f { display: grid; grid-template-columns: 1.2fr 2fr; gap: clamp(28px,4vw,64px); }
+@media (max-width: 820px){ footer .grid-f { grid-template-columns: 1fr; } }
+footer h3 { font-size: clamp(22px,3vw,34px); line-height: 1.05; }
+footer .colophon { margin-top: 20px; font-size: 13px; color: var(--muted); max-width: 46ch; }
+footer .flag-big { display: inline-flex; width: 64px; height: 30px; border: 1px solid var(--line-2); margin-bottom: 26px; position: relative; background: var(--flag-primary); }
+footer .flag-big::after { content: ""; position: absolute; left: 12px; right: 12px; top: 13px; height: 2px; background: var(--flag-secondary); }
+.srcs { font-size: 12.5px; }
+.srcs .sh { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted-2); margin-bottom: 14px; }
+.srcs ol { margin: 0; padding: 0; list-style: none; counter-reset: s; }
+.srcs li { counter-increment: s; padding: 9px 0 9px 34px; border-top: 1px solid var(--line); position: relative; color: var(--muted); line-height: 1.45; }
+.srcs li::before { content: counter(s,decimal-leading-zero); position: absolute; left: 0; top: 9px; font-family: var(--f-mono); font-size: 11px; color: var(--flag-primary); }
+.srcs li b { color: var(--paper); font-weight: 500; }
+.endbar { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-2); }
+</style>
+</head>
+<body>
+
+<!-- ШАПКА -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="idx">G20 / ИИ</span>
+      <span class="flagbar"><i></i></span>
+      <span class="nm">Саудовская Аравия</span>
+    </div>
+    <nav class="topnav">
+      <a href="#strategy">01 Стратегия</a>
+      <a href="#ethics">02 Регулирование</a>
+      <a href="#media">03 Медиа</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="heromark"></div>
+  <div class="wrap">
+    <p class="eyebrow">Королевство Саудовская Аравия · профиль ИИ</p>
+    <h1>Капитал впереди <em>компетенций</em></h1>
+    <p class="dek">Саудовская Аравия покупает мировое лидерство в ИИ деньгами суверенного фонда: первое место в мире по государственной стратегии и седьмое по коммерческой экосистеме при 60-м месте по кадрам. Стратегия, чипы и дата-центры обгоняют талант и исследования — это и есть сигнатурный профиль Королевства.</p>
+    <div class="meta">
+      <span>Регион: <b>Ближний Восток</b></span>
+      <span>Регулятор: <b>SDAIA</b></span>
+      <span>Нацстратегия: <b>NSDAI 2020</b></span>
+      <span>Нацкомпания: <b>HUMAIN (PIF)</b></span>
+      <span>Горизонт: <b>Vision 2030</b></span>
+    </div>
+  </div>
+</div>
+
+<!-- KPI -->
+<div class="kpi">
+  <div class="wrap">
+    <div class="grid">
+      <div class="cell"><div class="num">14<span class="sand" style="font-size:.6em"> / 83</span></div><span class="lab">Место в Global AI Index 2024</span><span class="sub">было 31-е в 2023 · 1-е в арабском мире</span></div>
+      <div class="cell"><div class="num green">#1</div><span class="lab">Госстратегия (саб-пиллар Tortoise)</span><span class="sub">100% по всем критериям</span></div>
+      <div class="cell"><div class="num">$40<span class="sand" style="font-size:.6em">млрд+</span></div><span class="lab">Аллокация PIF на ИИ-проекты</span><span class="sub">включая HUMAIN</span></div>
+      <div class="cell"><div class="num">~$130<span class="sand" style="font-size:.6em">млрд</span></div><span class="lab">Вклад ИИ в ВВП к 2030 (оценка SDAIA)</span><span class="sub">PwC: $135 млрд = 12,4% ВВП</span></div>
+      <div class="cell"><div class="num">99,6<span class="sand" style="font-size:.6em">%</span></div><span class="lab">Проникновение соцсетей</span><span class="sub">34,1 млн · интернет 99,0%</span></div>
+      <div class="cell"><div class="num green">76<span style="font-size:.6em">%</span></div><span class="lab">«У ИИ больше плюсов, чем минусов»</span><span class="sub">2-е место в мире после Китая</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 01 СТРАТЕГИЯ ============ -->
+<section id="strategy">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <div>
+        <h2>Стратегия</h2>
+        <p class="sd">Королевство ведёт мир по объёму объявленных государственных обязательств на ИИ — больше, чем США и Китай в относительном выражении. Деньги конвертируются в чипы Nvidia/AMD и дата-центры через нацкомпанию HUMAIN. Но кадры и исследования остаются ахиллесовой пятой: рывок в рейтинге держится на капитале, а не на органической экосистеме.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <figure class="fig">
+        <div class="head"><div><div class="t">Профиль возможностей Королевства</div><span class="st">Global AI Index 2024, ранги по 7 саб-пилларам (из 83 стран)</span></div><span class="tag">Радар</span></div>
+        <div class="chart" id="c-radar"></div>
+        <figcaption>Полигон показывает сигнатурный дисбаланс: <b>госстратегия #1</b> и <b>коммерция #7</b> при <b>кадрах #60</b> и <b>исследованиях #42</b>. Чем дальше от центра — тем выше позиция в мире. Источник: Tortoise Global AI Index 2024 [1].</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head"><div><div class="t">Рывок 2023 → 2024</div><span class="st">Изменение места в общем зачёте Global AI Index</span></div><span class="tag">Arrow plot</span></div>
+        <div class="chart" id="c-arrow"></div>
+        <figcaption>Саудовская Аравия прыгнула на 17 позиций (31 → 14), обогнав ОАЭ как ведущую арабскую страну. Аналитик Tortoise связывает это прежде всего с объявленным фондом в $40 млрд. Источник: Tortoise [1], Arab News [2].</figcaption>
+      </figure>
+    </div>
+
+    <figure class="fig">
+      <div class="head"><div><div class="t">Арабский мир в Global AI Index 2024</div><span class="st">Место в общемировом рейтинге (длиннее полоса — выше позиция)</span></div><span class="tag">Bar</span></div>
+      <div class="chart" id="c-bar-arab"></div>
+      <figcaption>Королевство — безусловный лидер региона; следующая страна, ОАЭ, отстаёт на 6 позиций, а остальные арабские государства — за пределами топ-50. Источник: Tortoise Global AI Index 2024 [1].</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <div class="head"><div><div class="t">Цели NSDAI к 2030: план против факта</div><span class="st">Прогресс по ключевым целевым показателям нацстратегии</span></div><span class="tag">Bullet bars</span></div>
+      <div class="chart" id="c-bullet"></div>
+      <figcaption>Цель по рейтингу (топ-15) и по инвестициям ($20 млрд) уже перевыполнены; кадровая цель — лишь наполовину (11 тыс. из 20 тыс. специалистов на начало 2026). Вертикальная риска — цель, полоса — факт. Источники: NSDAI/SDAIA [3], vision2030.ai [4].</figcaption>
+    </figure>
+
+    <div class="grid-2">
+      <figure class="fig">
+        <div class="head"><div><div class="t">Анонсированный план мощностей</div><span class="st">Дата-центры HUMAIN, МВт (дорожная карта пакта Nvidia $7 млрд)</span></div><span class="tag">Area</span></div>
+        <div class="chart" id="c-area"></div>
+        <figcaption>Запуск двух площадок по 100 МВт в начале 2026, масштабирование к ~600 МВт к 2028 и опцион до 1,9 ГВт к 2030. Дополнительно в мае 2025 объявлены «ИИ-фабрики» Nvidia на 500 МВт и пакт с AMD на 500 МВт. Источники: AInvest/Nvidia roadmap [5], Fortune [6].</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head"><div><div class="t">Объявленные ИИ-обязательства</div><span class="st">Размер фонда / сделки, млрд долл. США</span></div><span class="tag">Column</span></div>
+        <div class="chart" id="c-col-deals"></div>
+        <figcaption>PIF выделил более $40 млрд на ИИ-венчуры; пакт с AMD оценён в $10 млрд (500 МВт), пакет с Nvidia — в $7 млрд. Целевой ориентир инвестиций NSDAI — $20 млрд. Источники: OECD.AI [7], Fortune [6], AInvest [5].</figcaption>
+      </figure>
+    </div>
+
+    <div class="grid-2">
+      <figure class="fig">
+        <div class="head"><div><div class="t">Поставка GPU для HUMAIN</div><span class="st">Ускорители Nvidia Blackwell, тыс. шт.</span></div><span class="tag">Stacked column</span></div>
+        <div class="chart" id="c-stack-gpu"></div>
+        <figcaption>Первый твёрдый заказ — 18 тыс. ускорителей GB300 (Q4 2025); последующие транши доводят парк примерно до 240 тыс. единиц к 2028. Минторг США одобрил экспорт эквивалента 35 тыс. чипов класса Blackwell на двоих с G42 (ОАЭ). Источники: AInvest [5], CNBC [8], Lawyer Monthly [9].</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head"><div><div class="t">География ИИ-инфраструктуры</div><span class="st">Опорные узлы Королевства (размер маркера — роль площадки)</span></div><span class="tag">Symbol map</span></div>
+        <div class="chart" id="c-map"></div>
+        <figcaption>Эр-Рияд — штаб-квартира HUMAIN и кластер дата-центров; Даммам — вторая площадка закладки по пакту с Nvidia; NEOM — гигапроект «умного города»; Джидда и Мекка — приложения ИИ в логистике Хаджа (Baseer, Sawaher). Карта схематична. Источники: AInvest [5], SDAIA [3].</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 РЕГУЛИРОВАНИЕ ============ -->
+<section id="ethics">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <div>
+        <h2>Этическое регулирование</h2>
+        <p class="sd">У Королевства пока нет отдельного закона об ИИ, но есть плотный слой инструментов: обязательный к исполнению закон о персональных данных (PDPL) и набор принципов и рамок SDAIA — от этических принципов и руководств по генеративному ИИ до структуры внедрения. Подход — «принципы и данные сейчас, отдельный закон об ИИ позже».</p>
+      </div>
+    </div>
+
+    <figure class="fig">
+      <div class="head"><div><div class="t">Хронология регулирования: от анонса до применения</div><span class="st">Окна «принятие → вступление в силу» по ключевым инструментам</span></div><span class="tag">Range plot</span></div>
+      <div class="chart" id="c-range"></div>
+      <figcaption>PDPL прошёл самый долгий путь: королевский указ 2021 → поправки 2023 → вступление в силу сен. 2023 → полное применение сен. 2024 (штрафы до 5 млн риалов, уведомление об утечке за 72 ч). Источники: ICLG [10], Clyde &amp; Co [11], Nemko/SDAIA [12].</figcaption>
+    </figure>
+
+    <div class="grid-2">
+      <figure class="fig">
+        <div class="head"><div><div class="t">Принципы и контроль этики ИИ SDAIA</div><span class="st">7 принципов + 4 уровня классификации риска (сен. 2023)</span></div><span class="tag">Таблица</span></div>
+        <div class="chart" style="padding:0">
+          <table class="dtable">
+            <thead><tr><th>Принцип</th><th>Содержание</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">1 · Справедливость</td><td>устранение предвзятости и дискриминации в данных и моделях</td></tr>
+              <tr><td class="mono">2 · Приватность и безопасность</td><td>соответствие PDPL, минимизация данных, контроль доступа</td></tr>
+              <tr><td class="mono">3 · Человечность</td><td>достоинство, надзор человека, защита прав</td></tr>
+              <tr><td class="mono">4 · Социум и среда</td><td>польза для общества и устойчивого развития</td></tr>
+              <tr><td class="mono">5 · Надёжность и безопасность</td><td>валидация, тестирование, устойчивость систем</td></tr>
+              <tr><td class="mono">6 · Прозрачность</td><td>объяснимость решений и раскрытие информации</td></tr>
+              <tr><td class="mono">7 · Подотчётность</td><td>цепочки ответственности, журналирование, аудит</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption>Классификация риска — 4 уровня; для высокорисковых систем обязательны оценка влияния и роли «Responsible AI Officer» и «AI System Assessor». SDAIA получила ISO 42001 в июле 2024. Источник: Regulations.ai/SDAIA [13].</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head"><div><div class="t">Готовность правительства к ИИ</div><span class="st">Government AI Readiness Index, балл (Саудовская Аравия и регион)</span></div><span class="tag">Dot plot</span></div>
+        <div class="chart" id="c-dot-readiness"></div>
+        <figcaption>В регионе MENA Королевство — 3-е по баллу после ОАЭ и Израиля и при этом устойчиво 1-е в MENA по версии Oxford Insights в редакции 2025. Каждая точка — балл страны (из 100). Источники: Oxford Insights / index.dev [14], The Finance 360 [15].</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 МЕДИА ============ -->
+<section id="media">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <div>
+        <h2>Медиа</h2>
+        <p class="sd">Саудовская Аравия — один из самых «подключённых» рынков мира: почти поголовное проникновение интернета и соцсетей. На этом фоне доверие к ИИ аномально высокое — Королевство стабильно в тройке мирового оптимизма. Государство одновременно строит арабоязычные модели (ALLaM) и режим контроля генеративного контента — водяные знаки, лицензирование инфлюенсеров.</p>
+      </div>
+    </div>
+
+    <figure class="fig">
+      <div class="head"><div><div class="t">Цифровой охват, начало 2025</div><span class="st">Проникновение и абсолютная аудитория площадок</span></div><span class="tag">Split bars</span></div>
+      <div class="chart" id="c-split"></div>
+      <figcaption>Интернет — 99,0% (33,9 млн), соцсети — 99,6% (34,1 млн), мобильные подключения — 140% (48,1 млн). Среди площадок лидируют WhatsApp и YouTube. Источник: DataReportal Digital 2025: Saudi Arabia [16].</figcaption>
+    </figure>
+
+    <div class="grid-2">
+      <figure class="fig">
+        <div class="head"><div><div class="t">Отношение к ИИ: Королевство против мира</div><span class="st">Доля согласных, % (Ipsos AI Monitor 2025)</span></div><span class="tag">Grouped column</span></div>
+        <div class="chart" id="c-grpcol"></div>
+        <figcaption>По всем трём метрикам Саудовская Аравия далеко опережает мировое среднее: ИИ облегчает жизнь (80% против 60%), больше плюсов чем минусов (76% против 52%), доверие к ИИ-компаниям (73% против ~50%). Источник: Ipsos AI Monitor 2025 [17].</figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head"><div><div class="t">Оптимизм и доверие по странам</div><span class="st">«Больше плюсов» (X) против «доверяю ИИ-компаниям» (Y), %</span></div><span class="tag">Scatter</span></div>
+        <div class="chart" id="c-scatter"></div>
+        <figcaption>Чёткий разрыв: развивающиеся рынки (Китай, Саудовская Аравия) — в правом верхнем углу, страны Запада (США, Франция, Канада) — в левом нижнем. Источник: Ipsos AI Monitor 2025 [17].</figcaption>
+      </figure>
+    </div>
+
+    <figure class="fig">
+      <div class="head"><div><div class="t">Две метрики восприятия ИИ по странам</div><span class="st">«Облегчает жизнь» и «больше плюсов, чем минусов», %</span></div><span class="tag">Grouped bars</span></div>
+      <div class="chart" id="c-grpbar"></div>
+      <figcaption>Саудовская Аравия по обеим метрикам уступает только Китаю и более чем вдвое опережает Францию и США. Источник: Ipsos AI Monitor 2025 [17].</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <div class="head"><div><div class="t">ALLaM — арабоязычные модели NCAI/SDAIA</div><span class="st">Семейство больших языковых моделей Королевства</span></div><span class="tag">Таблица</span></div>
+      <div class="chart" style="padding:0">
+        <table class="dtable">
+          <thead><tr><th>Модель</th><th>Параметры</th><th>База</th><th>Доступ</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">ALLaM-7B</td><td class="mono">7 млрд</td><td>инициализация Llama-2</td><td><span class="pill">Azure AI Foundry</span></td></tr>
+            <tr><td class="mono">ALLaM-13B</td><td class="mono">13 млрд</td><td>инициализация Llama-2</td><td><span class="pill">IBM watsonx</span></td></tr>
+            <tr><td class="mono">ALLaM-70B</td><td class="mono">70 млрд</td><td>инициализация Llama-2</td><td><span class="pill">Azure · watsonx</span></td></tr>
+            <tr><td class="mono">ALLaM-7B (scratch)</td><td class="mono">7 млрд</td><td>обучена с нуля</td><td><span class="pill">SDAI license</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption>Корпус — около <b>500 млрд токенов</b>, по описанию SDAIA крупнейший арабоязычный датасет, собранный 16 госструктурами. Параллельно действуют «Руководства по генеративному ИИ» (2024): водяные знаки и контроль аутентичности контента. Источники: vision2030.ai [4], Nemko/SDAIA [12].</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ФУТЕР -->
+<footer>
+  <div class="wrap">
+    <div class="grid-f">
+      <div>
+        <span class="flag-big"></span>
+        <h3>Капитал ищет компетенции</h3>
+        <p class="colophon">Часть учебной серии о подходах стран G20 к искусственному интеллекту. Единый визуальный шаблон; данные перепроверены по первоисточникам. Круговые формы намеренно исключены дизайн-системой — отсюда квадратные маркеры и полигональный радар.</p>
+      </div>
+      <div class="srcs">
+        <div class="sh">Источники</div>
+        <ol>
+          <li><b>Tortoise Media</b> — The Global Artificial Intelligence Index 2024 (5-я итерация, 19.09.2024): 14-е место в общем зачёте, #1 по госстратегии, #7 по коммерции, #60 по кадрам; полная таблица саб-пилларов.</li>
+          <li><b>Arab News</b> / SPA — «Saudi Arabia maintains lead in AI government strategy» (рывок 31 → 14, $40 млрд).</li>
+          <li><b>SDAIA</b> / Saudipedia / Regulations.ai — National Strategy for Data &amp; AI (NSDAI), цели к 2030: топ-15, 20 000 специалистов, SAR 75 млрд.</li>
+          <li><b>vision2030.ai</b> — Saudi National AI Strategy 2026 / SDAIA: 11 000+ обученных специалистов, SAMAI 1 млн+, ALLaM, корпус ~500 млрд токенов.</li>
+          <li><b>AInvest / AIME</b> — granular details Nvidia $7 bn deal: дорожная карта мощностей (200 → 600 → 1900 МВт), ~240 тыс. GPU к 2028.</li>
+          <li><b>Fortune</b> — Nvidia deal with Humain (18 000 Blackwell, AMD $10 млрд / 500 МВт).</li>
+          <li><b>OECD.AI</b> — National Data &amp; AI Strategy: PIF выделил $40 млрд+ на ИИ-венчуры, включая HUMAIN.</li>
+          <li><b>CNBC</b> — «Nvidia sending 18,000 of its top AI chips to Saudi Arabia» (GB300, дата-центры 500 МВт).</li>
+          <li><b>Lawyer Monthly</b> — экспортное одобрение Минторга США: эквивалент 35 000 чипов Blackwell на HUMAIN + G42.</li>
+          <li><b>ICLG</b> — Data Protection Laws 2025–2026, Saudi Arabia: PDPL (M/19, 2021), в силе 14.09.2023, применение 14.09.2024.</li>
+          <li><b>Clyde &amp; Co</b> — PDPL becomes enforceable: окно соответствия и поправки M/148 (2023).</li>
+          <li><b>Nemko / SDAIA</b> — AI Regulation in Saudi Arabia: AI Ethics Principles (2023), Generative AI Guidelines (2024), AI Adoption Framework, ISO 42001 (07.2024).</li>
+          <li><b>Regulations.ai</b> — Principles and Controls of AI Ethics: 7 принципов, 4 уровня риска.</li>
+          <li><b>Oxford Insights</b> / index.dev — Government AI Readiness Index: баллы MENA (ОАЭ 75,66 · Израиль 74,52 · Саудовская Аравия 72,36).</li>
+          <li><b>The Finance 360</b> — Saudi Arabia tops MENA in Government AI Readiness Index 2025.</li>
+          <li><b>DataReportal</b> — Digital 2025: Saudi Arabia (интернет 99,0%, соцсети 99,6%, мобильные 140%, площадки).</li>
+          <li><b>Ipsos</b> — AI Monitor 2025 / «Opinions about AI vary by economic development»: ИИ облегчает жизнь (SA 80%), больше плюсов (SA 76%), доверие к компаниям (SA 73%); страновые сравнения.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="endbar">
+      <span>G20 · ИИ-серия · Саудовская Аравия</span>
+      <span>15 типов визуализаций · D3 v7 · данные на 2024–2026</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+"use strict";
+
+const PAL = {
+  ink: "#060607", panel: "#0B0C0E", paper: "#FFFFFF",
+  muted: "rgba(255,255,255,.56)", muted2: "rgba(255,255,255,.40)",
+  line: "rgba(255,255,255,.16)", line2: "rgba(255,255,255,.30)", grid: "rgba(255,255,255,.08)",
+  green: "#16A35A", green2: "#3FC27E", white: "#ECEFEA", sand: "#C9A96A", alert: "#E5484D"
+};
+const FONT_MONO = '"IBM Plex Mono", monospace';
+const FONT_BODY = '"Inter", sans-serif';
+
+function clear(id){ const el = document.getElementById(id); el.innerHTML = ""; return el; }
+function widthOf(el){ return Math.max(260, Math.floor(el.getBoundingClientRect().width)); }
+function svgIn(el, w, h){
+  return d3.select(el).append("svg")
+    .attr("viewBox", "0 0 " + w + " " + h)
+    .attr("width", "100%").attr("height", h)
+    .attr("preserveAspectRatio", "xMidYMid meet");
+}
+
+/* ---------- 01 РАДАР: Tortoise 7 саб-пилларов ---------- */
+function drawRadar(){
+  const el = clear("c-radar"); const W = widthOf(el); const H = 360;
+  const cx = W/2, cy = H/2 + 6, R = Math.min(W, H)/2 - 64;
+  const svg = svgIn(el, W, H);
+  // ранг из 83 -> балл 0..100 (84 - rank)/83*100
+  const data = [
+    {ax: "Госстратегия", rank: 1},
+    {ax: "Коммерция", rank: 7},
+    {ax: "Разработка", rank: 26},
+    {ax: "Инфра-\nструктура", rank: 29},
+    {ax: "Операц.\nсреда", rank: 41},
+    {ax: "Иссле-\nдования", rank: 42},
+    {ax: "Кадры", rank: 60}
+  ];
+  const score = r => (84 - r) / 83 * 100;
+  const n = data.length;
+  const ang = i => (-Math.PI/2) + i * (2*Math.PI/n);
+  const rs = d3.scaleLinear().domain([0,100]).range([0, R]);
+
+  [25,50,75,100].forEach(v => {
+    const pts = d3.range(n).map(i => [cx + rs(v)*Math.cos(ang(i)), cy + rs(v)*Math.sin(ang(i))]);
+    svg.append("polygon").attr("points", pts.map(p => p.join(",")).join(" "))
+      .attr("fill","none").attr("stroke", PAL.grid).attr("stroke-width",1);
+  });
+  data.forEach((d,i) => {
+    svg.append("line").attr("x1",cx).attr("y1",cy)
+      .attr("x2", cx + R*Math.cos(ang(i))).attr("y2", cy + R*Math.sin(ang(i)))
+      .attr("stroke", PAL.grid).attr("stroke-width",1);
+    const lx = cx + (R+24)*Math.cos(ang(i)), ly = cy + (R+24)*Math.sin(ang(i));
+    const anchor = Math.abs(Math.cos(ang(i))) < 0.3 ? "middle" : (Math.cos(ang(i)) > 0 ? "start" : "end");
+    const lines = d.ax.split("\n");
+    const t = svg.append("text").attr("x",lx).attr("y",ly).attr("text-anchor",anchor)
+      .attr("font-family",FONT_MONO).attr("font-size",10).attr("fill",PAL.muted)
+      .attr("dy", (-(lines.length-1)*5));
+    lines.forEach((s,k)=> t.append("tspan").attr("x",lx).attr("dy", k===0?0:11).text(s));
+    svg.append("text").attr("x",lx).attr("y",ly).attr("text-anchor",anchor)
+      .attr("dy", (-(lines.length-1)*5) + lines.length*11 + 1)
+      .attr("font-family",FONT_MONO).attr("font-size",9).attr("fill",PAL.sand).text("#"+d.rank);
+  });
+  const poly = data.map((d,i) => [cx + rs(score(d.rank))*Math.cos(ang(i)), cy + rs(score(d.rank))*Math.sin(ang(i))]);
+  svg.append("polygon").attr("points", poly.map(p=>p.join(",")).join(" "))
+    .attr("fill", PAL.green).attr("fill-opacity",.18).attr("stroke", PAL.green).attr("stroke-width",2);
+  poly.forEach(p => svg.append("rect").attr("x",p[0]-3).attr("y",p[1]-3).attr("width",6).attr("height",6)
+    .attr("fill", PAL.green).attr("stroke", PAL.ink).attr("stroke-width",1));
+}
+
+/* ---------- 01 ARROW PLOT: рывок 2023->2024 ---------- */
+function drawArrow(){
+  const el = clear("c-arrow"); const W = widthOf(el); const H = 200;
+  const m = {t:30, r:54, b:40, l:120};
+  const svg = svgIn(el, W, H);
+  const data = [{c:"Саудовская Аравия", a:31, b:14}, {c:"ОАЭ", a:28, b:20}];
+  const x = d3.scaleLinear().domain([1, 35]).range([m.l, W-m.r]);
+  const y = d3.scalePoint().domain(data.map(d=>d.c)).range([m.t+8, H-m.b]).padding(.6);
+  // лучше = меньше ранг; ось показываем 1..35
+  [1,10,20,30].forEach(v=>{
+    svg.append("line").attr("x1",x(v)).attr("x2",x(v)).attr("y1",m.t).attr("y2",H-m.b).attr("class","grid-line");
+    svg.append("text").attr("x",x(v)).attr("y",H-m.b+16).attr("text-anchor","middle").attr("class","tick-label").text(v);
+  });
+  svg.append("text").attr("x",(m.l+W-m.r)/2).attr("y",H-6).attr("text-anchor","middle").attr("class","axis-label").text("место в мире (меньше — лучше)");
+  const defs = svg.append("defs");
+  defs.append("marker").attr("id","ah").attr("viewBox","0 0 10 10").attr("refX",8).attr("refY",5)
+    .attr("markerWidth",7).attr("markerHeight",7).attr("orient","auto-start-reverse")
+    .append("path").attr("d","M0,0 L10,5 L0,10 z").attr("fill", PAL.green);
+  data.forEach(d=>{
+    const yy = y(d.c);
+    svg.append("text").attr("x",m.l-14).attr("y",yy+4).attr("text-anchor","end").attr("class","cat-label").text(d.c);
+    svg.append("line").attr("x1",x(d.a)).attr("y1",yy).attr("x2",x(d.b)).attr("y2",yy)
+      .attr("stroke", PAL.green).attr("stroke-width",2).attr("marker-end","url(#ah)");
+    svg.append("rect").attr("x",x(d.a)-3).attr("y",yy-3).attr("width",6).attr("height",6).attr("fill",PAL.muted2);
+    svg.append("text").attr("x",x(d.a)).attr("y",yy-10).attr("text-anchor","middle").attr("class","tick-label").text(d.a+" (2023)");
+    svg.append("text").attr("x",x(d.b)).attr("y",yy-10).attr("text-anchor","middle").attr("class","val-label").attr("fill",PAL.green).text(d.b+" (2024)");
+  });
+}
+
+/* ---------- 01 BAR: арабский мир ---------- */
+function drawBarArab(){
+  const el = clear("c-bar-arab"); const W = widthOf(el); const rows = 7; const H = rows*38 + 50;
+  const m = {t:14, r:60, b:24, l:140};
+  const svg = svgIn(el, W, H);
+  const data = [
+    {c:"Саудовская Аравия", rank:14}, {c:"ОАЭ", rank:20}, {c:"Египет", rank:52},
+    {c:"Катар", rank:54}, {c:"Бахрейн", rank:62}, {c:"Иордания", rank:63}, {c:"Оман", rank:64}
+  ].map(d=>({...d, score: 84 - d.rank}));
+  const x = d3.scaleLinear().domain([0, 72]).range([m.l, W-m.r]);
+  const y = d3.scaleBand().domain(data.map(d=>d.c)).range([m.t, H-m.b]).padding(.34);
+  data.forEach(d=>{
+    const yy = y(d.c);
+    svg.append("text").attr("x",m.l-12).attr("y",yy+y.bandwidth()/2+4).attr("text-anchor","end").attr("class","cat-label")
+      .attr("fill", d.c==="Саудовская Аравия"?PAL.green:PAL.paper).text(d.c);
+    svg.append("rect").attr("x",m.l).attr("y",yy).attr("width",x(d.score)-m.l).attr("height",y.bandwidth())
+      .attr("fill", d.c==="Саудовская Аравия"?PAL.green:PAL.line2);
+    svg.append("text").attr("x",x(d.score)+8).attr("y",yy+y.bandwidth()/2+4).attr("class","val-label").text("#"+d.rank);
+  });
+  svg.append("line").attr("x1",m.l).attr("x2",m.l).attr("y1",m.t).attr("y2",H-m.b).attr("class","base-line");
+}
+
+/* ---------- 01 BULLET BARS: цели NSDAI ---------- */
+function drawBullet(){
+  const el = clear("c-bullet"); const W = widthOf(el);
+  const data = [
+    {lab:"Место в Global AI Index", unit:"", max:40, target:15, actual:14, fmt:v=>"#"+v, note:"цель ≤15 — выполнено", good:true},
+    {lab:"Специалисты по ИИ/данным", unit:"чел.", max:20000, target:20000, actual:11000, fmt:v=>d3.format(",")(v).replace(/,/g," "), note:"55% цели (нач. 2026)", good:false},
+    {lab:"Инвестиции в ИИ", unit:"млрд $", max:45, target:20, actual:40, fmt:v=>"$"+v+" млрд", note:"цель $20 млрд — перевыполнена (PIF $40 млрд+)", good:true},
+    {lab:"Охват ИИ-грамотности SAMAI", unit:"чел.", max:1200000, target:1000000, actual:1000000, fmt:v=>(v/1e6).toFixed(1).replace(".",",")+" млн", note:"1-я волна выполнена", good:true}
+  ];
+  const rowH = 64; const H = data.length*rowH + 16;
+  const m = {t:8, r:24, b:8, l:24};
+  const svg = svgIn(el, W, H);
+  data.forEach((d,i)=>{
+    const top = m.t + i*rowH;
+    const barY = top + 30, barH = 14;
+    const x = d3.scaleLinear().domain([0,d.max]).range([m.l, W-m.r]);
+    svg.append("text").attr("x",m.l).attr("y",top+14).attr("class","cat-label").text(d.lab);
+    svg.append("text").attr("x",W-m.r).attr("y",top+14).attr("text-anchor","end").attr("class","tick-label")
+      .attr("fill", d.good?PAL.green:PAL.sand).text(d.note);
+    svg.append("rect").attr("x",m.l).attr("y",barY).attr("width",x(d.max)-m.l).attr("height",barH).attr("fill",PAL.grid);
+    svg.append("rect").attr("x",m.l).attr("y",barY).attr("width",x(d.actual)-m.l).attr("height",barH).attr("fill",PAL.green);
+    svg.append("line").attr("x1",x(d.target)).attr("x2",x(d.target)).attr("y1",barY-5).attr("y2",barY+barH+5)
+      .attr("stroke",PAL.white).attr("stroke-width",2);
+    svg.append("text").attr("x",x(d.actual)).attr("y",barY+barH+15).attr("text-anchor","middle").attr("class","val-label").text(d.fmt(d.actual));
+  });
+}
+
+/* ---------- 01 AREA: мощности дата-центров ---------- */
+function drawArea(){
+  const el = clear("c-area"); const W = widthOf(el); const H = 300;
+  const m = {t:20, r:24, b:40, l:48};
+  const svg = svgIn(el, W, H);
+  const data = [{y:2026, mw:200},{y:2028, mw:600},{y:2030, mw:1900}];
+  const x = d3.scaleLinear().domain([2026, 2030]).range([m.l, W-m.r]);
+  const y = d3.scaleLinear().domain([0, 2000]).range([H-m.b, m.t]);
+  [0,500,1000,1500,2000].forEach(v=>{
+    svg.append("line").attr("x1",m.l).attr("x2",W-m.r).attr("y1",y(v)).attr("y2",y(v)).attr("class","grid-line");
+    svg.append("text").attr("x",m.l-8).attr("y",y(v)+3).attr("text-anchor","end").attr("class","tick-label").text(v);
+  });
+  [2026,2028,2030].forEach(v=>svg.append("text").attr("x",x(v)).attr("y",H-m.b+16).attr("text-anchor","middle").attr("class","tick-label").text(v));
+  svg.append("text").attr("x",m.l-8).attr("y",m.t-6).attr("text-anchor","end").attr("class","axis-label").text("МВт");
+  const area = d3.area().x(d=>x(d.y)).y0(y(0)).y1(d=>y(d.mw)).curve(d3.curveMonotoneX);
+  const lin = d3.line().x(d=>x(d.y)).y(d=>y(d.mw)).curve(d3.curveMonotoneX);
+  svg.append("path").datum(data).attr("d",area).attr("fill",PAL.green).attr("fill-opacity",.16);
+  svg.append("path").datum(data).attr("d",lin).attr("fill","none").attr("stroke",PAL.green).attr("stroke-width",2);
+  data.forEach(d=>{
+    svg.append("rect").attr("x",x(d.y)-3).attr("y",y(d.mw)-3).attr("width",6).attr("height",6).attr("fill",PAL.green).attr("stroke",PAL.ink);
+    svg.append("text").attr("x",x(d.y)).attr("y",y(d.mw)-10).attr("text-anchor","middle").attr("class","val-label")
+      .text(d.mw + (d.y===2030?" (опцион)":""));
+  });
+}
+
+/* ---------- 01 COLUMN: сделки ---------- */
+function drawColDeals(){
+  const el = clear("c-col-deals"); const W = widthOf(el); const H = 300;
+  const m = {t:20, r:20, b:54, l:40};
+  const svg = svgIn(el, W, H);
+  const data = [
+    {c:"PIF на ИИ", v:40, hl:true},
+    {c:"NSDAI цель", v:20, hl:false},
+    {c:"AMD пакт", v:10, hl:false},
+    {c:"Nvidia пакт", v:7, hl:false}
+  ];
+  const x = d3.scaleBand().domain(data.map(d=>d.c)).range([m.l, W-m.r]).padding(.4);
+  const y = d3.scaleLinear().domain([0,45]).range([H-m.b, m.t]);
+  [0,10,20,30,40].forEach(v=>{
+    svg.append("line").attr("x1",m.l).attr("x2",W-m.r).attr("y1",y(v)).attr("y2",y(v)).attr("class","grid-line");
+    svg.append("text").attr("x",m.l-8).attr("y",y(v)+3).attr("text-anchor","end").attr("class","tick-label").text(v);
+  });
+  svg.append("text").attr("x",m.l-8).attr("y",m.t-6).attr("text-anchor","end").attr("class","axis-label").text("млрд $");
+  data.forEach(d=>{
+    svg.append("rect").attr("x",x(d.c)).attr("y",y(d.v)).attr("width",x.bandwidth()).attr("height",y(0)-y(d.v))
+      .attr("fill", d.hl?PAL.green:PAL.line2);
+    svg.append("text").attr("x",x(d.c)+x.bandwidth()/2).attr("y",y(d.v)-8).attr("text-anchor","middle").attr("class","val-label").text("$"+d.v);
+    svg.append("text").attr("x",x(d.c)+x.bandwidth()/2).attr("y",H-m.b+18).attr("text-anchor","middle").attr("class","tick-label").text(d.c);
+  });
+  svg.append("line").attr("x1",m.l).attr("x2",W-m.r).attr("y1",y(0)).attr("y2",y(0)).attr("class","base-line");
+}
+
+/* ---------- 01 STACKED COLUMN: GPU ---------- */
+function drawStackGpu(){
+  const el = clear("c-stack-gpu"); const W = widthOf(el); const H = 300;
+  const m = {t:20, r:20, b:54, l:46};
+  const svg = svgIn(el, W, H);
+  const data = [
+    {c:"HUMAIN / Nvidia", firm:18, plan:222},  // тыс. шт: 18к подтверждено + ~222к план = ~240к
+    {c:"Одобрено Минторгом\n(HUMAIN+G42)", firm:35, plan:0}
+  ];
+  const x = d3.scaleBand().domain(data.map(d=>d.c)).range([m.l, W-m.r]).padding(.5);
+  const y = d3.scaleLinear().domain([0,260]).range([H-m.b, m.t]);
+  [0,60,120,180,240].forEach(v=>{
+    svg.append("line").attr("x1",m.l).attr("x2",W-m.r).attr("y1",y(v)).attr("y2",y(v)).attr("class","grid-line");
+    svg.append("text").attr("x",m.l-8).attr("y",y(v)+3).attr("text-anchor","end").attr("class","tick-label").text(v);
+  });
+  svg.append("text").attr("x",m.l-8).attr("y",m.t-6).attr("text-anchor","end").attr("class","axis-label").text("тыс. GPU");
+  data.forEach(d=>{
+    const xx = x(d.c);
+    svg.append("rect").attr("x",xx).attr("y",y(d.firm)).attr("width",x.bandwidth()).attr("height",y(0)-y(d.firm)).attr("fill",PAL.green);
+    if(d.plan>0){
+      svg.append("rect").attr("x",xx).attr("y",y(d.firm+d.plan)).attr("width",x.bandwidth()).attr("height",y(d.firm)-y(d.firm+d.plan))
+        .attr("fill",PAL.green).attr("fill-opacity",.32);
+      svg.append("text").attr("x",xx+x.bandwidth()/2).attr("y",y(d.firm+d.plan)-8).attr("text-anchor","middle").attr("class","val-label").text("~"+(d.firm+d.plan));
+    } else {
+      svg.append("text").attr("x",xx+x.bandwidth()/2).attr("y",y(d.firm)-8).attr("text-anchor","middle").attr("class","val-label").text(d.firm);
+    }
+    const lines = d.c.split("\n");
+    const t = svg.append("text").attr("x",xx+x.bandwidth()/2).attr("y",H-m.b+18).attr("text-anchor","middle").attr("class","tick-label");
+    lines.forEach((s,k)=>t.append("tspan").attr("x",xx+x.bandwidth()/2).attr("dy",k===0?0:11).text(s));
+  });
+  // легенда
+  const lg = svg.append("g").attr("transform","translate("+(W-m.r-150)+","+m.t+")");
+  lg.append("rect").attr("width",10).attr("height",10).attr("fill",PAL.green);
+  lg.append("text").attr("x",16).attr("y",9).attr("class","tick-label").text("подтверждено");
+  lg.append("rect").attr("y",16).attr("width",10).attr("height",10).attr("fill",PAL.green).attr("fill-opacity",.32);
+  lg.append("text").attr("x",16).attr("y",25).attr("class","tick-label").text("план до 2028");
+}
+
+/* ---------- 01 SYMBOL MAP ---------- */
+function drawMap(){
+  const el = clear("c-map"); const W = widthOf(el); const H = 320;
+  const svg = svgIn(el, W, H);
+  const outline = [
+    [34.6,28.0],[36.5,29.4],[38.0,28.0],[39.0,27.0],[41.0,29.0],[42.0,30.5],[46.5,29.1],
+    [48.5,28.5],[49.0,27.5],[50.8,24.7],[51.6,24.3],[55.2,22.6],[55.7,20.0],[52.0,19.0],
+    [47.0,17.0],[43.0,16.5],[42.6,18.7],[41.0,20.0],[39.0,21.5],[38.5,24.0],[37.0,25.5],[36.0,26.5],[35.2,28.0]
+  ];
+  const lons = outline.map(p=>p[0]), lats = outline.map(p=>p[1]);
+  const pad = 26;
+  const sx = d3.scaleLinear().domain([d3.min(lons), d3.max(lons)]).range([pad, W-pad]);
+  const sy = d3.scaleLinear().domain([d3.min(lats), d3.max(lats)]).range([H-pad, pad]);
+  const proj = p => [sx(p[0]), sy(p[1])];
+  svg.append("polygon").attr("points", outline.map(p=>proj(p).join(",")).join(" "))
+    .attr("fill", PAL.green).attr("fill-opacity",.07).attr("stroke", PAL.line2).attr("stroke-width",1);
+  const cities = [
+    {n:"Эр-Рияд", lon:46.72, lat:24.69, r:13, role:"HQ HUMAIN + дата-центры"},
+    {n:"Даммам", lon:50.10, lat:26.43, r:10, role:"площадка по пакту Nvidia"},
+    {n:"NEOM", lon:35.2, lat:28.0, r:10, role:"умный город"},
+    {n:"Джидда", lon:39.20, lat:21.49, r:7, role:"коммерческий хаб"},
+    {n:"Мекка", lon:39.83, lat:21.42, r:6, role:"ИИ Хаджа: Baseer/Sawaher"}
+  ];
+  cities.forEach(c=>{
+    const p = proj([c.lon, c.lat]);
+    const s = c.r;
+    svg.append("rect").attr("x",p[0]-s/2).attr("y",p[1]-s/2).attr("width",s).attr("height",s)
+      .attr("fill", PAL.green).attr("fill-opacity",.55).attr("stroke", PAL.green).attr("stroke-width",1.5);
+    const anchor = (c.n==="NEOM"||c.n==="Джидда"||c.n==="Мекка") ? "start" : "end";
+    const dx = anchor==="start" ? s/2+5 : -(s/2+5);
+    svg.append("text").attr("x",p[0]+dx).attr("y",p[1]-2).attr("text-anchor",anchor).attr("class","val-label").attr("font-size",10).text(c.n);
+    svg.append("text").attr("x",p[0]+dx).attr("y",p[1]+9).attr("text-anchor",anchor).attr("class","tick-label").attr("font-size",8.5).text(c.role);
+  });
+}
+
+/* ---------- 02 RANGE PLOT: регулирование ---------- */
+function drawRange(){
+  const el = clear("c-range"); const W = widthOf(el);
+  const data = [
+    {lab:"PDPL (закон о перс. данных)", a:2021.7, b:2024.7, point:2023.7, note:"полное применение 2024"},
+    {lab:"AI Ethics Principles", a:2023.7, b:2023.7, point:2023.7, note:"сентябрь 2023"},
+    {lab:"Generative AI Guidelines", a:2024.05, b:2024.05, point:2024.05, note:"январь 2024"},
+    {lab:"ISO 42001 (SDAIA)", a:2024.55, b:2024.55, point:2024.55, note:"июль 2024"},
+    {lab:"AI Adoption Framework", a:2024.7, b:2025.85, point:2025.85, note:"усилена ноя. 2025"},
+    {lab:"Год ИИ (Кабинет)", a:2026.2, b:2026.2, point:2026.2, note:"март 2026"}
+  ];
+  const rowH = 40; const H = data.length*rowH + 50;
+  const m = {t:18, r:24, b:30, l:210};
+  const svg = svgIn(el, W, H);
+  const x = d3.scaleLinear().domain([2021, 2026.5]).range([m.l, W-m.r]);
+  [2021,2022,2023,2024,2025,2026].forEach(v=>{
+    svg.append("line").attr("x1",x(v)).attr("x2",x(v)).attr("y1",m.t).attr("y2",H-m.b).attr("class","grid-line");
+    svg.append("text").attr("x",x(v)).attr("y",H-m.b+16).attr("text-anchor","middle").attr("class","tick-label").text(v);
+  });
+  const y = d3.scaleBand().domain(data.map(d=>d.lab)).range([m.t, H-m.b]).padding(.5);
+  data.forEach(d=>{
+    const yy = y(d.lab)+y.bandwidth()/2;
+    svg.append("text").attr("x",m.l-12).attr("y",yy+4).attr("text-anchor","end").attr("class","cat-label").attr("font-size",12).text(d.lab);
+    if(d.b>d.a){
+      svg.append("line").attr("x1",x(d.a)).attr("x2",x(d.b)).attr("y1",yy).attr("y2",yy).attr("stroke",PAL.green).attr("stroke-width",6).attr("stroke-opacity",.35);
+    }
+    svg.append("rect").attr("x",x(d.a)-3).attr("y",yy-3).attr("width",6).attr("height",6).attr("fill",PAL.muted2);
+    svg.append("rect").attr("x",x(d.point)-3).attr("y",yy-3).attr("width",6).attr("height",6).attr("fill",PAL.green);
+  });
+}
+
+/* ---------- 02 DOT PLOT: Gov AI Readiness ---------- */
+function drawDotReadiness(){
+  const el = clear("c-dot-readiness"); const W = widthOf(el);
+  const data = [
+    {c:"ОАЭ", v:75.66}, {c:"Израиль", v:74.52}, {c:"Саудовская Аравия", v:72.36}
+  ];
+  const rowH = 46; const H = data.length*rowH + 40;
+  const m = {t:18, r:46, b:30, l:140};
+  const svg = svgIn(el, W, H);
+  const x = d3.scaleLinear().domain([60, 80]).range([m.l, W-m.r]);
+  const y = d3.scalePoint().domain(data.map(d=>d.c)).range([m.t+10, H-m.b-10]).padding(.4);
+  [60,65,70,75,80].forEach(v=>{
+    svg.append("line").attr("x1",x(v)).attr("x2",x(v)).attr("y1",m.t).attr("y2",H-m.b).attr("class","grid-line");
+    svg.append("text").attr("x",x(v)).attr("y",H-m.b+16).attr("text-anchor","middle").attr("class","tick-label").text(v);
+  });
+  svg.append("text").attr("x",(m.l+W-m.r)/2).attr("y",H-4).attr("text-anchor","middle").attr("class","axis-label").text("балл готовности (из 100)");
+  data.forEach(d=>{
+    const yy = y(d.c);
+    const hl = d.c==="Саудовская Аравия";
+    svg.append("line").attr("x1",m.l).attr("x2",x(d.v)).attr("y1",yy).attr("y2",yy).attr("stroke",PAL.line).attr("stroke-width",1).attr("stroke-dasharray","2 3");
+    svg.append("text").attr("x",m.l-12).attr("y",yy+4).attr("text-anchor","end").attr("class","cat-label").attr("fill",hl?PAL.green:PAL.paper).text(d.c);
+    svg.append("rect").attr("x",x(d.v)-5).attr("y",yy-5).attr("width",10).attr("height",10).attr("fill",hl?PAL.green:PAL.line2).attr("stroke",PAL.ink);
+    svg.append("text").attr("x",x(d.v)+12).attr("y",yy+4).attr("class","val-label").text(d.v.toFixed(2));
+  });
+}
+
+/* ---------- 03 SPLIT BARS: охват ---------- */
+function drawSplit(){
+  const el = clear("c-split"); const W = widthOf(el); const H = 300;
+  const gap = 40;
+  const colW = (W - gap)/2;
+  const svg = svgIn(el, W, H);
+  const pen = [
+    {c:"Соцсети", v:99.6},{c:"Интернет", v:99.0},{c:"WhatsApp", v:86.3},{c:"YouTube", v:79.4},{c:"Snapchat", v:72.1},{c:"Instagram", v:49.4}
+  ];
+  const abs = [
+    {c:"Моб. подкл.", v:48.1},{c:"Соцсети", v:34.1},{c:"Интернет", v:33.9},{c:"WhatsApp", v:29.6},{c:"YouTube", v:27.2},{c:"Snapchat", v:24.7}
+  ];
+  function panel(x0, title, rows, dom, fmt, unit){
+    const m = {t:34, r:46, b:14, l:96};
+    const y = d3.scaleBand().domain(rows.map(d=>d.c)).range([m.t, H-m.b]).padding(.32);
+    const x = d3.scaleLinear().domain([0,dom]).range([x0+m.l, x0+colW-m.r]);
+    svg.append("text").attr("x",x0+m.l).attr("y",m.t-14).attr("class","axis-label").attr("fill",PAL.muted).text(title);
+    rows.forEach(d=>{
+      const yy = y(d.c);
+      svg.append("text").attr("x",x0+m.l-10).attr("y",yy+y.bandwidth()/2+4).attr("text-anchor","end").attr("class","cat-label").attr("font-size",12).text(d.c);
+      svg.append("rect").attr("x",x0+m.l).attr("y",yy).attr("width",x(d.v)-(x0+m.l)).attr("height",y.bandwidth())
+        .attr("fill", d.c==="Соцсети"||d.c==="Интернет"?PAL.green:PAL.line2);
+      svg.append("text").attr("x",x(d.v)+7).attr("y",yy+y.bandwidth()/2+4).attr("class","val-label").attr("font-size",10).text(fmt(d.v)+unit);
+    });
+    svg.append("line").attr("x1",x0+m.l).attr("x2",x0+m.l).attr("y1",m.t).attr("y2",H-m.b).attr("class","base-line");
+  }
+  panel(0, "проникновение, % населения", pen, 100, v=>v.toFixed(0), "%");
+  panel(colW+gap, "аудитория, млн", abs, 50, v=>v.toFixed(1).replace(".",","), "");
+}
+
+/* ---------- 03 GROUPED COLUMN: Саудовская Аравия против мира ---------- */
+function drawGrpCol(){
+  const el = clear("c-grpcol"); const W = widthOf(el); const H = 300;
+  const m = {t:24, r:20, b:64, l:40};
+  const svg = svgIn(el, W, H);
+  const groups = [
+    {g:"ИИ облегчает\nжизнь", sa:80, world:60},
+    {g:"Больше\nплюсов", sa:76, world:52},
+    {g:"Доверие к\nкомпаниям", sa:73, world:50}
+  ];
+  const x0 = d3.scaleBand().domain(groups.map(d=>d.g)).range([m.l, W-m.r]).padding(.34);
+  const x1 = d3.scaleBand().domain(["sa","world"]).range([0, x0.bandwidth()]).padding(.18);
+  const y = d3.scaleLinear().domain([0,100]).range([H-m.b, m.t]);
+  [0,25,50,75,100].forEach(v=>{
+    svg.append("line").attr("x1",m.l).attr("x2",W-m.r).attr("y1",y(v)).attr("y2",y(v)).attr("class","grid-line");
+    svg.append("text").attr("x",m.l-8).attr("y",y(v)+3).attr("text-anchor","end").attr("class","tick-label").text(v);
+  });
+  svg.append("text").attr("x",m.l-8).attr("y",m.t-6).attr("text-anchor","end").attr("class","axis-label").text("%");
+  groups.forEach(d=>{
+    const gx = x0(d.g);
+    [["sa",d.sa,PAL.green],["world",d.world,PAL.line2]].forEach(([k,v,col])=>{
+      svg.append("rect").attr("x",gx+x1(k)).attr("y",y(v)).attr("width",x1.bandwidth()).attr("height",y(0)-y(v)).attr("fill",col);
+      svg.append("text").attr("x",gx+x1(k)+x1.bandwidth()/2).attr("y",y(v)-7).attr("text-anchor","middle").attr("class","val-label").attr("font-size",10).text(v);
+    });
+    const lines = d.g.split("\n");
+    const t = svg.append("text").attr("x",gx+x0.bandwidth()/2).attr("y",H-m.b+18).attr("text-anchor","middle").attr("class","tick-label");
+    lines.forEach((s,k)=>t.append("tspan").attr("x",gx+x0.bandwidth()/2).attr("dy",k===0?0:11).text(s));
+  });
+  const lg = svg.append("g").attr("transform","translate("+(m.l)+","+(H-12)+")");
+  lg.append("rect").attr("width",10).attr("height",10).attr("fill",PAL.green);
+  lg.append("text").attr("x",15).attr("y",9).attr("class","tick-label").text("Саудовская Аравия");
+  lg.append("rect").attr("x",150).attr("width",10).attr("height",10).attr("fill",PAL.line2);
+  lg.append("text").attr("x",165).attr("y",9).attr("class","tick-label").text("мир (среднее)");
+}
+
+/* ---------- 03 SCATTER ---------- */
+function drawScatter(){
+  const el = clear("c-scatter"); const W = widthOf(el); const H = 320;
+  const m = {t:18, r:24, b:46, l:48};
+  const svg = svgIn(el, W, H);
+  const data = [
+    {c:"Китай", x:78, y:76},
+    {c:"Саудовская Аравия", x:76, y:73},
+    {c:"США", x:35, y:35},
+    {c:"Франция", x:31, y:34},
+    {c:"Канада", x:32, y:34}
+  ];
+  const x = d3.scaleLinear().domain([25,85]).range([m.l, W-m.r]);
+  const y = d3.scaleLinear().domain([25,85]).range([H-m.b, m.t]);
+  [30,45,60,75].forEach(v=>{
+    svg.append("line").attr("x1",x(v)).attr("x2",x(v)).attr("y1",m.t).attr("y2",H-m.b).attr("class","grid-line");
+    svg.append("text").attr("x",x(v)).attr("y",H-m.b+15).attr("text-anchor","middle").attr("class","tick-label").text(v);
+    svg.append("line").attr("x1",m.l).attr("x2",W-m.r).attr("y1",y(v)).attr("y2",y(v)).attr("class","grid-line");
+    svg.append("text").attr("x",m.l-8).attr("y",y(v)+3).attr("text-anchor","end").attr("class","tick-label").text(v);
+  });
+  svg.append("text").attr("x",(m.l+W-m.r)/2).attr("y",H-4).attr("text-anchor","middle").attr("class","axis-label").text("больше плюсов, чем минусов, %");
+  svg.append("text").attr("transform","rotate(-90)").attr("x",-(m.t+H-m.b)/2).attr("y",13).attr("text-anchor","middle").attr("class","axis-label").text("доверие к ИИ-компаниям, %");
+  data.forEach(d=>{
+    const hl = d.c==="Саудовская Аравия";
+    svg.append("rect").attr("x",x(d.x)-5).attr("y",y(d.y)-5).attr("width",10).attr("height",10)
+      .attr("fill", hl?PAL.green : (d.c==="Китай"?PAL.green2:PAL.line2)).attr("stroke",PAL.ink);
+    const anchor = d.x > 60 ? "end" : "start";
+    const dx = anchor==="end" ? -9 : 9;
+    svg.append("text").attr("x",x(d.x)+dx).attr("y",y(d.y)+4).attr("text-anchor",anchor).attr("class","val-label").attr("font-size",10)
+      .attr("fill",hl?PAL.green:PAL.paper).text(d.c);
+  });
+}
+
+/* ---------- 03 GROUPED BARS ---------- */
+function drawGrpBar(){
+  const el = clear("c-grpbar"); const W = widthOf(el);
+  const data = [
+    {c:"Китай", ease:87, ben:78},
+    {c:"Саудовская Аравия", ease:80, ben:76},
+    {c:"США", ease:41, ben:35},
+    {c:"Франция", ease:39, ben:31}
+  ];
+  const rowH = 56; const H = data.length*rowH + 56;
+  const m = {t:16, r:50, b:40, l:140};
+  const svg = svgIn(el, W, H);
+  const x = d3.scaleLinear().domain([0,100]).range([m.l, W-m.r]);
+  const y0 = d3.scaleBand().domain(data.map(d=>d.c)).range([m.t, H-m.b]).padding(.3);
+  const y1 = d3.scaleBand().domain(["ease","ben"]).range([0, y0.bandwidth()]).padding(.2);
+  [0,25,50,75,100].forEach(v=>{
+    svg.append("line").attr("x1",x(v)).attr("x2",x(v)).attr("y1",m.t).attr("y2",H-m.b).attr("class","grid-line");
+    svg.append("text").attr("x",x(v)).attr("y",H-m.b+16).attr("text-anchor","middle").attr("class","tick-label").text(v);
+  });
+  svg.append("text").attr("x",(m.l+W-m.r)/2).attr("y",H-4).attr("text-anchor","middle").attr("class","axis-label").text("% согласных");
+  data.forEach(d=>{
+    const gy = y0(d.c);
+    svg.append("text").attr("x",m.l-12).attr("y",gy+y0.bandwidth()/2+4).attr("text-anchor","end").attr("class","cat-label")
+      .attr("font-size",12).attr("fill", d.c==="Саудовская Аравия"?PAL.green:PAL.paper).text(d.c);
+    [["ease",d.ease,PAL.green],["ben",d.ben,PAL.green2]].forEach(([k,v,col])=>{
+      svg.append("rect").attr("x",m.l).attr("y",gy+y1(k)).attr("width",x(v)-m.l).attr("height",y1.bandwidth()).attr("fill",col);
+      svg.append("text").attr("x",x(v)+7).attr("y",gy+y1(k)+y1.bandwidth()/2+4).attr("class","val-label").attr("font-size",10).text(v);
+    });
+  });
+  svg.append("line").attr("x1",m.l).attr("x2",m.l).attr("y1",m.t).attr("y2",H-m.b).attr("class","base-line");
+  const lg = svg.append("g").attr("transform","translate("+m.l+","+(m.t-2)+")");
+  lg.append("rect").attr("width",10).attr("height",10).attr("fill",PAL.green);
+  lg.append("text").attr("x",15).attr("y",9).attr("class","tick-label").text("облегчает жизнь");
+  lg.append("rect").attr("x",150).attr("width",10).attr("height",10).attr("fill",PAL.green2);
+  lg.append("text").attr("x",165).attr("y",9).attr("class","tick-label").text("больше плюсов");
+}
+
+/* ---------- рендер всех графиков ---------- */
+function renderAll(){
+  drawRadar(); drawArrow(); drawBarArab(); drawBullet(); drawArea(); drawColDeals();
+  drawStackGpu(); drawMap(); drawRange(); drawDotReadiness(); drawSplit();
+  drawGrpCol(); drawScatter(); drawGrpBar();
+}
+renderAll();
+let rt;
+window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(renderAll, 200); });
+</script>
+</body>
+</html>

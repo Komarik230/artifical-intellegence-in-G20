@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Италия — ИИ: стратегия, этика, медиа | G20</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===================================================================
+   Единый чёрный шаблон проекта G20. Под Италию меняется только
+   блок --flag-* (цвета флага). Остальные токены общие.
+   =================================================================== */
+:root{
+  /* --- Акцент страны: Италия (флаг) --- */
+  --flag-primary:   #009246;   /* зелёный флага */
+  --flag-primary-2: #34B36B;   /* светлее, для ховера/выделения */
+  --flag-secondary: #CE2B37;   /* красный флага */
+
+  /* --- Общая монохромная база (одинаковая для всех стран) --- */
+  --ink:        #060607;
+  --ink-panel:  #0B0C0E;
+  --paper:      #FFFFFF;
+  --muted:      rgba(255,255,255,.56);
+  --muted-2:    rgba(255,255,255,.40);
+  --line:       rgba(255,255,255,.16);
+  --line-2:     rgba(255,255,255,.30);
+  --grid:       rgba(255,255,255,.07);
+  --alert:      #E5484D;       /* функциональный красный: дипфейки, дезинформация */
+
+  --maxw: 1320px;
+  --pad: clamp(16px, 4vw, 56px);
+
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --f-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+*{ box-sizing: border-box; }
+html{ background: var(--ink); -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body{
+  margin:0; background: var(--ink); color: var(--paper);
+  font-family: var(--f-body); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x:hidden;
+}
+img{ max-width:100%; display:block; }
+::selection{ background: var(--flag-primary); color:#04210f; }
+a{ color: inherit; }
+:focus-visible{ outline: 2px solid var(--flag-primary-2); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+}
+
+.wrap{ width:min(var(--maxw),100%); margin:0 auto; padding-inline: var(--pad); }
+
+/* ---------- Утилитарные текстовые элементы ---------- */
+.eyebrow{ font-family:var(--f-mono); font-size:11.5px; font-weight:500; letter-spacing:.26em; text-transform:uppercase; color:var(--flag-primary); margin:0; }
+.mono{ font-family:var(--f-mono); }
+.muted{ color:var(--muted); }
+h1,h2,h3{ margin:0; font-family:var(--f-display); font-weight:900; letter-spacing:-.01em; }
+
+/* ====================== ШАПКА / БРЕНД-БАР ====================== */
+.topbar{ border-bottom:1px solid var(--line); position:sticky; top:0; z-index:50; background:rgba(6,6,7,.86); backdrop-filter:blur(8px); }
+.topbar .wrap{ display:flex; align-items:center; justify-content:space-between; height:56px; }
+.brand{ display:flex; align-items:center; gap:14px; }
+.brand .idx{ font-family:var(--f-mono); font-size:12px; letter-spacing:.22em; color:var(--muted); }
+.brand .nm{ font-family:var(--f-display); font-weight:800; font-size:15px; letter-spacing:.02em; }
+.flagbar{ display:inline-flex; width:30px; height:14px; border:1px solid var(--line-2); }
+.flagbar i{ flex:1; }
+.flagbar i:nth-child(1){ background:var(--flag-primary); }
+.flagbar i:nth-child(2){ background:#F1F2F1; }
+.flagbar i:nth-child(3){ background:var(--flag-secondary); }
+.topnav{ display:flex; gap:22px; }
+.topnav a{ font-family:var(--f-mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); text-decoration:none; }
+.topnav a:hover{ color:var(--paper); }
+@media (max-width:720px){ .topnav{ display:none; } }
+
+/* ====================== HERO ====================== */
+.hero{ border-bottom:1px solid var(--line); padding:clamp(48px,9vw,116px) 0 clamp(34px,5vw,60px); position:relative; }
+.hero .wrap{ position:relative; z-index:2; }
+.hero h1{ font-size:clamp(44px,9vw,118px); line-height:.94; margin:18px 0 0; max-width:14ch; }
+.hero h1 em{ font-style:normal; color:var(--flag-primary); }
+.hero .dek{ margin:26px 0 0; max-width:62ch; font-size:clamp(16px,2vw,20px); color:var(--muted); }
+.hero .meta{ margin-top:30px; display:flex; flex-wrap:wrap; gap:10px 26px; font-family:var(--f-mono); font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted-2); }
+.hero .meta b{ color:var(--paper); font-weight:500; }
+.heromark{ position:absolute; inset:0; z-index:1; overflow:hidden; opacity:.5; }
+.heromark::before{ content:""; position:absolute; right:calc(-1*var(--pad)); top:50%; transform:translateY(-50%);
+  width:min(46vw,620px); aspect-ratio:1/1;
+  background:
+    repeating-linear-gradient(0deg, var(--grid) 0 1px, transparent 1px 56px),
+    repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 56px);
+  -webkit-mask:radial-gradient(closest-side, #000 60%, transparent 100%);
+          mask:radial-gradient(closest-side, #000 60%, transparent 100%);
+}
+
+/* ====================== KPI-ПОЛОСА ====================== */
+.kpi{ border-bottom:1px solid var(--line); }
+.kpi .grid{ display:grid; grid-template-columns:repeat(6,1fr); }
+.kpi .cell{ padding:22px clamp(12px,1.6vw,22px); border-left:1px solid var(--line); }
+.kpi .cell:first-child{ border-left:0; }
+.kpi .num{ font-family:var(--f-mono); font-weight:500; font-size:clamp(22px,3.1vw,34px); line-height:1; letter-spacing:-.01em; }
+.kpi .num .u{ font-size:.5em; color:var(--muted); letter-spacing:.04em; margin-left:.18em; }
+.kpi .lab{ margin-top:10px; font-size:12px; line-height:1.4; color:var(--muted); }
+.kpi .cell.flag .num{ color:var(--flag-primary); }
+.kpi .cell.alert .num{ color:var(--alert); }
+@media (max-width:980px){ .kpi .grid{ grid-template-columns:repeat(3,1fr); } .kpi .cell:nth-child(3n+1){ border-left:0; } .kpi .cell:nth-child(n+4){ border-top:1px solid var(--line); } }
+@media (max-width:560px){ .kpi .grid{ grid-template-columns:repeat(2,1fr); } .kpi .cell:nth-child(odd){ border-left:0; } .kpi .cell:nth-child(3n+1){ border-left:1px solid var(--line); } .kpi .cell:nth-child(odd){ border-left:0; } .kpi .cell:nth-child(n+3){ border-top:1px solid var(--line); } }
+
+/* ====================== СЕКЦИИ ====================== */
+.section{ padding:clamp(54px,8vw,104px) 0; border-bottom:1px solid var(--line); }
+.sechead{ display:grid; grid-template-columns:auto 1fr; gap:0 clamp(18px,3vw,42px); align-items:start; margin-bottom:clamp(30px,4vw,52px); }
+.sechead .no{ font-family:var(--f-mono); font-size:13px; letter-spacing:.2em; color:var(--flag-primary); padding-top:8px; }
+.sechead h2{ font-size:clamp(28px,4.4vw,52px); line-height:1.02; max-width:20ch; }
+.sechead .dek{ grid-column:2; margin-top:18px; max-width:70ch; color:var(--muted); font-size:clamp(15px,1.5vw,17px); }
+@media (max-width:680px){ .sechead{ grid-template-columns:1fr; } .sechead .dek{ grid-column:1; } .sechead .no{ padding-top:0; margin-bottom:10px; } }
+
+/* ====================== ФИГУРЫ / ГРАФИКИ ====================== */
+.figs{ display:grid; grid-template-columns:repeat(12,1fr); gap:1px; background:var(--ink); border:1px solid var(--ink); }
+.fig{ background:var(--ink); padding:clamp(20px,2.4vw,32px); grid-column:span 12; }
+.fig.h6{ grid-column:span 6; }
+.fig.h7{ grid-column:span 7; }
+.fig.h5{ grid-column:span 5; }
+.fig.h8{ grid-column:span 8; }
+.fig.h4{ grid-column:span 4; }
+@media (max-width:860px){ .fig.h6,.fig.h7,.fig.h5,.fig.h8,.fig.h4{ grid-column:span 12; } }
+.fig .head{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:18px; }
+.fig .head .t{ font-family:var(--f-display); font-weight:800; font-size:clamp(15px,1.7vw,19px); line-height:1.18; max-width:46ch; }
+.fig .head .tag{ flex:none; font-family:var(--f-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted-2); border:1px solid var(--line); padding:4px 8px; white-space:nowrap; }
+.fig .chart{ width:100%; }
+.fig .chart svg{ width:100%; height:auto; display:block; overflow:visible; }
+.fig figcaption{ margin-top:16px; font-size:12.5px; line-height:1.5; color:var(--muted); }
+.fig figcaption .src{ display:block; margin-top:6px; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.04em; color:var(--muted-2); }
+
+/* SVG текстовые стили */
+.ax-line{ stroke:var(--line); stroke-width:1; }
+.ax-grid{ stroke:var(--grid); stroke-width:1; }
+.ax-zero{ stroke:var(--line-2); stroke-width:1; }
+.tk{ font-family:var(--f-mono); font-size:11px; fill:var(--muted); }
+.tk-2{ font-family:var(--f-mono); font-size:10px; fill:var(--muted-2); }
+.lab-cat{ font-family:var(--f-body); font-size:12.5px; fill:var(--paper); }
+.val{ font-family:var(--f-mono); font-size:11.5px; font-weight:500; fill:var(--paper); }
+.val-m{ font-family:var(--f-mono); font-size:11px; fill:var(--muted); }
+
+/* ====================== ТАЙМЛАЙН (кастом) ====================== */
+.timeline{ position:relative; margin-top:6px; padding-left:0; }
+.tl-row{ display:grid; grid-template-columns:118px 1fr; gap:0 24px; align-items:start; position:relative; padding:18px 0; border-top:1px solid var(--line); }
+.tl-row:first-child{ border-top:0; }
+.tl-date{ font-family:var(--f-mono); font-size:12px; color:var(--flag-primary); letter-spacing:.04em; padding-top:2px; }
+.tl-row.alert .tl-date{ color:var(--alert); }
+.tl-body .tl-t{ font-family:var(--f-display); font-weight:700; font-size:16px; }
+.tl-body .tl-d{ margin-top:5px; color:var(--muted); font-size:13.5px; max-width:64ch; }
+@media (max-width:560px){ .tl-row{ grid-template-columns:1fr; gap:6px; } }
+
+/* ====================== ТАБЛИЦА ====================== */
+.tbl-wrap{ width:100%; overflow-x:auto; }
+table.cmp{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:680px; }
+table.cmp th, table.cmp td{ text-align:left; vertical-align:top; padding:13px 16px; border-bottom:1px solid var(--line); }
+table.cmp thead th{ font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted-2); font-weight:500; border-bottom:1px solid var(--line-2); }
+table.cmp tbody th{ font-family:var(--f-display); font-weight:700; font-size:14px; white-space:nowrap; }
+table.cmp tr.hot tbody th, table.cmp tr.hot th[scope]{ color:var(--flag-primary); }
+table.cmp tr.hot td, table.cmp tr.hot th{ background:rgba(0,146,70,.05); }
+table.cmp td .pill{ font-family:var(--f-mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--alert); }
+
+/* ====================== HEATMAP-МАТРИЦА (кастом) ====================== */
+.hm{ width:100%; }
+.hm-grid{ display:grid; grid-template-columns:1.5fr repeat(4,1fr); gap:1px; background:var(--ink); border:1px solid var(--ink); }
+.hm-cell{ background:var(--ink); padding:12px 12px; min-height:48px; display:flex; align-items:center; }
+.hm-cell.h{ font-family:var(--f-mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted-2); align-items:flex-end; min-height:64px; line-height:1.3; }
+.hm-cell.row{ font-family:var(--f-body); font-size:13px; color:var(--paper); }
+.hm-cell.v{ justify-content:center; font-family:var(--f-mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; }
+.hm-v3{ background:rgba(0,146,70,.30); color:#cdeed8; }
+.hm-v2{ background:rgba(0,146,70,.14); color:var(--muted); }
+.hm-v1{ background:rgba(255,255,255,.03); color:var(--muted-2); }
+.hm-leg{ display:flex; flex-wrap:wrap; gap:16px; margin-top:14px; font-family:var(--f-mono); font-size:10.5px; color:var(--muted); }
+.hm-leg span{ display:inline-flex; align-items:center; gap:7px; }
+.hm-leg i{ width:12px; height:12px; border:1px solid var(--line); }
+
+/* ====================== STATUS-БЛОК (кастом) ====================== */
+.status{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--ink); border:1px solid var(--ink); }
+.status .card{ background:var(--ink); padding:clamp(20px,2.4vw,30px); }
+.status .card .k{ font-family:var(--f-mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted-2); }
+.status .card h3{ font-family:var(--f-display); font-weight:800; font-size:clamp(18px,2.2vw,24px); margin:10px 0 12px; line-height:1.06; }
+.status .card.green h3{ color:var(--flag-primary); }
+.status .card.red h3{ color:var(--alert); }
+.status .card .ln{ display:flex; gap:12px; padding:9px 0; border-top:1px solid var(--line); font-size:13.5px; color:var(--muted); }
+.status .card .ln:first-of-type{ border-top:1px solid var(--line); }
+.status .card .ln b{ flex:none; font-family:var(--f-mono); font-size:12px; color:var(--paper); font-weight:500; min-width:88px; }
+@media (max-width:680px){ .status{ grid-template-columns:1fr; } }
+
+/* ====================== ФУТЕР ====================== */
+footer{ padding:clamp(46px,7vw,90px) 0 80px; }
+.foot-top{ display:grid; grid-template-columns:1.2fr 1fr; gap:36px; align-items:start; margin-bottom:46px; }
+.foot-top .lead{ font-family:var(--f-display); font-weight:800; font-size:clamp(20px,2.6vw,30px); line-height:1.1; max-width:24ch; }
+.foot-top .lead em{ font-style:normal; color:var(--flag-primary); }
+.foot-note{ color:var(--muted); font-size:13.5px; max-width:54ch; }
+.sources{ border-top:1px solid var(--line); padding-top:24px; }
+.sources h4{ font-family:var(--f-mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted-2); font-weight:500; margin:0 0 16px; }
+.sources ol{ margin:0; padding:0; list-style:none; columns:2; column-gap:42px; }
+.sources li{ break-inside:avoid; padding:7px 0; border-top:1px solid var(--grid); font-size:12px; color:var(--muted); display:flex; gap:10px; }
+.sources li:first-child{ border-top:0; }
+.sources li .n{ font-family:var(--f-mono); color:var(--flag-primary); flex:none; }
+.sources li b{ color:var(--paper); font-weight:500; }
+@media (max-width:680px){ .foot-top{ grid-template-columns:1fr; } .sources ol{ columns:1; } }
+.colophon{ margin-top:42px; padding-top:22px; border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted-2); }
+</style>
+</head>
+<body>
+
+<!-- ===================== ШАПКА ===================== -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="flagbar" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="idx">07 / G20</span>
+      <span class="nm">ИТАЛИЯ</span>
+    </div>
+    <nav class="topnav">
+      <a href="#strategy">01 Стратегия</a>
+      <a href="#ethics">02 Этика</a>
+      <a href="#media">03 Медиа</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="heromark" aria-hidden="true"></div>
+  <div class="wrap">
+    <p class="eyebrow">Искусственный интеллект — страновой профиль</p>
+    <h1>Государство первым <em>ставит правила</em></h1>
+    <p class="dek">Италия выбрала суверенный, человекоцентричный курс: первый в Евросоюзе органический закон об ИИ, фонд в миллиард евро и этика, оформленная в Риме и Ватикане. При этом по внедрению ИИ бизнес страны всё ещё отстаёт от среднего по ЕС — а синтетические медиа здесь раньше других показали оба своих лица.</p>
+    <div class="meta">
+      <span>Режим: <b>парламентская республика</b></span>
+      <span>Население: <b>≈59 млн</b></span>
+      <span>Закон об ИИ: <b>№132/2025, в силе 10.10.2025</b></span>
+      <span>Регулятор данных: <b>Garante</b></span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== KPI ===================== -->
+<section class="kpi">
+  <div class="wrap"><div class="grid">
+    <div class="cell flag">
+      <div class="num">16,4<span class="u">%</span></div>
+      <div class="lab">предприятий используют ИИ (2025); среднее по ЕС — 20,0%</div>
+    </div>
+    <div class="cell flag">
+      <div class="num">€1,0<span class="u">млрд</span></div>
+      <div class="lab">нацфонд на ИИ, кибербез, квантовые технологии и телеком</div>
+    </div>
+    <div class="cell alert">
+      <div class="num">€15<span class="u">млн</span></div>
+      <div class="lab">штраф OpenAI — первый штраф по GDPR генеративному ИИ</div>
+    </div>
+    <div class="cell alert">
+      <div class="num">1–5<span class="u">лет</span></div>
+      <div class="lab">тюрьмы за вредоносные дипфейки (ст. 612-quater УК)</div>
+    </div>
+    <div class="cell">
+      <div class="num">1<span class="u">-я в ЕС</span></div>
+      <div class="lab">страна с комплексным национальным законом об ИИ</div>
+    </div>
+    <div class="cell flag">
+      <div class="num">+60<span class="u">%</span></div>
+      <div class="lab">продаж Il Foglio в день старта первой в мире ИИ-газеты</div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ===================== 01 СТРАТЕГИЯ ===================== -->
+<section class="section" id="strategy">
+  <div class="wrap">
+    <div class="sechead">
+      <div class="no">01</div>
+      <h2>Суверенный курс при отстающем внедрении</h2>
+      <p class="dek">Стратегия 2024–2026 (AgID) строится на четырёх столпах — исследования, госуправление, бизнес, образование — и опирается более чем на €2 млрд из PNRR, структурных и региональных фондов. Закон №132/2025 добавил к этому венчурный фонд в €1 млрд. Деньги выделены, но доля компаний, реально применяющих ИИ, пока ниже европейской.</p>
+    </div>
+
+    <div class="figs">
+      <!-- F1 BAR -->
+      <figure class="fig h6">
+        <div class="head">
+          <div class="t">Публичные деньги на ИИ-экосистему</div>
+          <div class="tag">Bar</div>
+        </div>
+        <div class="chart" id="c-funding" role="img" aria-label="Горизонтальная столбчатая диаграмма публичных инструментов финансирования ИИ в Италии"></div>
+        <figcaption>Крупнейший инструмент — фонд €1 млрд из закона №132/2025; через CDP Venture Capital уже размещено свыше €300 млн (150+ стартапов, ≈20 фондов).
+          <span class="src">Источники: Legge 132/2025; Consiglio dei ministri / CDP Venture Capital; AgID — Strategia 2024–2026.</span></figcaption>
+      </figure>
+
+      <!-- F2 MULTIPLE LINES -->
+      <figure class="fig h6">
+        <div class="head">
+          <div class="t">Внедрение ИИ предприятиями: Италия против ЕС</div>
+          <div class="tag">Multiple lines</div>
+        </div>
+        <div class="chart" id="c-adoption" role="img" aria-label="Линейный график доли предприятий, использующих ИИ, по годам: ЕС и Италия"></div>
+        <figcaption>Доля компаний (10+ сотрудников), использующих хотя бы одну технологию ИИ. Италия удвоила показатель за год, но разрыв со средним по ЕС сохраняется.
+          <span class="src">Источники: Eurostat (ЕС-27); ISTAT / Anitec-Assinform (Италия).</span></figcaption>
+      </figure>
+
+      <!-- F3 DOT PLOT -->
+      <figure class="fig h12">
+        <div class="head">
+          <div class="t">Внедрение ИИ в ЕС: лидеры и отстающие (2025)</div>
+          <div class="tag">Dot plot</div>
+        </div>
+        <div class="chart" id="c-eu-dots" role="img" aria-label="Точечный график доли предприятий, использующих ИИ, по странам ЕС в 2025 году"></div>
+        <figcaption>Скандинавия и Бенилюкс заметно опережают рынок; среднее по ЕС-27 — 20,0%. Пунктир — ориентир Италии (16,4%, ISTAT), для сравнения с распределением Eurostat.
+          <span class="src">Источник: Eurostat, ICT usage in enterprises, референс-год 2025 (публ. 12.2025).</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 02 ЭТИКА / РЕГУЛИРОВАНИЕ ===================== -->
+<section class="section" id="ethics">
+  <div class="wrap">
+    <div class="sechead">
+      <div class="no">02</div>
+      <h2>Самый жёсткий правоприменитель Запада</h2>
+      <p class="dek">Италия первой на Западе остановила ChatGPT, наложила первый штраф по GDPR на создателя генеративного ИИ и первой в ЕС внесла дипфейки в Уголовный кодекс. Этическая рамка задана в Риме: Rome Call for AI Ethics (2020) и речь Папы на G7-2024 под итальянским председательством — «algor-ethics», право решать остаётся за человеком.</p>
+    </div>
+
+    <div class="figs">
+      <!-- F4 TIMELINE -->
+      <figure class="fig h7">
+        <div class="head">
+          <div class="t">Хроника регулирования ИИ, 2020–2025</div>
+          <div class="tag">Timeline · custom</div>
+        </div>
+        <div class="timeline">
+          <div class="tl-row">
+            <div class="tl-date">фев 2020</div>
+            <div class="tl-body"><div class="tl-t">Rome Call for AI Ethics</div><div class="tl-d">Папская академия жизни с Microsoft, IBM, FAO и правительством Италии формулируют шесть принципов и концепцию «algor-ethics».</div></div>
+          </div>
+          <div class="tl-row alert">
+            <div class="tl-date">30 мар 2023</div>
+            <div class="tl-body"><div class="tl-t">Блокировка ChatGPT</div><div class="tl-d">Garante временно останавливает сервис — первый подобный запрет на Западе из-за нарушений GDPR.</div></div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-date">~29 апр 2023</div>
+            <div class="tl-body"><div class="tl-t">Доступ восстановлен</div><div class="tl-d">OpenAI добавляет прозрачность обработки данных и проверку возраста; сервис возвращается примерно через месяц.</div></div>
+          </div>
+          <div class="tl-row alert">
+            <div class="tl-date">июн 2024</div>
+            <div class="tl-body"><div class="tl-t">Папа на G7</div><div class="tl-d">Борго-Эньяция, Апулия: первый понтифик, выступивший на саммите G7; призыв запретить летальное автономное оружие.</div></div>
+          </div>
+          <div class="tl-row alert">
+            <div class="tl-date">дек 2024</div>
+            <div class="tl-body"><div class="tl-t">Штраф OpenAI €15 млн</div><div class="tl-d">Первое в ЕС наказание по GDPR для генеративного ИИ плюс предписанная 6-месячная информкампания.</div></div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-date">окт 2025</div>
+            <div class="tl-body"><div class="tl-t">Закон №132/2025 в силе</div><div class="tl-d">Первый в ЕС органический нацзакон об ИИ: уголовная статья за дипфейки, защита несовершеннолетних, надзор AgID и ACN.</div></div>
+          </div>
+        </div>
+        <figcaption>Дата закона — одобрен 17.09.2025, вступил в силу 10.10.2025.
+          <span class="src">Источники: Vatican.va; Garante per la protezione dei dati personali; Gazzetta Ufficiale — Legge 132/2025.</span></figcaption>
+      </figure>
+
+      <!-- F5 ARROW PLOT -->
+      <figure class="fig h5">
+        <div class="head">
+          <div class="t">Штраф против выручки OpenAI в Италии</div>
+          <div class="tag">Arrow plot</div>
+        </div>
+        <div class="chart" id="c-fine" role="img" aria-label="Стрелочная диаграмма: штраф €15 млн против оценочной выручки OpenAI в Италии"></div>
+        <figcaption>По заявлению самой OpenAI, штраф «почти в 20 раз» превысил её выручку в Италии за рассматриваемый период — отсюда оценка выручки ≈€0,75 млн.
+          <span class="src">Источник: заявление OpenAI (AP / Euronews, 12.2024); расчёт автора по соотношению «≈20×».</span></figcaption>
+      </figure>
+
+      <!-- F6 RANGE PLOT -->
+      <figure class="fig h6">
+        <div class="head">
+          <div class="t">Закон №132/2025: сроки подзаконных актов</div>
+          <div class="tag">Range plot</div>
+        </div>
+        <div class="chart" id="c-deadlines" role="img" aria-label="Диапазонная диаграмма сроков принятия подзаконных актов от даты вступления закона в силу"></div>
+        <figcaption>Отсчёт от вступления в силу (10.10.2025 = день 0). Правительство получило до 12 месяцев на декреты о данных для обучения, согласовании с AI Act и новых составах преступлений.
+          <span class="src">Источник: LEXIA — анализ Legge 23 settembre 2025, n. 132.</span></figcaption>
+      </figure>
+
+      <!-- F7 TABLE -->
+      <figure class="fig h6">
+        <div class="head">
+          <div class="t">Подходы к регулированию ИИ: четыре модели</div>
+          <div class="tag">Table</div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="cmp">
+            <thead>
+              <tr><th scope="col">Юрисдикция</th><th scope="col">Подход</th><th scope="col">Дипфейки</th><th scope="col">Кто решает</th></tr>
+            </thead>
+            <tbody>
+              <tr class="hot">
+                <th scope="row">Италия №132/2025</th>
+                <td>Нацзакон поверх AI Act, акцент на суверенитет</td>
+                <td><span class="pill">Уголовное</span> 1–5 лет (ст. 612-quater)</td>
+                <td>Человек — в суде и госуправлении</td>
+              </tr>
+              <tr>
+                <th scope="row">ЕС — AI Act</th>
+                <td>Риск-ориентированный, общий для ЕС</td>
+                <td>Обязанность маркировки и прозрачности</td>
+                <td>Надзор рыночных органов</td>
+              </tr>
+              <tr>
+                <th scope="row">США</th>
+                <td>Рыночный, отраслевой и через указы</td>
+                <td>Преимущественно лоскут законов штатов</td>
+                <td>Отрасль / штаты</td>
+              </tr>
+              <tr>
+                <th scope="row">Китай</th>
+                <td>Государственный: реестр алгоритмов</td>
+                <td>Обязательная маркировка синтетики</td>
+                <td>Регулятор / платформы</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption>Сравнение высокоуровневое; формулировки упрощены.
+          <span class="src">Источники: Cleary Gottlieb; Norton Rose Fulbright; Securiti — обзоры Legge 132/2025 и EU AI Act.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 03 МЕДИА ===================== -->
+<section class="section" id="media">
+  <div class="wrap">
+    <div class="sechead">
+      <div class="no">03</div>
+      <h2>Полигон синтетических медиа</h2>
+      <p class="dek">Италия раньше других показала оба полюса генеративного ИИ в медиа: с одной стороны — Il Foglio, первая в мире газета, целиком написанная ИИ; с другой — криминализированный дипфейк-кейс против премьера. Один и тот же инструмент производит и журналистику, и насилие.</p>
+    </div>
+
+    <div class="figs">
+      <!-- F8 COLUMN -->
+      <figure class="fig h4">
+        <div class="head">
+          <div class="t">Il Foglio: продажи в день старта</div>
+          <div class="tag">Column</div>
+        </div>
+        <div class="chart" id="c-foglio" role="img" aria-label="Столбчатая диаграмма продаж Il Foglio: обычный день против дня запуска ИИ-выпуска"></div>
+        <figcaption>18 марта 2025 вышел Il Foglio AI — четырёхполосный выпуск, целиком сгенерированный ChatGPT. Продажи газеты в первый день, по подсчётам редакции, выросли на 60%.
+          <span class="src">Источник: Columbia Journalism Review; Il Foglio (Claudio Cerasa).</span></figcaption>
+      </figure>
+
+      <!-- F9 HEATMAP MATRIX -->
+      <figure class="fig h8">
+        <div class="head">
+          <div class="t">Покрытие угроз синтетических медиа инструментами Италии</div>
+          <div class="tag">Heatmap · custom</div>
+        </div>
+        <div class="hm">
+          <div class="hm-grid">
+            <div class="hm-cell h">Угроза \ Инструмент</div>
+            <div class="hm-cell h">Garante / GDPR</div>
+            <div class="hm-cell h">Закон 132 — ст. 612-quater</div>
+            <div class="hm-cell h">EU AI Act — прозрачность</div>
+            <div class="hm-cell h">Закон 132 — TDM (ст. 171)</div>
+
+            <div class="hm-cell row">Интимные дипфейки без согласия</div>
+            <div class="hm-cell v hm-v2">частично</div>
+            <div class="hm-cell v hm-v3">сильно</div>
+            <div class="hm-cell v hm-v2">частично</div>
+            <div class="hm-cell v hm-v1">нет</div>
+
+            <div class="hm-cell row">Политическая дезинформация</div>
+            <div class="hm-cell v hm-v1">слабо</div>
+            <div class="hm-cell v hm-v2">частично</div>
+            <div class="hm-cell v hm-v2">частично</div>
+            <div class="hm-cell v hm-v1">нет</div>
+
+            <div class="hm-cell row">Мошенничество и кража личности</div>
+            <div class="hm-cell v hm-v2">частично</div>
+            <div class="hm-cell v hm-v3">сильно</div>
+            <div class="hm-cell v hm-v2">частично</div>
+            <div class="hm-cell v hm-v1">нет</div>
+
+            <div class="hm-cell row">Скрейпинг контента под обучение</div>
+            <div class="hm-cell v hm-v2">частично</div>
+            <div class="hm-cell v hm-v1">нет</div>
+            <div class="hm-cell v hm-v2">частично</div>
+            <div class="hm-cell v hm-v3">сильно</div>
+          </div>
+          <div class="hm-leg">
+            <span><i style="background:rgba(0,146,70,.30)"></i>сильно</span>
+            <span><i style="background:rgba(0,146,70,.14)"></i>частично</span>
+            <span><i style="background:rgba(255,255,255,.03)"></i>слабо / нет</span>
+          </div>
+        </div>
+        <figcaption>Авторская оценка того, как четыре главных инструмента Италии закрывают четыре типа вреда от синтетических медиа. Уголовная статья сильна против адресного вреда, но политическая дезинформация остаётся слабым местом.
+          <span class="src">Основано на: Garante (решение по ChatGPT); Legge 132/2025 (ст. 612-quater, ст. 171 a-ter); Regolamento UE 2024/1689.</span></figcaption>
+      </figure>
+
+      <!-- F10 LOCATOR MAP -->
+      <figure class="fig h7">
+        <div class="head">
+          <div class="t">География сюжета: где это происходило</div>
+          <div class="tag">Locator map</div>
+        </div>
+        <div class="chart" id="c-map" role="img" aria-label="Карта Италии с отметками ключевых мест: Рим, Борго-Эньяция, Сассари, Милан"></div>
+        <figcaption>Четыре точки итальянской ИИ-истории — от ватиканской этики до судебного процесса о дипфейках на Сардинии.
+          <span class="src">Контур: world.geo.json (ITA); координаты — OpenStreetMap.</span></figcaption>
+      </figure>
+
+      <!-- STATUS BLOCK -->
+      <figure class="fig h5">
+        <div class="head">
+          <div class="t">Два лица одной технологии</div>
+          <div class="tag">Status · custom</div>
+        </div>
+        <div class="status">
+          <div class="card green">
+            <div class="k">Создание</div>
+            <h3>Il Foglio AI</h3>
+            <div class="ln"><b>18.03.2025</b><span>старт месячного эксперимента, первая в мире ИИ-газета</span></div>
+            <div class="ln"><b>4 полосы</b><span>новости, культура, политика, письма — целиком ChatGPT</span></div>
+            <div class="ln"><b>Роль людей</b><span>журналисты только задавали вопросы и проверяли</span></div>
+            <div class="ln"><b>Итог</b><span>после месяца — еженедельный формат внутри газеты</span></div>
+          </div>
+          <div class="card red">
+            <div class="k">Злоупотребление</div>
+            <h3>Дело Мелони</h3>
+            <div class="ln"><b>~2020</b><span>дипфейк-порно с лицом премьера, миллионы просмотров</span></div>
+            <div class="ln"><b>Сассари</b><span>гражданский иск к двоим обвиняемым (Сардиния)</span></div>
+            <div class="ln"><b>€100 тыс.</b><span>символическая компенсация — в фонд жертвам насилия</span></div>
+            <div class="ln"><b>09.10.2024</b><span>показания по видеосвязи: «форма насилия над женщинами»</span></div>
+          </div>
+        </div>
+        <figcaption>
+          <span class="src">Источники: CNN; AP / Seattle Times; Bernama / dpa; Euronews.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ФУТЕР ===================== -->
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="lead">Италия регулирует ИИ <em>с позиции человека</em> — раньше и жёстче соседей.</div>
+      <div class="foot-note">Все цифры на странице взяты из официальных и профильных источников и проверены по состоянию на июнь 2026. Где показатель оценочный или авторский, это отмечено в подписи к графику.</div>
+    </div>
+    <div class="sources">
+      <h4>Источники</h4>
+      <ol>
+        <li><span class="n">01</span><span><b>AgID</b> — Strategia italiana per l'Intelligenza Artificiale 2024–2026 (22.07.2024).</span></li>
+        <li><span class="n">02</span><span><b>Gazzetta Ufficiale</b> — Legge 23 settembre 2025, n. 132; в силе 10.10.2025.</span></li>
+        <li><span class="n">03</span><span><b>Garante</b> per la protezione dei dati personali — решение по ChatGPT, штраф €15 млн (12.2024).</span></li>
+        <li><span class="n">04</span><span><b>Eurostat</b> — Use of AI in enterprises, референс-год 2025 (publ. 11.12.2025).</span></li>
+        <li><span class="n">05</span><span><b>ISTAT / Anitec-Assinform</b> — внедрение ИИ итальянскими компаниями, 2024–2025.</span></li>
+        <li><span class="n">06</span><span><b>Vatican.va</b> — обращение Папы Франциска к G7 (Борго-Эньяция, 14.06.2024); Rome Call for AI Ethics (2020).</span></li>
+        <li><span class="n">07</span><span><b>Cleary Gottlieb; Norton Rose Fulbright; Securiti; LEXIA</b> — юридические обзоры Legge 132/2025.</span></li>
+        <li><span class="n">08</span><span><b>Columbia Journalism Review; Euronews</b> — эксперимент Il Foglio AI (с 18.03.2025).</span></li>
+        <li><span class="n">09</span><span><b>CNN; AP; Bernama/dpa</b> — дело о дипфейке против Дж. Мелони (Сассари, 2024).</span></li>
+        <li><span class="n">10</span><span><b>Consiglio dei ministri / CDP Venture Capital</b> — инвестиции по закону об ИИ (>€300 млн размещено).</span></li>
+      </ol>
+    </div>
+    <div class="colophon">
+      <span>G20 · Страновой профиль ИИ · 07 Италия</span>
+      <span>Данные на июнь 2026 · D3.js</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+"use strict";
+const INK = "#060607";
+const PAPER = "#FFFFFF";
+const FLAG = "#009246";
+const FLAG2 = "#34B36B";
+const FLAGSEC = "#CE2B37";
+const MUTED = "rgba(255,255,255,.56)";
+const LINE = "rgba(255,255,255,.16)";
+const GRID = "rgba(255,255,255,.07)";
+
+const ITALY_GEO = {"type":"MultiPolygon","coordinates":[[[[15.52,38.231],[15.16,37.444],[15.31,37.134],[15.1,36.62],[14.335,36.997],[13.827,37.105],[12.431,37.613],[12.571,38.126],[13.741,38.035],[14.761,38.144],[15.52,38.231]]],[[[9.21,41.21],[9.81,40.5],[9.67,39.177],[9.215,39.24],[8.807,38.907],[8.428,39.172],[8.388,40.378],[8.16,40.95],[8.71,40.9],[9.21,41.21]]],[[[12.376,46.768],[13.806,46.509],[13.698,46.017],[13.938,45.591],[13.142,45.737],[12.329,45.382],[12.384,44.885],[12.261,44.6],[12.589,44.091],[13.527,43.588],[14.03,42.761],[15.143,41.955],[15.926,41.961],[16.17,41.74],[15.889,41.541],[16.785,41.18],[17.519,40.877],[18.377,40.356],[18.48,40.169],[18.293,39.811],[17.738,40.278],[16.87,40.442],[16.449,39.795],[17.171,39.425],[17.053,38.903],[16.635,38.844],[16.101,37.986],[15.684,37.909],[15.688,38.215],[15.892,38.751],[16.109,38.965],[15.719,39.544],[15.414,40.048],[14.998,40.173],[14.703,40.605],[14.061,40.786],[13.628,41.188],[12.888,41.253],[12.107,41.705],[11.192,42.355],[10.512,42.931],[10.2,43.92],[9.702,44.036],[8.889,44.366],[8.429,44.231],[7.851,43.767],[7.435,43.694],[7.55,44.128],[7.008,44.255],[6.75,45.029],[7.097,45.333],[6.802,45.709],[6.844,45.991],[7.274,45.777],[7.756,45.824],[8.317,46.164],[8.49,46.005],[8.966,46.037],[9.183,46.44],[9.923,46.315],[10.363,46.484],[10.443,46.894],[11.049,46.751],[11.165,46.942],[12.153,47.115],[12.376,46.768]]]]};
+
+function svgIn(sel, w, h){
+  d3.select(sel).selectAll("*").remove();
+  return d3.select(sel).append("svg")
+    .attr("viewBox", "0 0 " + w + " " + h)
+    .attr("preserveAspectRatio", "xMidYMid meet");
+}
+
+/* ---------- F1: горизонтальный bar — финансирование ---------- */
+function chartFunding(){
+  const data = [
+    {k:"Нацфонд ИИ / кибербез (Закон 132)", v:1000, note:"€300 млн+ уже размещено", deployed:300},
+    {k:"ИИ-профессуры (PNRR, 2024)", v:500, note:"150 ставок"},
+    {k:"Vertical AI — deep-tech (FNI / CDP)", v:300, note:"equity ранних стадий"}
+  ];
+  const W=560, H=240, m={t:14,r:64,b:34,l:18};
+  const innerW=W-m.l-m.r, innerH=H-m.t-m.b;
+  const svg=svgIn("#c-funding", W, H);
+  const g=svg.append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([0,1000]).range([0,innerW]);
+  const y=d3.scaleBand().domain(data.map(d=>d.k)).range([0,innerH]).padding(0.42);
+  [0,250,500,750,1000].forEach(t=>{
+    g.append("line").attr("class","ax-grid").attr("x1",x(t)).attr("x2",x(t)).attr("y1",0).attr("y2",innerH);
+    g.append("text").attr("class","tk-2").attr("x",x(t)).attr("y",innerH+18).attr("text-anchor","middle").text(t===0?"0":("€"+t+"M"));
+  });
+  const rows=g.selectAll(".row").data(data).enter().append("g");
+  rows.append("rect").attr("x",0).attr("y",d=>y(d.k)).attr("height",y.bandwidth())
+    .attr("width",d=>x(d.v)).attr("fill",FLAG).attr("opacity",.92);
+  rows.filter(d=>d.deployed).append("rect")
+    .attr("x",0).attr("y",d=>y(d.k)).attr("height",y.bandwidth())
+    .attr("width",d=>x(d.deployed)).attr("fill",FLAG2).attr("opacity",.9);
+  rows.append("text").attr("class","lab-cat").attr("x",4).attr("y",d=>y(d.k)-7).text(d=>d.k);
+  rows.append("text").attr("class","val").attr("x",d=>x(d.v)+8).attr("y",d=>y(d.k)+y.bandwidth()/2+4)
+    .text(d=>"€"+(d.v/1000).toFixed(d.v>=1000?1:2).replace(/\.00$/,"")+(d.v>=1000?" млрд":" млн"));
+  rows.filter(d=>d.deployed).append("text").attr("class","val-m")
+    .attr("x",6).attr("y",d=>y(d.k)+y.bandwidth()/2+4).attr("fill","#04210f")
+    .style("font-size","10px").text("€300M");
+}
+
+/* ---------- F2: multiple lines — внедрение ИИ ---------- */
+function chartAdoption(){
+  const eu=[{x:2021,y:7.7},{x:2023,y:8.1},{x:2024,y:13.5},{x:2025,y:20.0}];
+  const it=[{x:2024,y:8.2},{x:2025,y:16.4}];
+  const W=560, H=300, m={t:18,r:54,b:34,l:34};
+  const innerW=W-m.l-m.r, innerH=H-m.t-m.b;
+  const svg=svgIn("#c-adoption", W, H);
+  const g=svg.append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([2021,2025]).range([0,innerW]);
+  const y=d3.scaleLinear().domain([0,22]).range([innerH,0]);
+  [0,5,10,15,20].forEach(t=>{
+    g.append("line").attr("class","ax-grid").attr("x1",0).attr("x2",innerW).attr("y1",y(t)).attr("y2",y(t));
+    g.append("text").attr("class","tk-2").attr("x",-8).attr("y",y(t)+3).attr("text-anchor","end").text(t+"%");
+  });
+  [2021,2022,2023,2024,2025].forEach(t=>{
+    g.append("text").attr("class","tk-2").attr("x",x(t)).attr("y",innerH+18).attr("text-anchor","middle").text("'"+String(t).slice(2));
+  });
+  const line=d3.line().x(d=>x(d.x)).y(d=>y(d.y));
+  // EU
+  g.append("path").datum(eu).attr("fill","none").attr("stroke",MUTED).attr("stroke-width",1.6).attr("d",line);
+  g.selectAll(".meu").data(eu).enter().append("rect").attr("x",d=>x(d.x)-3).attr("y",d=>y(d.y)-3).attr("width",6).attr("height",6).attr("fill",MUTED);
+  // Italy
+  g.append("path").datum(it).attr("fill","none").attr("stroke",FLAG).attr("stroke-width",2.4).attr("d",line);
+  g.selectAll(".mit").data(it).enter().append("rect").attr("x",d=>x(d.x)-3.5).attr("y",d=>y(d.y)-3.5).attr("width",7).attr("height",7).attr("fill",FLAG);
+  // подписи концов
+  g.append("text").attr("class","val").attr("x",x(2025)+8).attr("y",y(20.0)+4).attr("fill",MUTED).text("ЕС 20,0");
+  g.append("text").attr("class","val").attr("x",x(2025)+8).attr("y",y(16.4)+4).attr("fill",FLAG).text("IT 16,4");
+}
+
+/* ---------- F3: dot plot — страны ЕС ---------- */
+function chartEuDots(){
+  const data=[
+    {k:"Дания",v:42.0},{k:"Финляндия",v:37.8},{k:"Швеция",v:35.0},{k:"Бельгия",v:34.5},
+    {k:"ЕС-27 (среднее)",v:20.0,hi:true},{k:"Болгария",v:8.5},{k:"Польша",v:8.4},{k:"Румыния",v:5.2}
+  ];
+  const itRef=16.4;
+  const W=560, H=320, m={t:16,r:30,b:34,l:140};
+  const innerW=W-m.l-m.r, innerH=H-m.t-m.b;
+  const svg=svgIn("#c-eu-dots", W, H);
+  const g=svg.append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([0,45]).range([0,innerW]);
+  const y=d3.scalePoint().domain(data.map(d=>d.k)).range([0,innerH]).padding(0.6);
+  [0,10,20,30,40].forEach(t=>{
+    g.append("line").attr("class","ax-grid").attr("x1",x(t)).attr("x2",x(t)).attr("y1",-6).attr("y2",innerH+6);
+    g.append("text").attr("class","tk-2").attr("x",x(t)).attr("y",innerH+20).attr("text-anchor","middle").text(t+"%");
+  });
+  // ориентир Италии
+  g.append("line").attr("x1",x(itRef)).attr("x2",x(itRef)).attr("y1",-6).attr("y2",innerH+6)
+    .attr("stroke",FLAG).attr("stroke-width",1).attr("stroke-dasharray","3 3").attr("opacity",.8);
+  g.append("text").attr("class","tk-2").attr("x",x(itRef)).attr("y",-2).attr("text-anchor","middle").attr("fill",FLAG).text("Италия 16,4");
+  // строки-подсказки
+  g.selectAll(".gl").data(data).enter().append("line")
+    .attr("x1",0).attr("x2",d=>x(d.v)).attr("y1",d=>y(d.k)).attr("y2",d=>y(d.k))
+    .attr("stroke",GRID).attr("stroke-width",1);
+  g.selectAll(".dt").data(data).enter().append("rect")
+    .attr("x",d=>x(d.v)-4.5).attr("y",d=>y(d.k)-4.5).attr("width",9).attr("height",9)
+    .attr("fill",d=>d.hi?FLAGSEC:PAPER);
+  g.selectAll(".lb").data(data).enter().append("text").attr("class","lab-cat")
+    .attr("x",-12).attr("y",d=>y(d.k)+4).attr("text-anchor","end")
+    .attr("fill",d=>d.hi?FLAGSEC:PAPER).text(d=>d.k);
+  g.selectAll(".vl").data(data).enter().append("text").attr("class","val")
+    .attr("x",d=>x(d.v)+10).attr("y",d=>y(d.k)+4)
+    .attr("fill",d=>d.hi?FLAGSEC:MUTED).text(d=>d.v.toFixed(1).replace(".",","));
+}
+
+/* ---------- F5: arrow plot — штраф vs выручка ---------- */
+function chartFine(){
+  const W=560, H=170, m={t:40,r:96,b:38,l:18};
+  const innerW=W-m.l-m.r, innerH=H-m.t-m.b;
+  const svg=svgIn("#c-fine", W, H);
+  const g=svg.append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([0,16]).range([0,innerW]);
+  [0,5,10,15].forEach(t=>{
+    g.append("line").attr("class","ax-grid").attr("x1",x(t)).attr("x2",x(t)).attr("y1",-10).attr("y2",innerH+6);
+    g.append("text").attr("class","tk-2").attr("x",x(t)).attr("y",innerH+20).attr("text-anchor","middle").text("€"+t+"M");
+  });
+  const yy=innerH/2;
+  const x0=x(0.75), x1=x(15);
+  // маркер стрелки
+  svg.append("defs").append("marker").attr("id","arr").attr("viewBox","0 0 10 10")
+    .attr("refX",8).attr("refY",5).attr("markerWidth",7).attr("markerHeight",7).attr("orient","auto-start-reverse")
+    .append("path").attr("d","M0,0 L10,5 L0,10 z").attr("fill",FLAGSEC);
+  g.append("line").attr("x1",x0).attr("x2",x1).attr("y1",yy).attr("y2",yy)
+    .attr("stroke",FLAGSEC).attr("stroke-width",2.2).attr("marker-end","url(#arr)");
+  // старт
+  g.append("rect").attr("x",x0-4).attr("y",yy-4).attr("width",8).attr("height",8).attr("fill",MUTED);
+  g.append("text").attr("class","val-m").attr("x",x0).attr("y",yy-12).attr("text-anchor","start").text("≈€0,75M выручка");
+  // конец
+  g.append("text").attr("class","val").attr("x",x1+8).attr("y",yy+4).attr("fill",FLAGSEC).text("€15M");
+  g.append("text").attr("class","tk-2").attr("x",x1+8).attr("y",yy+18).attr("fill",MUTED).text("штраф ≈20×");
+}
+
+/* ---------- F6: range plot — сроки подзаконных актов ---------- */
+function chartDeadlines(){
+  const data=[
+    {k:"Декрет Минтруда — Наблюдатель за ИИ", d:90},
+    {k:"Декрет Минздрава — данные для исследований", d:120},
+    {k:"Законодательные декреты правительства", d:365}
+  ];
+  const W=560, H=210, m={t:14,r:54,b:36,l:18};
+  const innerW=W-m.l-m.r, innerH=H-m.t-m.b;
+  const svg=svgIn("#c-deadlines", W, H);
+  const g=svg.append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleLinear().domain([0,365]).range([0,innerW]);
+  const y=d3.scaleBand().domain(data.map(d=>d.k)).range([0,innerH]).padding(0.5);
+  [0,90,180,270,365].forEach(t=>{
+    g.append("line").attr("class","ax-grid").attr("x1",x(t)).attr("x2",x(t)).attr("y1",0).attr("y2",innerH);
+    g.append("text").attr("class","tk-2").attr("x",x(t)).attr("y",innerH+18).attr("text-anchor","middle").text(t+" дн");
+  });
+  const rows=g.selectAll(".r").data(data).enter().append("g");
+  rows.append("line").attr("x1",x(0)).attr("x2",d=>x(d.d)).attr("y1",d=>y(d.k)+y.bandwidth()/2).attr("y2",d=>y(d.k)+y.bandwidth()/2)
+    .attr("stroke",FLAG).attr("stroke-width",3);
+  rows.append("rect").attr("x",x(0)-3).attr("y",d=>y(d.k)+y.bandwidth()/2-4).attr("width",7).attr("height",8).attr("fill",MUTED);
+  rows.append("rect").attr("x",d=>x(d.d)-4).attr("y",d=>y(d.k)+y.bandwidth()/2-5).attr("width",8).attr("height",10).attr("fill",FLAG);
+  rows.append("text").attr("class","lab-cat").attr("x",4).attr("y",d=>y(d.k)-7).text(d=>d.k);
+  rows.append("text").attr("class","val").attr("x",d=>x(d.d)+8).attr("y",d=>y(d.k)+y.bandwidth()/2+4).attr("fill",FLAG).text(d=>d.d+" дн");
+}
+
+/* ---------- F8: column — Il Foglio ---------- */
+function chartFoglio(){
+  const data=[{k:"Обычный день",v:100,c:MUTED},{k:"День запуска",v:160,c:FLAG}];
+  const W=320, H=260, m={t:22,r:14,b:40,l:34};
+  const innerW=W-m.l-m.r, innerH=H-m.t-m.b;
+  const svg=svgIn("#c-foglio", W, H);
+  const g=svg.append("g").attr("transform","translate("+m.l+","+m.t+")");
+  const x=d3.scaleBand().domain(data.map(d=>d.k)).range([0,innerW]).padding(0.4);
+  const y=d3.scaleLinear().domain([0,180]).range([innerH,0]);
+  [0,50,100,150].forEach(t=>{
+    g.append("line").attr("class","ax-grid").attr("x1",0).attr("x2",innerW).attr("y1",y(t)).attr("y2",y(t));
+    g.append("text").attr("class","tk-2").attr("x",-8).attr("y",y(t)+3).attr("text-anchor","end").text(t);
+  });
+  g.append("line").attr("class","ax-zero").attr("x1",0).attr("x2",innerW).attr("y1",y(100)).attr("y2",y(100)).attr("stroke-dasharray","3 3");
+  const rows=g.selectAll(".c").data(data).enter().append("g");
+  rows.append("rect").attr("x",d=>x(d.k)).attr("width",x.bandwidth()).attr("y",d=>y(d.v)).attr("height",d=>innerH-y(d.v)).attr("fill",d=>d.c).attr("opacity",.92);
+  rows.append("text").attr("class","val").attr("x",d=>x(d.k)+x.bandwidth()/2).attr("y",d=>y(d.v)-8).attr("text-anchor","middle").attr("fill",d=>d.c).text(d=>d.v===160?"+60%":"индекс 100");
+  rows.append("text").attr("class","tk-2").attr("x",d=>x(d.k)+x.bandwidth()/2).attr("y",innerH+18).attr("text-anchor","middle").text(d=>d.k);
+}
+
+/* ---------- F10: locator map ---------- */
+function chartMap(){
+  const W=560, H=520;
+  const svg=svgIn("#c-map", W, H);
+  const proj=d3.geoMercator().fitExtent([[16,16],[W-16,H-16]], ITALY_GEO);
+  const path=d3.geoPath(proj);
+  svg.append("path").datum(ITALY_GEO).attr("d",path)
+    .attr("fill","rgba(255,255,255,.05)").attr("stroke",LINE).attr("stroke-width",1);
+  const cities=[
+    {n:"Рим / Ватикан", t:"Rome Call · Il Foglio", lon:12.483, lat:41.893, dx:10, dy:4, a:"start"},
+    {n:"Борго-Эньяция", t:"G7 · речь Папы", lon:17.387, lat:40.886, dx:10, dy:4, a:"start"},
+    {n:"Сассари", t:"процесс о дипфейке", lon:8.559, lat:40.726, dx:-10, dy:4, a:"end"},
+    {n:"Милан", t:"ИИ-хаб · детекция", lon:9.190, lat:45.464, dx:-10, dy:4, a:"end"}
+  ];
+  const gj=svg.selectAll(".cty").data(cities).enter().append("g")
+    .attr("transform",d=>{const p=proj([d.lon,d.lat]); return "translate("+p[0]+","+p[1]+")";});
+  gj.append("rect").attr("x",-4).attr("y",-4).attr("width",8).attr("height",8).attr("fill",FLAG);
+  gj.append("circle").attr("r",11).attr("fill","none").attr("stroke",FLAG).attr("stroke-width",1).attr("opacity",.5);
+  gj.append("text").attr("class","lab-cat").attr("x",d=>d.dx).attr("y",d=>d.dy-6).attr("text-anchor",d=>d.a).text(d=>d.n);
+  gj.append("text").attr("class","tk-2").attr("x",d=>d.dx).attr("y",d=>d.dy+8).attr("text-anchor",d=>d.a).text(d=>d.t);
+}
+
+function renderAll(){
+  chartFunding(); chartAdoption(); chartEuDots();
+  chartFine(); chartDeadlines(); chartFoglio(); chartMap();
+}
+if(window.d3){ renderAll(); }
+else{ window.addEventListener("load", renderAll); }
+</script>
+</body>
+</html>

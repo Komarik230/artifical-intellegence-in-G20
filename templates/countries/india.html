@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Индия — ИИ в странах G20</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===================================================================
+   ЕДИНЫЙ ШАБЛОН ПРОЕКТА G20 · ИИ.
+   Под каждую страну меняется только блок --flag-* (цвета флага).
+   Остальные токены (ink, paper, line, muted) общие для всех страниц.
+   =================================================================== */
+:root {
+  /* --- Акцент страны: Индия (флаг) --- */
+  --flag-primary:   #FF9933;   /* шафрановый флага */
+  --flag-primary-2: #FFB266;   /* светлее, для ховера/выделения */
+  --flag-secondary: #138808;   /* зелёный флага */
+  --flag-navy:      #20308f;   /* синий чакры (приподнят для читаемости на тёмном) */
+
+  /* --- Общая монохромная база (для всех стран одинаковая) --- */
+  --ink:        #060607;
+  --ink-panel:  #0B0C0E;
+  --paper:      #FFFFFF;
+  --muted:      rgba(255,255,255,.56);
+  --muted-2:    rgba(255,255,255,.40);
+  --line:       rgba(255,255,255,.16);
+  --line-2:     rgba(255,255,255,.30);
+  --grid:       rgba(255,255,255,.07);
+  --alert:      #E5484D;       /* функциональный красный: дипфейки, дезинформация, провалы */
+
+  --maxw: 1320px;
+  --pad: clamp(16px, 4vw, 56px);
+
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --f-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--ink); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--ink); color: var(--paper);
+  font-family: var(--f-body); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+::selection { background: var(--flag-primary); color: #1a0e00; }
+
+.wrap { width: min(var(--maxw), 100%); margin: 0 auto; padding-inline: var(--pad); }
+.rule { border: none; border-top: 1px solid var(--line); margin: 0; }
+.rule-2 { border: none; border-top: 1px solid var(--line-2); margin: 0; }
+
+/* ---------- Утилитарные текстовые элементы ---------- */
+.eyebrow { font-family: var(--f-mono); font-size: 11.5px; font-weight: 500; letter-spacing: .26em; text-transform: uppercase; color: var(--flag-primary); margin: 0; }
+.mono { font-family: var(--f-mono); }
+.muted { color: var(--muted); }
+h1, h2, h3 { margin: 0; font-family: var(--f-display); font-weight: 900; }
+
+/* ====================== ШАПКА / БРЕНД-БАР ====================== */
+.topbar { border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 50; background: rgba(6,6,7,.86); backdrop-filter: blur(8px); }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 56px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+/* флаг-марка: 3 полосы шафран/белый/зелёный + синий квадрат чакры (без скруглений) */
+.flagmark { width: 30px; height: 20px; display: grid; grid-template-rows: 1fr 1fr 1fr; border: 1px solid var(--line-2); position: relative; flex: none; }
+.flagmark i { display: block; }
+.flagmark .s1 { background: var(--flag-primary); }
+.flagmark .s2 { background: #fff; }
+.flagmark .s3 { background: var(--flag-secondary); }
+.flagmark .chakra { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; transform: translate(-50%,-50%); background: var(--flag-navy); }
+.brand b { font-family: var(--f-mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 600; }
+.topbar .right { font-family: var(--f-mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+.topbar .right b { color: var(--flag-primary); font-weight: 600; }
+
+/* ====================== ГЕРОЙ ====================== */
+.hero { padding: clamp(48px, 9vw, 104px) 0 clamp(32px, 5vw, 64px); border-bottom: 1px solid var(--line); }
+.hero .eyebrow { margin-bottom: 22px; }
+.hero h1 { font-size: clamp(38px, 7.2vw, 92px); line-height: .98; letter-spacing: -.02em; max-width: 18ch; }
+.hero h1 .hl { color: var(--flag-primary); }
+.dek { margin: 26px 0 0; max-width: 74ch; color: var(--muted); font-size: clamp(16px, 1.7vw, 20px); line-height: 1.62; }
+.dek b { color: var(--paper); font-weight: 600; }
+
+/* KPI-полоса */
+.kpis { display: grid; grid-template-columns: repeat(6, 1fr); margin-top: clamp(34px, 5vw, 56px); border: 1px solid var(--line); }
+.kpi { padding: 20px 18px; border-right: 1px solid var(--line); }
+.kpi:last-child { border-right: none; }
+.kpi .n { font-family: var(--f-display); font-weight: 900; font-size: clamp(22px, 2.6vw, 34px); line-height: 1; letter-spacing: -.01em; }
+.kpi .n.acc { color: var(--flag-primary); }
+.kpi .n.warn { color: var(--alert); }
+.kpi .l { margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.kpi .sub { display: block; margin-top: 4px; font-family: var(--f-mono); font-size: 10.5px; color: var(--muted-2); letter-spacing: .02em; }
+@media (max-width: 1080px){ .kpis { grid-template-columns: repeat(3, 1fr); } .kpi:nth-child(3){border-right:none;} .kpi:nth-child(1),.kpi:nth-child(2),.kpi:nth-child(3){border-bottom:1px solid var(--line);} }
+@media (max-width: 560px){ .kpis { grid-template-columns: repeat(2, 1fr); } .kpi{border-right:1px solid var(--line);} .kpi:nth-child(odd){border-right:1px solid var(--line);} .kpi:nth-child(even){border-right:none;} .kpi:nth-child(-n+4){border-bottom:1px solid var(--line);} }
+
+/* ====================== СЕКЦИИ ====================== */
+section { padding: clamp(54px, 8vw, 104px) 0; border-bottom: 1px solid var(--line); }
+.sec-head { display: flex; gap: 22px; align-items: baseline; margin-bottom: clamp(30px, 4vw, 52px); }
+.sec-num { font-family: var(--f-mono); font-size: 13px; color: var(--flag-primary); letter-spacing: .1em; flex: none; padding-top: 6px; }
+.sec-head h2 { font-size: clamp(28px, 4.6vw, 58px); line-height: 1.02; letter-spacing: -.015em; }
+.sec-head .sd { margin-top: 16px; max-width: 70ch; color: var(--muted); font-size: clamp(15px,1.5vw,18px); }
+.interlude .sec-num { color: var(--muted-2); }
+
+.subhead { font-family: var(--f-mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); margin: clamp(40px,5vw,64px) 0 24px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.subhead b { color: var(--flag-primary); font-weight: 600; }
+
+/* ====================== ФИГУРЫ ====================== */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px, 3vw, 40px); }
+@media (max-width: 900px){ .grid-2 { grid-template-columns: 1fr; } }
+
+figure.fig { margin: 0 0 clamp(30px,4vw,46px); border: 1px solid var(--line); background: var(--ink-panel); }
+figure.fig.bare { background: transparent; }
+.fig .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 18px 20px 16px; border-bottom: 1px solid var(--line); }
+.fig .t { font-family: var(--f-display); font-weight: 800; font-size: clamp(16px,1.9vw,21px); line-height: 1.15; letter-spacing: -.01em; }
+.fig .t .u { display: block; font-family: var(--f-mono); font-weight: 400; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+.fig .tag { flex: none; font-family: var(--f-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); padding: 5px 9px; white-space: nowrap; }
+.fig .chart { width: 100%; padding: 18px 14px 6px; }
+.fig figcaption { padding: 0 20px 18px; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+.fig figcaption b { color: var(--paper); font-weight: 600; }
+.fig figcaption .src { display: block; margin-top: 8px; font-family: var(--f-mono); font-size: 10.5px; color: var(--muted-2); letter-spacing: .02em; }
+
+/* ---------- SVG / D3 общий стиль ---------- */
+svg { display: block; overflow: visible; }
+.axis path, .axis line { stroke: var(--line); shape-rendering: crispEdges; }
+.axis text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
+.gridline { stroke: var(--grid); shape-rendering: crispEdges; }
+.zero { stroke: var(--line-2); shape-rendering: crispEdges; }
+.lab { font-family: var(--f-mono); font-size: 11px; fill: var(--paper); }
+.lab-s { font-family: var(--f-mono); font-size: 10px; fill: var(--muted); }
+.val { font-family: var(--f-display); font-weight: 800; fill: var(--paper); }
+.annot { font-family: var(--f-mono); font-size: 10.5px; fill: var(--flag-primary); }
+.annot-line { stroke: var(--flag-primary); stroke-dasharray: 3 3; }
+
+/* ---------- Вынос (callout) ---------- */
+.callout { border: 1px solid var(--line); border-left: 3px solid var(--flag-primary); background: var(--ink-panel); padding: clamp(22px,3vw,32px); margin: 0 0 clamp(30px,4vw,46px); display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(18px,3vw,34px); }
+@media (max-width: 760px){ .callout { grid-template-columns: 1fr; } }
+.callout .c .big { font-family: var(--f-display); font-weight: 900; font-size: clamp(26px,3.4vw,42px); line-height: 1; letter-spacing: -.01em; }
+.callout .c .big.acc { color: var(--flag-primary); }
+.callout .c p { margin: 12px 0 0; font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+.callout .c p b { color: var(--paper); }
+
+/* ---------- Таймлайн ---------- */
+.tl { border: 1px solid var(--line); background: var(--ink-panel); }
+.tl-row { display: grid; grid-template-columns: 132px 1fr; gap: 0; border-bottom: 1px solid var(--line); }
+.tl-row:last-child { border-bottom: none; }
+.tl-year { font-family: var(--f-display); font-weight: 900; font-size: clamp(16px,2vw,22px); padding: 18px 20px; border-right: 1px solid var(--line); color: var(--flag-primary); }
+.tl-year.gap { color: var(--alert); }
+.tl-body { padding: 18px 20px; }
+.tl-body .h { font-weight: 600; font-size: 15px; }
+.tl-body .d { margin-top: 6px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+@media (max-width: 560px){ .tl-row { grid-template-columns: 96px 1fr; } .tl-year{font-size:15px;padding:14px;} }
+
+/* ---------- Таблицы / матрицы ---------- */
+.tbl-wrap { border: 1px solid var(--line); background: var(--ink-panel); overflow-x: auto; }
+table.ctable { width: 100%; border-collapse: collapse; min-width: 720px; }
+.ctable th, .ctable td { text-align: left; padding: 15px 16px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); vertical-align: top; font-size: 13.5px; line-height: 1.45; }
+.ctable th { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: rgba(255,255,255,.02); }
+.ctable td:last-child, .ctable th:last-child { border-right: none; }
+.ctable tr:last-child td { border-bottom: none; }
+.ctable .jur { font-family: var(--f-display); font-weight: 800; font-size: 15px; white-space: nowrap; }
+.ctable tr.india td { background: rgba(255,153,51,.07); }
+.ctable tr.india .jur { color: var(--flag-primary); border-left: 3px solid var(--flag-primary); padding-left: 13px; }
+.pill { display: inline-block; font-family: var(--f-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border: 1px solid var(--line-2); }
+.pill.bind { color: var(--alert); border-color: rgba(229,72,77,.5); }
+.pill.soft { color: var(--flag-primary); border-color: rgba(255,153,51,.5); }
+.pill.sect { color: var(--muted); }
+
+/* heatmap-матрица покрытия рисков */
+.hm { border: 1px solid var(--line); background: var(--ink-panel); overflow-x: auto; }
+table.hm-t { width: 100%; border-collapse: collapse; min-width: 680px; }
+.hm-t th, .hm-t td { padding: 13px 14px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); font-size: 12.5px; }
+.hm-t th { font-family: var(--f-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 500; text-align: center; }
+.hm-t th:first-child { text-align: left; }
+.hm-t td:first-child { font-weight: 600; font-size: 13px; }
+.hm-t td.cell { text-align: center; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .04em; }
+.hm-t td:last-child, .hm-t th:last-child { border-right: none; }
+.hm-t tr:last-child td { border-bottom: none; }
+.c-strong { background: rgba(19,136,8,.20); color: #7ee08a; }
+.c-part   { background: rgba(255,153,51,.16); color: var(--flag-primary-2); }
+.c-none   { background: rgba(229,72,77,.16); color: #ff8b8e; }
+.c-na     { color: var(--muted-2); }
+
+/* статус-матрица медиа */
+.sm { border: 1px solid var(--line); background: var(--ink-panel); overflow-x: auto; }
+table.sm-t { width: 100%; border-collapse: collapse; min-width: 760px; }
+.sm-t th, .sm-t td { text-align: left; padding: 15px 16px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); vertical-align: top; font-size: 13px; line-height: 1.45; }
+.sm-t th { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.sm-t td:last-child, .sm-t th:last-child { border-right: none; }
+.sm-t tr:last-child td { border-bottom: none; }
+.sm-t .ev { font-weight: 600; }
+.st { font-family: var(--f-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border: 1px solid; white-space: nowrap; display: inline-block; }
+.st.ok   { color: #7ee08a; border-color: rgba(19,136,8,.5); }
+.st.weak { color: #ff8b8e; border-color: rgba(229,72,77,.5); }
+.st.gray { color: var(--flag-primary); border-color: rgba(255,153,51,.5); }
+
+/* ---------- Проза ---------- */
+.prose { max-width: 76ch; }
+.prose p { margin: 0 0 18px; color: var(--muted); font-size: clamp(15px,1.55vw,17px); line-height: 1.7; }
+.prose p b { color: var(--paper); font-weight: 600; }
+.prose p:last-child { margin-bottom: 0; }
+
+/* ---------- Подвал / источники ---------- */
+.foot { padding: clamp(48px,7vw,88px) 0; }
+.foot .eyebrow { margin-bottom: 24px; }
+.foot h2 { font-size: clamp(22px,3vw,34px); margin-bottom: 28px; letter-spacing: -.01em; }
+ol.srcs { margin: 0; padding: 0; list-style: none; counter-reset: s; columns: 2; column-gap: clamp(28px,4vw,56px); }
+@media (max-width: 760px){ ol.srcs { columns: 1; } }
+ol.srcs li { counter-increment: s; break-inside: avoid; padding: 12px 0 12px 36px; border-top: 1px solid var(--line); position: relative; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+ol.srcs li::before { content: counter(s,decimal-leading-zero); position: absolute; left: 0; top: 12px; font-family: var(--f-mono); font-size: 11px; color: var(--flag-primary); }
+ol.srcs li b { color: var(--paper); font-weight: 600; }
+.endline { padding: 26px 0; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-2); }
+</style>
+</head>
+<body>
+
+<!-- ====================== ШАПКА ====================== -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="flagmark" aria-hidden="true"><i class="s1"></i><i class="s2"></i><i class="s3"></i><span class="chakra"></span></span>
+      <b>G20 &middot; ИИ</b>
+    </div>
+    <div class="right">Досье <b>07 / Индия</b></div>
+  </div>
+</header>
+
+<!-- ====================== ГЕРОЙ ====================== -->
+<div class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Республика Индия &middot; Bharat</p>
+    <h1>Ставка на <span class="hl">масштаб и людей</span>, а не на закон</h1>
+    <p class="dek">Индия строит искусственный интеллект через <b>дешёвый суверенный компьют, таланты и господдержку стартапов</b> — при сознательно мягком регулировании и поразительно малых расходах на безопасность ИИ. Это происходит на фоне <b>самого ИИ-оптимистичного общества в мире</b>. Выборы в Лок Сабху 2024 года стали стресс-тестом: дипфейки оказались повсюду, а принуждение к их удалению — слабым.</p>
+
+    <div class="kpis">
+      <div class="kpi"><div class="n acc">&#8377;10 372</div><div class="l">крор — бюджет IndiaAI Mission<span class="sub">~$1,25 млрд на 2024&ndash;2029</span></div></div>
+      <div class="kpi"><div class="n">38 000+</div><div class="l">GPU подключено<span class="sub">первоначальная цель — 10 000</span></div></div>
+      <div class="kpi"><div class="n acc">&#8470;3</div><div class="l">Global AI Vibrancy 2025<span class="sub">подъём с &#8470;7 за год</span></div></div>
+      <div class="kpi"><div class="n acc">&#8470;1</div><div class="l">проникновение ИИ-навыков<span class="sub">индекс 2,8 (Stanford)</span></div></div>
+      <div class="kpi"><div class="n">&#8470;10</div><div class="l">частные инвестиции в ИИ<span class="sub">UNCTAD 2025</span></div></div>
+      <div class="kpi"><div class="n warn">0,2%</div><div class="l">бюджета — на &laquo;безопасный ИИ&raquo;<span class="sub">&#8377;20,46 крор из 10 372</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== 01 СТРАТЕГИЯ ====================== -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">01</div>
+      <div>
+        <h2>Стратегия: компьют, таланты, стартапы</h2>
+        <p class="sd">IndiaAI Mission одобрена кабинетом министров в марте 2024 года: &#8377;10 371,92 крор на пять лет через MeitY. Семь направлений, но деньги и приоритеты распределены крайне неравномерно — и реальное освоение средств пока сильно отстаёт от плана.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Куда идут деньги IndiaAI Mission<span class="u">&#8377; крор &middot; доля бюджета</span></div>
+          <div class="tag">Stacked column</div>
+        </div>
+        <div class="chart" id="fig-budget"></div>
+        <figcaption>Один столбец — весь бюджет миссии (&#8377;10 371,92 крор). <b>Компьют — 44%</b> (крупнейшее направление), тогда как на <b>&laquo;безопасный и надёжный ИИ&raquo; — лишь 0,2%</b>. Доли датасетов, приложений и FutureSkills публично не разбиты — показаны единым честным сегментом.
+        <span class="src">Источник [1], [2]: PIB / ответ в Радж Сабхе (MeitY), 2026.</span></figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Освоение средств против плана<span class="u">&#8377; крор &middot; выделено vs смета</span></div>
+          <div class="tag">Bullet bars</div>
+        </div>
+        <div class="chart" id="fig-release"></div>
+        <figcaption>Засечка — плановая смета года, полоса — фактически выделено. За два года освоено <b>~&#8377;401 крор (около 4%)</b> от пятилетнего бюджета. На FY2026&ndash;27 при плане &#8377;1 000 крор выделено &#8377;0 (на момент отчёта).
+        <span class="src">Источник [2]: данные о выделении средств на 09.02.2026.</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="callout">
+      <div class="c"><div class="big acc">&times;40</div><p><b>Частные деньги затмевают государственные.</b> Госбюджет миссии ~$1,25 млрд; только Amazon и Microsoft заявили инвестиции свыше <b>$50 млрд</b> в облако и ИИ Индии.</p></div>
+      <div class="c"><div class="big">&#8377;65/час</div><p><b>Самый дешёвый компьют в мире.</b> Субсидия 40% на стоимость; 38 000+ GPU подключено против цели 10 000; 14 провайдеров в реестре.</p></div>
+      <div class="c"><div class="big">Sarvam</div><p><b>Суверенная LLM.</b> Стартап Sarvam AI (Бенгалуру) выбран в апреле 2025 для первой суверенной LLM Индии; на саммите 2026 представлены модели на 30 и 105 млрд параметров.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== ИНТЕРЛЮДИЯ: ГДЕ ИНДИЯ В МИРЕ ====================== -->
+<section class="interlude">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">&mdash;</div>
+      <div>
+        <h2>Где Индия в мире</h2>
+        <p class="sd">По навыкам Индия — мировой лидер; по совокупной &laquo;живости&raquo; ИИ-экосистемы — третья, но с огромным отрывом от США и Китая. Инновации географически сконцентрированы в нескольких городах-хабах.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Проникновение ИИ-навыков<span class="u">индекс относительно мира = 1,0</span></div>
+          <div class="tag">Bar</div>
+        </div>
+        <div class="chart" id="fig-skill"></div>
+        <figcaption>Индия — <b>&#8470;1 в мире</b> по проникновению ИИ-навыков среди рабочей силы. Концентрация ИИ-талантов выросла на 263% с 2016 года; Индия — второй по величине контрибьютор ИИ на GitHub.
+        <span class="src">Источник [3]: Stanford HAI, AI Index Report 2024.</span></figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Global AI Vibrancy, 2025<span class="u">сводный балл (0&ndash;100+)</span></div>
+          <div class="tag">Column</div>
+        </div>
+        <div class="chart" id="fig-vibrancy"></div>
+        <figcaption>Индия — <b>третья (21,59)</b>, поднявшись с 7-го на 3-е место за год, но кратно позади США и Китая. Балл и методика — версии 2025 года (23 индикатора, 7 столпов); межгодовые баллы прямо не сопоставимы.
+        <span class="src">Источник [4]: Stanford HAI, Global AI Vibrancy Tool 2025.</span></figcaption>
+      </figure>
+    </div>
+
+    <figure class="fig">
+      <div class="head">
+        <div class="t">Города-хабы: глобальные центры компетенций (GCC)<span class="u">число GCC-единиц &middot; пропорциональные квадраты</span></div>
+        <div class="tag">Symbol map</div>
+      </div>
+      <div class="chart" id="fig-hubs"></div>
+      <figcaption>ИИ-мощности Индии концентрируются на юге и западе. Размер квадрата — число GCC-единиц (Zinnov Tier-I, 2025): <b>Бенгалуру 880+</b>, Пуна 475+, Мумбаи 375+, Хайдарабад 355+. Дели-NCR и Ченнаи также входят в топ-хабы, но сопоставимой публичной разбивки по ним нет (показаны полыми маркерами).
+      <span class="src">Источник [5]: Zinnov, отчёт Tier-I GCC, 2025. Контур Индии — упрощённый.</span></figcaption>
+    </figure>
+
+    <div class="subhead">Общественное мнение &middot; <b>самый ИИ-оптимистичный мир</b></div>
+
+    <div class="grid-2">
+      <figure class="fig">
+        <div class="head">
+          <div class="t">&laquo;Великий раскол&raquo; ИИ-оптимизма<span class="u">% считающих ИИ скорее полезным, чем вредным</span></div>
+          <div class="tag">Dot plot</div>
+        </div>
+        <div class="chart" id="fig-divide"></div>
+        <figcaption>Разрыв между оптимистичной Азией и скептичным Западом достигает <b>40+ пунктов</b>. Индии нет в этом конкретном списке Stanford, поэтому показана не точкой, а пунктирной отметкой-ориентиром: использование ИИ на работе в Индии — <b>свыше 80%</b>, поддержка ИИ-стратегии — 85&ndash;90% (выше всех опрошенных).
+        <span class="src">Источник [6]: Stanford HAI / Ipsos, AI Index 2025.</span></figcaption>
+      </figure>
+
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Эксперты против общества<span class="u">% ожидающих позитивный эффект ИИ</span></div>
+          <div class="tag">Range plot</div>
+        </div>
+        <div class="chart" id="fig-gap"></div>
+        <figcaption>По всем темам эксперты заметно оптимистичнее населения. Самый широкий разрыв — в медицине: <b>84% против 44%</b> (40 пунктов). Линия соединяет два полюса восприятия одной темы.
+        <span class="src">Источник [7]: Stanford HAI, AI Index 2026 (эксперты vs население).</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 02 ЭТИЧЕСКОЕ РЕГУЛИРОВАНИЕ ====================== -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">02</div>
+      <div>
+        <h2>Этическое регулирование: мягкое право</h2>
+        <p class="sd">У Индии нет отдельного обязывающего закона об ИИ. Подход — &laquo;лёгкое касание&raquo;: действующие статуты плюс добровольные руководящие принципы. В ноябре 2025 года вышли India AI Governance Guidelines — семь принципов (&laquo;сутр&raquo;) и предложение об IndiaAI Safety Institute.</p>
+      </div>
+    </div>
+
+    <div class="subhead">Хронология управления ИИ &middot; <b>2018&ndash;2026</b></div>
+    <div class="tl">
+      <div class="tl-row"><div class="tl-year">2018</div><div class="tl-body"><div class="h">NITI Aayog: Национальная стратегия по ИИ (#AIForAll)</div><div class="d">Первый рамочный документ; акцент на инклюзивность и применение ИИ в ключевых секторах.</div></div></div>
+      <div class="tl-row"><div class="tl-year">2021</div><div class="tl-body"><div class="h">Принципы ответственного ИИ (Responsible AI)</div><div class="d">NITI Aayog публикует принципы; необязательный ориентир без механизма принуждения.</div></div></div>
+      <div class="tl-row"><div class="tl-year">2023</div><div class="tl-body"><div class="h">DPDP Act + саммит GPAI в Дели</div><div class="d">Закон о защите персональных данных (согласие на использование данных для обучения); Индия принимает саммит GPAI и подписывает Bletchley Declaration.</div></div></div>
+      <div class="tl-row"><div class="tl-year">2024</div><div class="tl-body"><div class="h">Рекомендация MeitY + старт IndiaAI Mission</div><div class="d">Мартовская рекомендация смягчена 15.03.2024: требование госсогласования до выпуска моделей снято после критики индустрии; маркировка сохранена для крупных посредников.</div></div></div>
+      <div class="tl-row"><div class="tl-year gap">2024</div><div class="tl-body"><div class="h">Fact Check Unit признан неконституционным</div><div class="d">Высокий суд Бомбея (20.09.2024) отменяет Правило 3(1)(b)(v) о государственном &laquo;органе проверки фактов&raquo; как нарушающее ст. 14 и 19 Конституции.</div></div></div>
+      <div class="tl-row"><div class="tl-year">2025</div><div class="tl-body"><div class="h">India AI Governance Guidelines</div><div class="d">05.11.2025: мягкое право, семь принципов; предложены AI Governance Group, экспертный комитет и IndiaAI Safety Institute; человек в контуре для высокорисковых систем.</div></div></div>
+      <div class="tl-row"><div class="tl-year">2026</div><div class="tl-body"><div class="h">India-AI Impact Summit, Нью-Дели</div><div class="d">16&ndash;20.02.2026, Bharat Mandapam; темы People / Planet / Progress.</div></div></div>
+    </div>
+
+    <div class="subhead">Сравнение юрисдикций &middot; <b>ЕС / Китай / США / Индия</b></div>
+    <div class="tbl-wrap">
+      <table class="ctable">
+        <thead><tr><th>Юрисдикция</th><th>Подход</th><th>Ключевой инструмент</th><th>Обязательность</th><th>Маркировка ИИ-контента</th></tr></thead>
+        <tbody>
+          <tr><td class="jur">ЕС</td><td>Горизонтальный, риск-ориентированный</td><td>AI Act (2024)</td><td><span class="pill bind">Обязательный закон</span></td><td>Да, для генеративного ИИ</td></tr>
+          <tr><td class="jur">Китай</td><td>Вертикальный, контроль контента</td><td>Правила о deep-synthesis и генеративном ИИ</td><td><span class="pill bind">Обязательный закон</span></td><td>Да, обязательная</td></tr>
+          <tr><td class="jur">США</td><td>Секторальный, исполнительные акты</td><td>Указы + отраслевое регулирование</td><td><span class="pill sect">Нет единого закона</span></td><td>Фрагментарно</td></tr>
+          <tr class="india"><td class="jur">Индия</td><td>Мягкое право, &laquo;лёгкое касание&raquo;</td><td>Действующие статуты + Governance Guidelines (2025)</td><td><span class="pill soft">Мягкое право</span></td><td>Проект (SGI), для крупных посредников</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subhead">Чем покрыт каждый риск ИИ &middot; <b>матрица инструментов</b></div>
+    <div class="hm">
+      <table class="hm-t">
+        <thead><tr><th>Риск / вред ИИ</th><th>Спец. закон об ИИ</th><th>Действующий статут</th><th>Мягкое право / рекомендации</th><th>Итог</th></tr></thead>
+        <tbody>
+          <tr><td>Дипфейки и вредоносный контент</td><td class="cell c-none">нет</td><td class="cell c-strong">BNS 2023, IT Act</td><td class="cell c-part">рекомендации</td><td class="cell c-strong">статут</td></tr>
+          <tr><td>Персональные данные в обучении</td><td class="cell c-none">нет</td><td class="cell c-strong">DPDP Act 2023</td><td class="cell c-na">&mdash;</td><td class="cell c-strong">статут</td></tr>
+          <tr><td>Посредники и маркировка</td><td class="cell c-none">нет</td><td class="cell c-part">IT Rules 2021</td><td class="cell c-part">проект SGI 2025</td><td class="cell c-part">частично</td></tr>
+          <tr><td>Манипуляция на выборах</td><td class="cell c-none">нет</td><td class="cell c-none">FCU отменён</td><td class="cell c-part">рекомендация ECI</td><td class="cell c-none">пробел</td></tr>
+          <tr><td>Дискриминация и предвзятость</td><td class="cell c-none">нет</td><td class="cell c-na">&mdash;</td><td class="cell c-part">Responsible AI 2021</td><td class="cell c-none">пробел</td></tr>
+          <tr><td>Высокорисковые системы</td><td class="cell c-none">нет</td><td class="cell c-na">&mdash;</td><td class="cell c-part">Guidelines 2025</td><td class="cell c-part">мягко</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 03 МЕДИА ====================== -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">03</div>
+      <div>
+        <h2>Медиа: выборы 2024 как стресс-тест</h2>
+        <p class="sd">Выборы в Лок Сабху 2024 года показали и масштаб ИИ-дипфейков, и слабость принуждения. Воскрешали умерших политиков, подделывали звёзд Болливуда; правило ECI об удалении за три часа исполнялось неровно. При этом суды сработали как ограничитель власти.</p>
+      </div>
+    </div>
+
+    <div class="sm">
+      <table class="sm-t">
+        <thead><tr><th>Инцидент</th><th>Тип</th><th>Реакция</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td class="ev">Дипфейк Рашмики Мананны</td><td>Подделка лица актрисы (ноя. 2023)</td><td>Вмешательство MeitY; Моди назвал дипфейки &laquo;новым кризисом&raquo;</td><td><span class="st ok">Контент удалён</span></td></tr>
+          <tr><td class="ev">Воскрешённые политики</td><td>ИИ-образы умерших (Карунанидхи, Джаялалита)</td><td>Использованы в агитации; стоимость ролика ~&#8377;7 лакх</td><td><span class="st gray">Серая зона</span></td></tr>
+          <tr><td class="ev">Звёзды Болливуда</td><td>Дипфейк-&laquo;агитация&raquo; (Аамир Кхан, Ранвир Сингх)</td><td>Оба подали заявления в полицию</td><td><span class="st gray">Жалобы поданы</span></td></tr>
+          <tr><td class="ev">Правило ECI: удаление за 3 часа</td><td>Рекомендация против &laquo;манипулированного контента&raquo; (май 2024)</td><td>Касается только официальных аккаунтов партий; добровольный кодекс</td><td><span class="st weak">Слабое исполнение</span></td></tr>
+          <tr><td class="ev">Fact Check Unit (FCU)</td><td>Государственный орган проверки фактов</td><td>Оспорен (К. Камра, Editors Guild и др.)</td><td><span class="st ok">Отменён судом</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="height: clamp(24px,3vw,36px)"></div>
+
+    <div class="grid-2">
+      <figure class="fig">
+        <div class="head">
+          <div class="t">Площадка глобального саммита<span class="u">India-AI Impact Summit, 16&ndash;20 фев. 2026</span></div>
+          <div class="tag">Locator map</div>
+        </div>
+        <div class="chart" id="fig-summit"></div>
+        <figcaption>Индия принимает <b>India-AI Impact Summit</b> в Bharat Mandapam, Нью-Дели — продолжая линию саммита GPAI 2023 года. Дипломатия в сфере ИИ — часть стратегии: член-учредитель GPAI, подписант Bletchley Declaration.
+        <span class="src">Источник [8]: India-AI Impact Summit, официальные материалы.</span></figcaption>
+      </figure>
+
+      <div class="prose" style="align-self:center">
+        <p><b>Принуждение оказалось тонким.</b> После дипфейка Рашмики Мананны правительство вмешалось точечно, но системного фильтра не возникло. На выборах 2024 года ИИ-образы умерших лидеров и поддельные &laquo;обращения&raquo; звёзд распространялись быстрее, чем работали механизмы удаления.</p>
+        <p><b>Избирком предупреждал, но рычаги были слабы.</b> Рекомендация ECI требовала снимать манипулированный контент за три часа — однако правила касались лишь официальных партийных аккаунтов, а кодекс оставался добровольным. Перед выборами в Бихаре в октябре 2025 года ECI вновь ужесточил риторику.</p>
+        <p><b>Зато сработали суды.</b> Попытку создать государственный &laquo;орган проверки фактов&raquo; Высокий суд Бомбея признал неконституционной: расплывчатость и &laquo;охлаждающий эффект&raquo; для свободы слова перевесили. В отсутствие закона об ИИ именно судебная власть стала фактическим ограничителем.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== ПОДВАЛ / ИСТОЧНИКИ ====================== -->
+<footer class="foot">
+  <div class="wrap">
+    <p class="eyebrow">Источники и методология</p>
+    <h2>Данные и ссылки</h2>
+    <ol class="srcs">
+      <li><b>PIB / Press Information Bureau.</b> IndiaAI Mission: одобрение кабинетом, структура направлений и бюджет (&#8377;10 371,92 крор), 2024&ndash;2026.</li>
+      <li><b>MediaNama / ответ в Радж Сабхе (MeitY).</b> Разбивка бюджета по направлениям и данные о выделении средств на 09.02.2026.</li>
+      <li><b>Stanford HAI.</b> Artificial Intelligence Index Report 2024 — проникновение ИИ-навыков, таланты, вклад в open-source.</li>
+      <li><b>Stanford HAI.</b> Global AI Vibrancy Tool 2025 — сводные баллы и место Индии (методика 2025: 23 индикатора, 7 столпов).</li>
+      <li><b>Zinnov.</b> Tier-I GCC Report 2025 — число GCC-единиц по городам.</li>
+      <li><b>Stanford HAI / Ipsos.</b> AI Index 2025 — восприятие ИИ по странам (&laquo;великий раскол&raquo;).</li>
+      <li><b>Stanford HAI.</b> AI Index 2026 — разрыв ожиданий между экспертами и населением.</li>
+      <li><b>India-AI Impact Summit.</b> Официальные материалы (Bharat Mandapam, 16&ndash;20.02.2026).</li>
+      <li><b>NITI Aayog.</b> National Strategy for Artificial Intelligence (#AIForAll), 2018; Principles for Responsible AI, 2021.</li>
+      <li><b>MeitY.</b> Рекомендация от 01.03.2024 и пересмотр от 15.03.2024; India AI Governance Guidelines, 05.11.2025.</li>
+      <li><b>Министерство юстиции / законодательство.</b> IT Act 2000; DPDP Act 2023; Bharatiya Nyaya Sanhita 2023; IT Rules 2021 и проект поправок 2025 (SGI).</li>
+      <li><b>Высокий суд Бомбея.</b> Решение от 20.09.2024 по Правилу 3(1)(b)(v) (Fact Check Unit), судья А. С. Чандуркар.</li>
+      <li><b>Election Commission of India.</b> Рекомендация о манипулированном контенте, май 2024; технологический пакт платформ, февраль 2024.</li>
+      <li><b>NASSCOM, UNCTAD, GPAI.</b> Рынок ИИ Индии и таланты; место по частным инвестициям; членство в GPAI и Bletchley Declaration 2023.</li>
+    </ol>
+    <div class="endline">
+      <span>G20 &middot; ИИ &mdash; досье 07 / Индия</span>
+      <span>Единый шаблон проекта &middot; данные перепроверены</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const INDIA_GEO = {"type":"Polygon","coordinates":[[[77.837,35.494],[78.912,34.322],[78.811,33.506],[79.209,32.994],[79.176,32.484],[78.458,32.618],[78.739,31.516],[79.721,30.883],[81.111,30.183],[80.477,29.73],[80.088,28.794],[81.057,28.416],[82.0,27.925],[83.304,27.365],[84.675,27.235],[85.252,26.726],[86.024,26.631],[87.227,26.398],[88.06,26.415],[88.175,26.81],[88.043,27.446],[88.12,27.877],[88.73,28.087],[88.814,27.299],[88.836,27.099],[89.745,26.719],[90.373,26.876],[91.218,26.809],[92.033,26.838],[92.104,27.453],[91.697,27.772],[92.503,27.897],[93.413,28.641],[94.566,29.277],[95.405,29.032],[96.118,29.453],[96.587,28.831],[96.249,28.411],[97.327,28.262],[97.403,27.883],[97.052,27.699],[97.134,27.084],[96.419,27.265],[95.125,26.574],[95.155,26.001],[94.603,25.162],[94.553,24.675],[94.107,23.851],[93.325,24.079],[93.286,23.044],[93.06,22.703],[93.166,22.278],[92.673,22.041],[92.146,23.627],[91.87,23.624],[91.706,22.985],[91.159,23.504],[91.468,24.073],[91.915,24.13],[92.376,24.977],[91.8,25.147],[90.872,25.133],[89.921,25.27],[89.832,25.965],[89.355,26.014],[88.563,26.447],[88.21,25.768],[88.932,25.239],[88.306,24.866],[88.084,24.502],[88.7,24.234],[88.53,23.631],[88.876,22.879],[89.032,22.056],[88.889,21.691],[88.208,21.703],[86.976,21.496],[87.033,20.743],[86.499,20.152],[85.06,19.479],[83.941,18.302],[83.189,17.671],[82.193,17.017],[82.191,16.557],[81.693,16.31],[80.792,15.952],[80.325,15.899],[80.025,15.136],[80.233,13.836],[80.286,13.006],[79.863,12.056],[79.858,10.357],[79.341,10.309],[78.885,9.546],[79.19,9.217],[78.278,8.933],[77.941,8.253],[77.54,7.966],[76.593,8.899],[76.13,10.3],[75.746,11.308],[75.396,11.781],[74.865,12.742],[74.617,13.993],[74.444,14.617],[73.534,15.991],[73.12,17.929],[72.821,19.208],[72.824,20.42],[72.631,21.356],[71.175,20.757],[70.47,20.877],[69.164,22.089],[69.645,22.451],[69.35,22.843],[68.177,23.692],[68.843,24.359],[71.043,24.357],[70.845,25.215],[70.283,25.722],[70.169,26.492],[69.514,26.941],[70.616,27.989],[71.778,27.913],[72.824,28.962],[73.451,29.976],[74.421,30.98],[74.406,31.693],[75.259,32.271],[74.452,32.765],[74.104,33.441],[73.75,34.318],[74.24,34.749],[75.757,34.505],[76.872,34.654],[77.837,35.494]]]};
+
+// -------- общие помощники --------
+const C = {
+  saffron: getCSS('--flag-primary'),
+  saffron2: getCSS('--flag-primary-2'),
+  green: getCSS('--flag-secondary'),
+  navy: getCSS('--flag-navy'),
+  alert: getCSS('--alert'),
+  paper: getCSS('--paper'),
+  muted: getCSS('--muted'),
+  muted2: getCSS('--muted-2'),
+  line: getCSS('--line'),
+  line2: getCSS('--line-2'),
+  grid: getCSS('--grid'),
+  panel: getCSS('--ink-panel')
+};
+function getCSS(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function clearNode(id){ const n = document.getElementById(id); n.innerHTML = ''; return n; }
+function fmt(n){ return n.toLocaleString('ru-RU'); }
+
+// перерисовка по ширине контейнера
+const charts = [];
+function register(id, fn){ charts.push({id, fn}); fn(); }
+let rT;
+window.addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(() => charts.forEach(c => c.fn()), 180); });
+
+// ============================================================
+// F1 — STACKED COLUMN: бюджет IndiaAI Mission по направлениям
+// ============================================================
+register('fig-budget', () => {
+  const node = clearNode('fig-budget');
+  const W = node.clientWidth, H = 460;
+  const m = {t: 16, r: 150, b: 28, l: 16};
+  const data = [
+    {k: 'Компьют (мощности)', v: 4563.36, c: C.saffron},
+    {k: 'Базовые модели / Innovation Centre', v: 1971.37, c: C.saffron2},
+    {k: 'Финансирование стартапов', v: 1942.50, c: 'rgba(255,255,255,.62)'},
+    {k: 'Датасеты + приложения + навыки', v: 1771.54, c: 'rgba(255,255,255,.34)'},
+    {k: 'Накладные / резерв', v: 102.69, c: 'rgba(255,255,255,.20)'},
+    {k: 'Безопасный и надёжный ИИ', v: 20.46, c: C.alert}
+  ];
+  const total = d3.sum(data, d => d.v);
+  const svg = d3.select(node).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('height', H);
+  const colW = Math.min(150, (W - m.l - m.r) * 0.62);
+  const x0 = m.l + ((W - m.l - m.r) - colW) / 2;
+  const y = d3.scaleLinear().domain([0, total]).range([H - m.b, m.t]);
+
+  let acc = 0;
+  const seg = data.map(d => { const o = {...d, y0: acc, y1: acc + d.v}; acc += d.v; return o; });
+
+  svg.selectAll('rect.s').data(seg).join('rect')
+    .attr('x', x0).attr('width', colW)
+    .attr('y', d => y(d.y1)).attr('height', d => y(d.y0) - y(d.y1))
+    .attr('fill', d => d.c).attr('stroke', C.panel).attr('stroke-width', 1);
+
+  // подписи долей справа + лидерные линии
+  seg.forEach(d => {
+    const pct = d.v / total * 100;
+    const yc = (y(d.y0) + y(d.y1)) / 2;
+    const small = (y(d.y0) - y(d.y1)) < 16;
+    const g = svg.append('g');
+    g.append('text').attr('x', x0 + colW + 12).attr('y', yc - 4).attr('class', 'lab')
+      .attr('fill', d.k.indexOf('Безопасн') === 0 ? C.alert : C.paper)
+      .text(`${pct.toFixed(pct < 1 ? 1 : 0)}%`);
+    g.append('text').attr('x', x0 + colW + 12).attr('y', yc + 10).attr('class', 'lab-s')
+      .text(d.k.length > 26 ? d.k.slice(0, 25) + '…' : d.k);
+    if (small){
+      g.append('line').attr('x1', x0 + colW).attr('x2', x0 + colW + 9)
+        .attr('y1', yc).attr('y2', yc - 4).attr('stroke', d.c).attr('stroke-width', 1);
+    }
+  });
+
+  // аннотация к 0,2%
+  const safe = seg[seg.length - 1];
+  const ys = y(safe.y1);
+  svg.append('text').attr('x', x0 - 6).attr('y', ys + 4).attr('text-anchor', 'end')
+    .attr('class', 'annot').text('0,2% \u2192');
+
+  // итог сверху
+  svg.append('text').attr('x', x0 + colW / 2).attr('y', m.t - 2).attr('text-anchor', 'middle')
+    .attr('class', 'lab-s').text(`\u20B9${fmt(Math.round(total))} крор`);
+});
+
+// ============================================================
+// F2 — BULLET BARS: выделено vs смета по годам
+// ============================================================
+register('fig-release', () => {
+  const node = clearNode('fig-release');
+  const W = node.clientWidth, rowH = 78, H = rowH * 3 + 30;
+  const m = {t: 10, r: 64, b: 28, l: 92};
+  const data = [
+    {k: 'FY24\u201325', actual: 21.79, target: 173},
+    {k: 'FY25\u201326', actual: 379.15, target: 800},
+    {k: 'FY26\u201327', actual: 0, target: 1000}
+  ];
+  const max = 1000;
+  const svg = d3.select(node).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('height', H);
+  const x = d3.scaleLinear().domain([0, max]).range([m.l, W - m.r]);
+
+  // сетка
+  x.ticks(5).forEach(t => {
+    svg.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', m.t).attr('y2', H - m.b).attr('class', 'gridline');
+    svg.append('text').attr('x', x(t)).attr('y', H - m.b + 16).attr('text-anchor', 'middle').attr('class', 'lab-s').text(fmt(t));
+  });
+
+  data.forEach((d, i) => {
+    const yc = m.t + i * rowH + rowH / 2 - 8;
+    const bh = 22;
+    // дорожка-смета (фон)
+    svg.append('rect').attr('x', m.l).attr('y', yc - bh / 2).attr('width', x(d.target) - m.l).attr('height', bh)
+      .attr('fill', 'rgba(255,255,255,.06)').attr('stroke', C.line);
+    // фактически выделено
+    svg.append('rect').attr('x', m.l).attr('y', yc - bh / 2 + 4).attr('width', Math.max(0, x(d.actual) - m.l)).attr('height', bh - 8)
+      .attr('fill', C.saffron);
+    // засечка цели
+    svg.append('line').attr('x1', x(d.target)).attr('x2', x(d.target)).attr('y1', yc - bh / 2 - 5).attr('y2', yc + bh / 2 + 5)
+      .attr('stroke', C.paper).attr('stroke-width', 2);
+    // подписи
+    svg.append('text').attr('x', m.l - 12).attr('y', yc + 4).attr('text-anchor', 'end').attr('class', 'lab').text(d.k);
+    svg.append('text').attr('x', x(d.target) + 6).attr('y', yc + 4).attr('class', 'lab-s').text('смета ' + fmt(d.target));
+    svg.append('text').attr('x', m.l + 6).attr('y', yc - bh / 2 - 6).attr('class', 'annot')
+      .text('выделено ' + (d.actual === 0 ? '0' : fmt(d.actual)));
+  });
+});
+
+// ============================================================
+// F3 — BAR: проникновение ИИ-навыков
+// ============================================================
+register('fig-skill', () => {
+  const node = clearNode('fig-skill');
+  const W = node.clientWidth, H = 250;
+  const m = {t: 16, r: 56, b: 28, l: 96};
+  const data = [
+    {k: 'Индия', v: 2.8, hi: true},
+    {k: 'США', v: 2.2, hi: false},
+    {k: 'Германия', v: 1.9, hi: false}
+  ];
+  const svg = d3.select(node).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('height', H);
+  const x = d3.scaleLinear().domain([0, 3]).range([m.l, W - m.r]);
+  const y = d3.scaleBand().domain(data.map(d => d.k)).range([m.t, H - m.b]).padding(0.34);
+
+  x.ticks(4).forEach(t => {
+    svg.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', m.t).attr('y2', H - m.b).attr('class', 'gridline');
+    svg.append('text').attr('x', x(t)).attr('y', H - m.b + 16).attr('text-anchor', 'middle').attr('class', 'lab-s').text(t.toFixed(1));
+  });
+  // ориентир мира = 1,0
+  svg.append('line').attr('x1', x(1)).attr('x2', x(1)).attr('y1', m.t).attr('y2', H - m.b).attr('class', 'zero');
+  svg.append('text').attr('x', x(1)).attr('y', m.t - 4).attr('text-anchor', 'middle').attr('class', 'lab-s').text('мир = 1,0');
+
+  svg.selectAll('rect.b').data(data).join('rect')
+    .attr('x', m.l).attr('y', d => y(d.k)).attr('height', y.bandwidth())
+    .attr('width', d => x(d.v) - m.l).attr('fill', d => d.hi ? C.saffron : 'rgba(255,255,255,.34)');
+  svg.selectAll('text.l').data(data).join('text')
+    .attr('x', m.l - 12).attr('y', d => y(d.k) + y.bandwidth() / 2 + 4).attr('text-anchor', 'end')
+    .attr('class', 'lab').attr('fill', d => d.hi ? C.saffron : C.paper).text(d => d.k);
+  svg.selectAll('text.v').data(data).join('text')
+    .attr('x', d => x(d.v) + 8).attr('y', d => y(d.k) + y.bandwidth() / 2 + 5)
+    .attr('class', 'val').attr('font-size', 14).attr('fill', d => d.hi ? C.saffron : C.paper).text(d => d.v.toFixed(1));
+});
+
+// ============================================================
+// F4 — COLUMN: Global AI Vibrancy 2025
+// ============================================================
+register('fig-vibrancy', () => {
+  const node = clearNode('fig-vibrancy');
+  const W = node.clientWidth, H = 290;
+  const m = {t: 40, r: 16, b: 44, l: 40};
+  const data = [
+    {k: 'США', v: 78.60, hi: false},
+    {k: 'Китай', v: 36.95, hi: false},
+    {k: 'Индия', v: 21.59, hi: true}
+  ];
+  const svg = d3.select(node).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('height', H);
+  const x = d3.scaleBand().domain(data.map(d => d.k)).range([m.l, W - m.r]).padding(0.4);
+  const y = d3.scaleLinear().domain([0, 80]).range([H - m.b, m.t]);
+
+  y.ticks(4).forEach(t => {
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(t)).attr('y2', y(t)).attr('class', 'gridline');
+    svg.append('text').attr('x', m.l - 8).attr('y', y(t) + 4).attr('text-anchor', 'end').attr('class', 'lab-s').text(t);
+  });
+  svg.selectAll('rect.c').data(data).join('rect')
+    .attr('x', d => x(d.k)).attr('width', x.bandwidth())
+    .attr('y', d => y(d.v)).attr('height', d => y(0) - y(d.v))
+    .attr('fill', d => d.hi ? C.saffron : 'rgba(255,255,255,.34)');
+  svg.selectAll('text.k').data(data).join('text')
+    .attr('x', d => x(d.k) + x.bandwidth() / 2).attr('y', H - m.b + 18).attr('text-anchor', 'middle')
+    .attr('class', 'lab').attr('fill', d => d.hi ? C.saffron : C.paper).text(d => d.k);
+  svg.selectAll('text.v').data(data).join('text')
+    .attr('x', d => x(d.k) + x.bandwidth() / 2).attr('y', d => y(d.v) - 8).attr('text-anchor', 'middle')
+    .attr('class', 'val').attr('font-size', 15).attr('fill', d => d.hi ? C.saffron : C.paper).text(d => d.v.toFixed(2));
+
+  // аннотация подъёма Индии
+  const ix = x('Индия') + x.bandwidth() / 2;
+  svg.append('text').attr('x', ix).attr('y', m.t - 22).attr('text-anchor', 'middle').attr('class', 'annot').text('\u21917 \u2192 3');
+  svg.append('text').attr('x', ix).attr('y', m.t - 9).attr('text-anchor', 'middle').attr('class', 'lab-s').text('за год');
+});
+
+// ============================================================
+// F5 — SYMBOL MAP: города-хабы GCC
+// ============================================================
+register('fig-hubs', () => {
+  const node = clearNode('fig-hubs');
+  const W = node.clientWidth, H = Math.min(520, Math.max(380, W * 0.62));
+  const svg = d3.select(node).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('height', H);
+  const proj = d3.geoMercator().fitExtent([[24, 18], [W - 24, H - 18]], INDIA_GEO);
+  const path = d3.geoPath(proj);
+  svg.append('path').datum(INDIA_GEO).attr('d', path)
+    .attr('fill', 'rgba(255,255,255,.04)').attr('stroke', C.line2).attr('stroke-width', 1);
+
+  const cities = [
+    {n: 'Бенгалуру', lon: 77.59, lat: 12.97, v: 880, sized: true},
+    {n: 'Пуна', lon: 73.86, lat: 18.52, v: 475, sized: true},
+    {n: 'Мумбаи', lon: 72.88, lat: 19.08, v: 375, sized: true},
+    {n: 'Хайдарабад', lon: 78.49, lat: 17.39, v: 355, sized: true},
+    {n: 'Дели-NCR', lon: 77.21, lat: 28.61, v: null, sized: false},
+    {n: 'Ченнаи', lon: 80.27, lat: 13.08, v: null, sized: false}
+  ];
+  const side = d3.scaleSqrt().domain([0, 880]).range([0, 44]);
+
+  cities.forEach(c => {
+    const p = proj([c.lon, c.lat]);
+    if (c.sized){
+      const s = side(c.v);
+      svg.append('rect').attr('x', p[0] - s / 2).attr('y', p[1] - s / 2).attr('width', s).attr('height', s)
+        .attr('fill', 'rgba(255,153,51,.30)').attr('stroke', C.saffron).attr('stroke-width', 1.4);
+      svg.append('text').attr('x', p[0]).attr('y', p[1] + 4).attr('text-anchor', 'middle')
+        .attr('class', 'val').attr('font-size', 12).text(c.v);
+    } else {
+      svg.append('rect').attr('x', p[0] - 5).attr('y', p[1] - 5).attr('width', 10).attr('height', 10)
+        .attr('fill', 'none').attr('stroke', C.muted).attr('stroke-width', 1.4);
+    }
+    const labelLeft = (c.n === 'Мумбаи' || c.n === 'Пуна');
+    svg.append('text')
+      .attr('x', labelLeft ? p[0] - (c.sized ? side(c.v) / 2 + 8 : 12) : p[0] + (c.sized ? side(c.v) / 2 + 8 : 12))
+      .attr('y', p[1] - (c.sized ? side(c.v) / 2 + 6 : 9))
+      .attr('text-anchor', labelLeft ? 'end' : 'start')
+      .attr('class', 'lab').attr('font-size', 12).text(c.n);
+  });
+
+  // легенда размеров
+  const lx = W - 150, ly = H - 70;
+  [880, 375].forEach((v, i) => {
+    const s = side(v);
+    const cy = ly + i * 34;
+    svg.append('rect').attr('x', lx).attr('y', cy - s / 2).attr('width', s).attr('height', s)
+      .attr('fill', 'none').attr('stroke', C.muted).attr('stroke-width', 1);
+    svg.append('text').attr('x', lx + 50).attr('y', cy + 4).attr('class', 'lab-s').text(v + ' GCC');
+  });
+});
+
+// ============================================================
+// F6 — DOT PLOT: великий раскол ИИ-оптимизма
+// ============================================================
+register('fig-divide', () => {
+  const node = clearNode('fig-divide');
+  const W = node.clientWidth, H = 320;
+  const m = {t: 36, r: 40, b: 28, l: 96};
+  const data = [
+    {k: 'Китай', v: 83},
+    {k: 'Индонезия', v: 80},
+    {k: 'Таиланд', v: 77},
+    {k: 'Канада', v: 40},
+    {k: 'США', v: 39},
+    {k: 'Нидерланды', v: 36}
+  ];
+  const svg = d3.select(node).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('height', H);
+  const x = d3.scaleLinear().domain([20, 90]).range([m.l, W - m.r]);
+  const y = d3.scaleBand().domain(data.map(d => d.k)).range([m.t, H - m.b]).padding(0.5);
+
+  [20, 40, 60, 80].forEach(t => {
+    svg.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', m.t - 6).attr('y2', H - m.b).attr('class', 'gridline');
+    svg.append('text').attr('x', x(t)).attr('y', H - m.b + 16).attr('text-anchor', 'middle').attr('class', 'lab-s').text(t + '%');
+  });
+
+  // отметка-ориентир: Индия на работе >80%
+  svg.append('line').attr('x1', x(82)).attr('x2', x(82)).attr('y1', m.t - 10).attr('y2', H - m.b).attr('class', 'annot-line');
+  svg.append('text').attr('x', x(82)).attr('y', m.t - 14).attr('text-anchor', 'middle').attr('class', 'annot').text('Индия: >80% на работе');
+
+  data.forEach(d => {
+    const yc = y(d.k) + y.bandwidth() / 2;
+    const col = d.v >= 70 ? C.saffron : (d.v <= 45 ? 'rgba(255,255,255,.42)' : C.muted);
+    svg.append('line').attr('x1', m.l).attr('x2', x(d.v)).attr('y1', yc).attr('y2', yc).attr('stroke', C.line).attr('stroke-width', 1);
+    svg.append('rect').attr('x', x(d.v) - 7).attr('y', yc - 7).attr('width', 14).attr('height', 14).attr('fill', col);
+    svg.append('text').attr('x', m.l - 12).attr('y', yc + 4).attr('text-anchor', 'end').attr('class', 'lab').text(d.k);
+    svg.append('text').attr('x', x(d.v) + 14).attr('y', yc + 4).attr('class', 'val').attr('font-size', 12).attr('fill', col).text(d.v);
+  });
+});
+
+// ============================================================
+// F7 — RANGE PLOT (dumbbell): эксперты vs население
+// ============================================================
+register('fig-gap', () => {
+  const node = clearNode('fig-gap');
+  const W = node.clientWidth, H = 290;
+  const m = {t: 44, r: 40, b: 28, l: 110};
+  const data = [
+    {k: 'Рабочие места', pub: 23, exp: 73},
+    {k: 'Экономика', pub: 21, exp: 69},
+    {k: 'Медицина', pub: 44, exp: 84}
+  ];
+  const svg = d3.select(node).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('height', H);
+  const x = d3.scaleLinear().domain([0, 100]).range([m.l, W - m.r]);
+  const y = d3.scaleBand().domain(data.map(d => d.k)).range([m.t, H - m.b]).padding(0.55);
+
+  [0, 25, 50, 75, 100].forEach(t => {
+    svg.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', m.t).attr('y2', H - m.b).attr('class', 'gridline');
+    svg.append('text').attr('x', x(t)).attr('y', H - m.b + 16).attr('text-anchor', 'middle').attr('class', 'lab-s').text(t + '%');
+  });
+
+  // легенда
+  svg.append('rect').attr('x', m.l).attr('y', 14).attr('width', 11).attr('height', 11).attr('fill', 'rgba(255,255,255,.42)');
+  svg.append('text').attr('x', m.l + 17).attr('y', 23).attr('class', 'lab-s').text('население');
+  svg.append('rect').attr('x', m.l + 110).attr('y', 14).attr('width', 11).attr('height', 11).attr('fill', C.saffron);
+  svg.append('text').attr('x', m.l + 127).attr('y', 23).attr('class', 'lab-s').text('эксперты');
+
+  data.forEach(d => {
+    const yc = y(d.k) + y.bandwidth() / 2;
+    svg.append('line').attr('x1', x(d.pub)).attr('x2', x(d.exp)).attr('y1', yc).attr('y2', yc).attr('stroke', C.line2).attr('stroke-width', 2);
+    svg.append('rect').attr('x', x(d.pub) - 7).attr('y', yc - 7).attr('width', 14).attr('height', 14).attr('fill', 'rgba(255,255,255,.42)');
+    svg.append('rect').attr('x', x(d.exp) - 7).attr('y', yc - 7).attr('width', 14).attr('height', 14).attr('fill', C.saffron);
+    svg.append('text').attr('x', m.l - 12).attr('y', yc + 4).attr('text-anchor', 'end').attr('class', 'lab').text(d.k);
+    svg.append('text').attr('x', x(d.pub) - 12).attr('y', yc + 4).attr('text-anchor', 'end').attr('class', 'lab-s').text(d.pub);
+    svg.append('text').attr('x', x(d.exp) + 12).attr('y', yc + 4).attr('class', 'val').attr('font-size', 12).attr('fill', C.saffron).text(d.exp);
+    // разрыв
+    const mid = (x(d.pub) + x(d.exp)) / 2;
+    svg.append('text').attr('x', mid).attr('y', yc - 12).attr('text-anchor', 'middle').attr('class', 'annot').text('+' + (d.exp - d.pub));
+  });
+});
+
+// ============================================================
+// F12 — LOCATOR MAP: India-AI Impact Summit, Нью-Дели
+// ============================================================
+register('fig-summit', () => {
+  const node = clearNode('fig-summit');
+  const W = node.clientWidth, H = Math.min(460, Math.max(340, W * 0.7));
+  const svg = d3.select(node).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('height', H);
+  const proj = d3.geoMercator().fitExtent([[28, 18], [W - 28, H - 18]], INDIA_GEO);
+  const path = d3.geoPath(proj);
+  svg.append('path').datum(INDIA_GEO).attr('d', path)
+    .attr('fill', 'rgba(255,255,255,.04)').attr('stroke', C.line2).attr('stroke-width', 1);
+
+  const p = proj([77.21, 28.61]); // Нью-Дели
+  // перекрестие-локатор
+  svg.append('line').attr('x1', p[0]).attr('x2', p[0]).attr('y1', p[1] - 22).attr('y2', p[1] + 22).attr('stroke', C.saffron).attr('stroke-width', 1);
+  svg.append('line').attr('x1', p[0] - 22).attr('x2', p[0] + 22).attr('y1', p[1]).attr('y2', p[1]).attr('stroke', C.saffron).attr('stroke-width', 1);
+  svg.append('rect').attr('x', p[0] - 6).attr('y', p[1] - 6).attr('width', 12).attr('height', 12).attr('fill', C.saffron);
+  svg.append('text').attr('x', p[0] + 16).attr('y', p[1] - 10).attr('class', 'lab').attr('font-size', 13).text('Нью-Дели');
+  svg.append('text').attr('x', p[0] + 16).attr('y', p[1] + 6).attr('class', 'lab-s').text('Bharat Mandapam');
+  svg.append('text').attr('x', p[0] + 16).attr('y', p[1] + 20).attr('class', 'lab-s').text('16\u201320 фев. 2026');
+});
+</script>
+</body>
+</html>

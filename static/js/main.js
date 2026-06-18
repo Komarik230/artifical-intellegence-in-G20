@@ -143,12 +143,24 @@ const countryMetaByGeoName = {
         lat: 39.8,
         lng: -98.6
     },
-    "United States of America": {
-        ru: "США",
-        slug: "united-states",
-        lat: 39.8,
-        lng: -98.6
-    }
+"United States": {
+    ru: "США",
+    slug: "usa",
+    lat: 39.8,
+    lng: -98.6
+},
+"United States of America": {
+    ru: "США",
+    slug: "usa",
+    lat: 39.8,
+    lng: -98.6
+},
+"USA": {
+    ru: "США",
+    slug: "usa",
+    lat: 39.8,
+    lng: -98.6
+}
 };
 
 const g20Labels = Object.values(countryMetaByGeoName).filter((country, index, array) => {
