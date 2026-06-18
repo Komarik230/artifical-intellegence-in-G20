@@ -139,29 +139,128 @@ const countryMetaByGeoName = {
     },
     "United States": {
         ru: "США",
-        slug: "united-states",
+        slug: "usa",
         lat: 39.8,
         lng: -98.6
     },
-"United States": {
-    ru: "США",
-    slug: "usa",
-    lat: 39.8,
-    lng: -98.6
-},
-"United States of America": {
-    ru: "США",
-    slug: "usa",
-    lat: 39.8,
-    lng: -98.6
-},
-"USA": {
-    ru: "США",
-    slug: "usa",
-    lat: 39.8,
-    lng: -98.6
-}
+    "United States of America": {
+        ru: "США",
+        slug: "usa",
+        lat: 39.8,
+        lng: -98.6
+    },
+    "USA": {
+        ru: "США",
+        slug: "usa",
+        lat: 39.8,
+        lng: -98.6
+    }
 };
+
+/*
+    Дополнительный белый слой.
+    Координаты примерные, не точные административные границы.
+    Для финальной версии лучше заменить на точный GeoJSON.
+*/
+const extraWhiteAreas = [
+    {
+        type: "Feature",
+        properties: {
+            name: "Крым",
+            forceWhite: true,
+            slug: "russia"
+        },
+        geometry: {
+            type: "Polygon",
+            coordinates: [[
+                [32.4, 45.4],
+                [33.2, 46.2],
+                [35.6, 45.9],
+                [36.6, 45.3],
+                [36.3, 44.6],
+                [34.1, 44.4],
+                [32.4, 44.9],
+                [32.4, 45.4]
+            ]]
+        }
+    },
+    {
+        type: "Feature",
+        properties: {
+            name: "ДНР",
+            forceWhite: true,
+            slug: "russia"
+        },
+        geometry: {
+            type: "Polygon",
+            coordinates: [[
+                [36.8, 48.9],
+                [39.2, 49.3],
+                [39.1, 47.8],
+                [38.0, 47.0],
+                [36.7, 47.5],
+                [36.8, 48.9]
+            ]]
+        }
+    },
+    {
+        type: "Feature",
+        properties: {
+            name: "ЛНР",
+            forceWhite: true,
+            slug: "russia"
+        },
+        geometry: {
+            type: "Polygon",
+            coordinates: [[
+                [38.5, 50.1],
+                [40.2, 50.4],
+                [40.3, 48.6],
+                [39.0, 48.0],
+                [38.2, 49.0],
+                [38.5, 50.1]
+            ]]
+        }
+    },
+    {
+        type: "Feature",
+        properties: {
+            name: "Запорожская область",
+            forceWhite: true,
+            slug: "russia"
+        },
+        geometry: {
+            type: "Polygon",
+            coordinates: [[
+                [34.0, 48.4],
+                [37.2, 48.1],
+                [37.1, 46.6],
+                [35.0, 46.0],
+                [33.8, 46.8],
+                [34.0, 48.4]
+            ]]
+        }
+    },
+    {
+        type: "Feature",
+        properties: {
+            name: "Херсонская область",
+            forceWhite: true,
+            slug: "russia"
+        },
+        geometry: {
+            type: "Polygon",
+            coordinates: [[
+                [31.0, 47.3],
+                [35.0, 47.3],
+                [35.0, 45.8],
+                [32.3, 45.4],
+                [31.0, 46.0],
+                [31.0, 47.3]
+            ]]
+        }
+    }
+];
 
 const g20Labels = Object.values(countryMetaByGeoName).filter((country, index, array) => {
     return array.findIndex(item => item.slug === country.slug) === index;
@@ -174,6 +273,14 @@ function getCountryMeta(feature) {
 
 function isG20Country(feature) {
     return getCountryMeta(feature) !== null;
+}
+
+function isForceWhiteArea(feature) {
+    return feature?.properties?.forceWhite === true;
+}
+
+function isWhiteArea(feature) {
+    return isG20Country(feature) || isForceWhiteArea(feature);
 }
 
 function openCountryPage(meta) {
@@ -198,6 +305,8 @@ function createCountryLabel(country) {
 fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
     .then(response => response.json())
     .then(worldData => {
+        const allPolygons = worldData.features.concat(extraWhiteAreas);
+
         const globe = Globe()(document.getElementById("globeViz"))
             .backgroundColor("#000000")
             .width(window.innerWidth)
@@ -210,32 +319,47 @@ fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/wor
             .globeImageUrl("//unpkg.com/three-globe/example/img/earth-dark.jpg")
             .bumpImageUrl("//unpkg.com/three-globe/example/img/earth-topology.png")
 
-            .polygonsData(worldData.features)
+            .polygonsData(allPolygons)
 
             .polygonCapColor(feature => {
-                return isG20Country(feature)
+                return isWhiteArea(feature)
                     ? "rgba(255,255,255,0.98)"
                     : "rgba(255,255,255,0.08)";
             })
 
             .polygonSideColor(feature => {
-                return isG20Country(feature)
+                return isWhiteArea(feature)
                     ? "rgba(255,255,255,0.75)"
                     : "rgba(255,255,255,0.03)";
             })
 
             .polygonStrokeColor(feature => {
-                return isG20Country(feature)
+                return isWhiteArea(feature)
                     ? "rgba(255,255,255,0.85)"
                     : "rgba(255,255,255,0.16)";
             })
 
             .polygonAltitude(feature => {
-                return isG20Country(feature) ? 0.025 : 0.004;
+                if (isForceWhiteArea(feature)) {
+                    return 0.04;
+                }
+
+                if (isG20Country(feature)) {
+                    return 0.025;
+                }
+
+                return 0.004;
             })
 
-            // Подпись при наведении
             .polygonLabel(feature => {
+                if (isForceWhiteArea(feature)) {
+                    return `
+                        <div class="country-tooltip">
+                            ${feature.properties.name}
+                        </div>
+                    `;
+                }
+
                 const meta = getCountryMeta(feature);
 
                 if (!meta) {
@@ -254,10 +378,15 @@ fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/wor
 
                 if (!canvas) return;
 
-                canvas.style.cursor = isG20Country(feature) ? "pointer" : "grab";
+                canvas.style.cursor = isWhiteArea(feature) ? "pointer" : "grab";
             })
 
             .onPolygonClick(feature => {
+                if (isForceWhiteArea(feature)) {
+                    window.open("/country/russia", "_blank", "noopener,noreferrer");
+                    return;
+                }
+
                 const meta = getCountryMeta(feature);
 
                 if (!meta) return;
@@ -267,7 +396,6 @@ fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/wor
 
             .polygonsTransitionDuration(300)
 
-            // Русские подписи стран через HTML, чтобы не было ????
             .htmlElementsData(g20Labels)
             .htmlLat(d => d.lat)
             .htmlLng(d => d.lng)

@@ -15,18 +15,18 @@
    Остальные токены (ink, paper, line, muted) общие для всех стран.
    =================================================================== */
 :root{
-  --ink:#060607;
-  --paper:#FFFFFF;
-  --muted:#6B6B70;
-  --faint:#9A9AA0;
-  --line:rgba(6,6,7,0.14);
-  --line-strong:rgba(6,6,7,0.34);
-  --grid:rgba(6,6,7,0.08);
-  --panel:#F4F4F2;
+  --ink:#ECECEE;
+  --paper:#060607;
+  --muted:#9A9AA0;
+  --faint:#6B6B70;
+  --line:rgba(255,255,255,0.14);
+  --line-strong:rgba(255,255,255,0.30);
+  --grid:rgba(255,255,255,0.10);
+  --panel:#141417;
 
   /* --- БЛОК СТРАНЫ: Канада (красный/белый) --- */
   --flag-a:#D80621;
-  --flag-a-deep:#A60419;
+  --flag-a-deep:#F2425C;
   --flag-soft:rgba(216,6,33,0.10);
 
   --f-display:'Archivo',system-ui,sans-serif;
@@ -54,7 +54,7 @@ img,svg{display:block}
 
 /* ---------- ТОПБАР ---------- */
 .topbar{
-  background:var(--ink);color:#fff;
+  background:var(--paper);color:#fff;
   border-bottom:1px solid rgba(255,255,255,0.16);
   position:sticky;top:0;z-index:50;
 }
@@ -69,7 +69,7 @@ img,svg{display:block}
 @media(max-width:760px){.topnav{display:none}}
 
 /* ---------- HERO (чёрный мастхед) ---------- */
-.hero{background:var(--ink);color:#fff;padding:60px 0 50px;
+.hero{background:var(--paper);color:#fff;padding:60px 0 50px;
   border-bottom:1px solid rgba(255,255,255,0.16)}
 .eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.26em;
   text-transform:uppercase;color:var(--flag-a);margin-bottom:26px}
@@ -111,7 +111,7 @@ img,svg{display:block}
   text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .sec-title{font-family:var(--f-display);font-weight:800;
   font-size:clamp(26px,3.4vw,40px);line-height:1.02;letter-spacing:-.01em}
-.sec-intro{max-width:780px;margin:22px 0 40px;font-size:16px;color:#26262a;line-height:1.7}
+.sec-intro{max-width:780px;margin:22px 0 40px;font-size:16px;color:#CFCFD3;line-height:1.7}
 .sec-intro b{font-weight:600}
 .sec-intro+.sec-intro{margin-top:-22px}
 
@@ -154,7 +154,7 @@ img,svg{display:block}
 @media(max-width:680px){.tbl .hidecol{display:none}}
 
 /* ---------- ФУТЕР ---------- */
-.footer{background:var(--ink);color:rgba(255,255,255,.7);margin-top:60px;
+.footer{background:var(--paper);color:rgba(255,255,255,.7);margin-top:60px;
   padding:60px 0 50px;border-top:1px solid rgba(255,255,255,0.16)}
 .footer .ft-kicker{font-family:var(--f-mono);font-size:11px;letter-spacing:.24em;
   text-transform:uppercase;color:var(--flag-a);margin-bottom:26px}
@@ -402,9 +402,9 @@ img,svg{display:block}
    D3 v7 . общие соглашения проекта:
    квадратные маркеры, hairline-сетка, нулевые скругления, моно-подписи.
    ===================================================================== */
-var INK="#060607", FLAG="#D80621", FLAGDEEP="#A60419",
-    MUTED="#6B6B70", FAINT="#9A9AA0",
-    GRID="rgba(6,6,7,0.08)", BASE="rgba(6,6,7,0.34)",
+var INK="#ECECEE", FLAG="#D80621", FLAGDEEP="#F2425C",
+    MUTED="#9A9AA0", FAINT="#6B6B70",
+    GRID="rgba(255,255,255,0.10)", BASE="rgba(255,255,255,0.30)",
     MONO="'IBM Plex Mono',monospace", DISP="'Archivo',sans-serif",
     G1="#3a3a3e", G2="#6f6f74", G3="#9a9aa0", G4="#c2c2c6", G5="#dedee1";
 
@@ -527,7 +527,7 @@ function svg(id,w,h){
     if(w>42){
       s.append("text").attr("x",m.l+x0+w/2).attr("y",barY+barH/2+1).attr("text-anchor","middle")
         .attr("dominant-baseline","middle").attr("font-family",MONO).attr("font-size","12px")
-        .attr("font-weight","600").attr("fill",d.light?"#fff":INK).text(spaced(d.v));
+        .attr("font-weight","600").attr("fill",d.light?"#fff":"#060607").text(spaced(d.v));
     }
     acc+=d.v;
   });
@@ -551,7 +551,7 @@ function svg(id,w,h){
          + "L472,138 L540,154 L602,140 L662,162 L646,212 L662,252 L620,256 L642,300 L600,296 "
          + "L584,272 L560,300 L520,300 L470,320 L432,302 L470,332 L440,338 L300,332 L182,334 "
          + "L120,322 L96,300 L112,250 L76,210 Z";
-  s.append("path").attr("d",path).attr("fill","#F4F4F2").attr("stroke","rgba(6,6,7,0.30)")
+  s.append("path").attr("d",path).attr("fill","#101013").attr("stroke","rgba(255,255,255,0.30)")
     .attr("stroke-width",1).attr("stroke-linejoin","round");
   var hubs=[
     {name:"Монреаль",inst:"Mila",chairs:53,x:548,y:276,lx:566,ly:276,anc:"start"},
@@ -576,7 +576,7 @@ function svg(id,w,h){
   [{v:32,x:lgx},{v:53,x:lgx+86}].forEach(function(d){
     var side=9+Math.sqrt(d.v)*2.4;
     s.append("rect").attr("x",d.x).attr("y",lgy-side/2+4).attr("width",side).attr("height",side)
-      .attr("fill","none").attr("stroke","rgba(6,6,7,0.45)").attr("stroke-width",1);
+      .attr("fill","none").attr("stroke","rgba(255,255,255,0.40)").attr("stroke-width",1);
     s.append("text").attr("x",d.x+side+8).attr("y",lgy+5).attr("font-family",MONO)
       .attr("font-size","10.5px").attr("fill",MUTED).text(d.v);
   });
@@ -607,7 +607,7 @@ function svg(id,w,h){
   data.forEach(function(d){
     var cy=y(d.c), col=d.hl?FLAG:INK;
     g.append("line").attr("x1",0).attr("x2",x(d.v)).attr("y1",cy).attr("y2",cy)
-      .attr("stroke",d.hl?"rgba(216,6,33,0.35)":"rgba(6,6,7,0.16)").attr("stroke-width",d.hl?2:1);
+      .attr("stroke",d.hl?"rgba(216,6,33,0.45)":"rgba(255,255,255,0.18)").attr("stroke-width",d.hl?2:1);
     var sz=d.hl?13:10;
     g.append("rect").attr("x",x(d.v)-sz/2).attr("y",cy-sz/2).attr("width",sz).attr("height",sz).attr("fill",col);
     g.append("text").attr("x",-14).attr("y",cy).attr("text-anchor","end").attr("dominant-baseline","middle")
